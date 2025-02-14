@@ -1,0 +1,52 @@
+import { Link } from "react-router-dom";
+import "../Home.css";
+import Menu from "../components/menu";
+
+const Home = () => {
+    return (
+        <>
+        <Menu/>
+        <h1>Bienvenido</h1>
+        <div className="home-container">
+            
+            <div className="section">
+                <Link to="/alumnos">
+                    <div className="card">
+                        <img src="/alum.png" alt="Alumnos" />
+                        <div className="overlay">Alumnos</div>
+                    </div>
+                </Link>
+            </div>
+
+            <div className="section">
+                <Link to="/carreras">
+                    <div className="card">
+                        <img src="/car.jpg" alt="Carreras" />
+                        <div className="overlay">Carreras</div>
+                    </div>
+                </Link>
+            </div>
+
+            <div className="section">
+                <Link to="/grupos">
+                    <div className="card">
+                        <img src="/sal.jpeg" alt="Grupos" />
+                        <div className="overlay">Grupos</div>
+                    </div>
+                </Link>
+            </div>
+
+            <div className="section">
+                <Link to="/universidades">
+                    <div className="card">
+                        <img src="/uni.jpg" alt="Universidades" />
+                        <div className="overlay">Universidades</div>
+                    </div>
+                </Link>
+            </div>
+        </div>
+        </>
+    );
+};
+
+export default Home;
