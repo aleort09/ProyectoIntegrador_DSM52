@@ -8,8 +8,9 @@ const ChangePassword = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log("Correo:", correo, "Contraseña:", password); // Verifica que estos valores existan
         try {
-            const response = await axios.post("http://localhost:3000/api/usuarios/cambiar-contraseña", {
+            const response = await axios.post("http://localhost:3000/api/usuarios/cambiar_password", {
                 correo,
                 password
             });
@@ -19,6 +20,7 @@ const ChangePassword = () => {
             setMensaje("Hubo un error al cambiar tu contraseña.");
         }
     };
+    
 
     return (
         <div className="card p-4 shadow-lg">
