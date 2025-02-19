@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
+import '../style.css';
 
 const RegisterForm = () => {
     const [formData, setFormData] = useState({
@@ -32,37 +33,19 @@ const RegisterForm = () => {
                 alert("Error al registrar");
             });
     };
-    
+
 
     return (
-        <div>
-            <div className="card p-4 shadow-lg">
+        <div className="auth-container">
+            <div className="auth-box">
                 <h2 className="text-center">Registro</h2>
                 <form onSubmit={handleSubmit}>
-                    <div className="mb-3">
-                        <label className="form-label">Nombre</label>
-                        <input type="text" name="nombre" className="form-control" required onChange={handleChange} />
-                    </div>
-                    <div className="mb-3">
-                        <label className="form-label">Apellido</label>
-                        <input type="text" name="apellido" className="form-control" required onChange={handleChange} />
-                    </div>
-                    <div className="mb-3">
-                        <label className="form-label">Correo</label>
-                        <input type="email" name="correo" className="form-control" required onChange={handleChange} />
-                    </div>
-                    <div className="mb-3">
-                        <label className="form-label">Teléfono</label>
-                        <input type="text" name="telefono" className="form-control" onChange={handleChange} />
-                    </div>
-                    <div className="mb-3">
-                        <label className="form-label">Dirección</label>
-                        <input type="text" name="direccion" className="form-control" onChange={handleChange} />
-                    </div>
-                    <div className="mb-3">
-                        <label className="form-label">Contraseña</label>
-                        <input type="password" name="contraseña" className="form-control" required onChange={handleChange} />
-                    </div>
+                    <input type="text" placeholder="Nombre" name="nombre" className="form-control" required onChange={handleChange} />
+                    <input type="text" placeholder="Apellido" name="apellido" className="form-control" required onChange={handleChange} />
+                    <input type="email" placeholder="Correo" name="correo" className="form-control" required onChange={handleChange} />
+                    <input type="text" placeholder="Telefono" name="telefono" className="form-control" onChange={handleChange} />
+                    <input type="text" placeholder="Dirección" name="direccion" className="form-control" onChange={handleChange} />
+                    <input type="password" placeholder="Contraseña" name="contraseña" className="form-control" required onChange={handleChange} />
                     <button type="submit" className="btn btn-primary w-100">Registrarse</button>
                 </form>
                 <p>¿Ya tienes una cuenta? <Link to="/login">Inicia Sesión</Link></p>

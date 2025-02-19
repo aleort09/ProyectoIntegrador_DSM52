@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import '../style.css';
 
 const ChangePassword = () => {
     const [correo, setCorreo] = useState("");
@@ -94,44 +95,46 @@ const ChangePassword = () => {
     };
 
     return (
-        <div className="card p-4 shadow-lg">
-            <h2 className="text-center">Cambiar Contraseña</h2>
-            {mensaje && <div className={`alert ${mensaje.includes("éxito") ? "alert-success" : "alert-danger"}`}>{mensaje}</div>}
+        <div className="auth-container">
+            <div className="auth-box">
+                <h2 className="text-center">Cambiar Contraseña</h2>
+                {mensaje && <div className={`alert ${mensaje.includes("éxito") ? "alert-success" : "alert-danger"}`}>{mensaje}</div>}
 
-            {/* Formulario para validar el correo */}
-            {!correoValido && (
-                <form onSubmit={verificarCorreo}>
-                    <input 
-                        type="email" 
-                        placeholder="Correo" 
-                        value={correo} 
-                        onChange={(e) => setCorreo(e.target.value)} 
-                        required 
-                        className="form-control" 
-                        disabled={bloqueado} 
-                    />
-                    <button type="submit" className="btn btn-primary w-100 mt-2" disabled={bloqueado}>
-                        {bloqueado ? "Bloqueado" : "Validar Correo"}
-                    </button>
-                </form>
-            )}
+                {/* Formulario para validar el correo */}
+                {!correoValido && (
+                    <form onSubmit={verificarCorreo}>
+                        <input
+                            type="email"
+                            placeholder="Correo"
+                            value={correo}
+                            onChange={(e) => setCorreo(e.target.value)}
+                            required
+                            className="form-control"
+                            disabled={bloqueado}
+                        />
+                        <button type="submit" className="btn btn-primary w-100 mt-2" disabled={bloqueado}>
+                            {bloqueado ? "Bloqueado" : "Validar Correo"}
+                        </button>
+                    </form>
+                )}
 
-            {/* Si el correo es válido, aparece el formulario para cambiar la contraseña */}
-            {correoValido && (
-                <form onSubmit={handleSubmit} className="mt-3">
-                    <input 
-                        type="password" 
-                        placeholder="Nueva Contraseña" 
-                        value={password} 
-                        onChange={(e) => setPassword(e.target.value)} 
-                        required 
-                        className="form-control" 
-                    />
-                    <button type="submit" className="btn btn-primary w-100 mt-2">
-                        Cambiar Contraseña
-                    </button>
-                </form>
-            )}
+                {/* Si el correo es válido, aparece el formulario para cambiar la contraseña */}
+                {correoValido && (
+                    <form onSubmit={handleSubmit} className="mt-3">
+                        <input
+                            type="password"
+                            placeholder="Nueva Contraseña"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                            className="form-control"
+                        />
+                        <button type="submit" className="btn btn-primary w-100 mt-2">
+                            Cambiar Contraseña
+                        </button>
+                    </form>
+                )}
+            </div>
         </div>
     );
 };
