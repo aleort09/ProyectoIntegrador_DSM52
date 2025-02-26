@@ -1,15 +1,17 @@
 import { Link } from "react-router-dom";
+import './style.css';
 
 const Menu = () => {
     return (
         <nav className="navbar">
             <h2 className="logo">JAred</h2>
             <div className="enlaces">
-                <Link to="/">Inicio</Link>
-                <Link to="/alumnos">Alumnos</Link>
-                <Link to="/grupos">Grupos</Link>
-                <Link to="/carreras">Carreras</Link>
-                <Link to="/universidades">Universidades</Link>
+                <Link to="/dashboard">Inicio</Link>
+                <Link to="/usuarios">Usuarios</Link>
+                <Link to="/lecturas">Lecturas</Link>
+                <Link to="/productos">Productos</Link>
+                <Link to="/dispositivos">Dispositivos</Link>
+                <Link to="/eventos">Eventos</Link>
             </div>
         </nav>
     );

@@ -86,3 +86,50 @@ p{
 h2{
     font-family: Arial, Helvetica, sans-serif;
 }
+
+.logo {
+    margin-left: 5vh;
+}
+
+.enlaces {
+    margin-right: 5vh;
+}
+
+.navbar {
+    position: sticky;
+    top: 0;
+    width: auto;
+    background: #fff;
+    color: #000;
+    display: flex;
+    padding: 10px;
+    align-items: center;
+    z-index: 1000;
+    justify-content: space-between;
+    box-shadow: 1px 1px 20px #000;
+}
+
+.navbar a {
+    color: #000;
+    text-decoration: none;
+    font-weight: 900;
+    margin: 0 3vh;
+    font-size: 1.3rem;
+}
+
+.navbar a:hover {
+    color: #007bff;
+}
+
+@media (max-width: 1600px) {
+    .home-container{
+        flex-direction: column;
+    }
+    .navbar{
+        padding: 1px;
+    }
+    .navbar a{
+        font-weight: 100;
+        font-size: 1rem;
+    }
+}
