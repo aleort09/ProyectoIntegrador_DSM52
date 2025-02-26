@@ -24,3 +24,7 @@ git push origin AppsMoviles
 git add .
 git commit -m "Crud completo de bd del proyecto"
 git push origin AppsMoviles
+git add .
+gi commit -m "Importacion de archivo excel a la base de datos realizada"
+git commit -m "Importacion de archivo excel a la base de datos realizada"
+git push origin AppsMoviles

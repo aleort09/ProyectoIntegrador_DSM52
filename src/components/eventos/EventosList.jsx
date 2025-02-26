@@ -1,8 +1,22 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 
 const EventosList = ({ eventos, setEventos, onEventoDeleted }) => {
+    const [currentPage, setCurrentPage] = useState(1); // Estado para la página actual
+    const itemsPerPage = 10; // Número de eventos por página
+
+    // Calcular el índice de inicio y fin para los eventos de la página actual
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentEventos = eventos.slice(startIndex, endIndex); // Eventos de la página actual
+
+    // Función para cambiar de página
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+
+    // Función para eliminar un evento
     const handleDelete = (id) => {
         axios.delete(`http://localhost:3000/api/eventos/delete/${id}`)
             .then(() => {
@@ -26,7 +40,7 @@ const EventosList = ({ eventos, setEventos, onEventoDeleted }) => {
                     </tr>
                 </thead>
                 <tbody>
-                    {eventos.map(evento => (
+                    {currentEventos.map(evento => (
                         <tr key={evento.ID_Evento}>
                             <td>{evento.ID_Evento}</td>
                             <td>{evento.ID_Dispositivo}</td>
@@ -41,7 +55,49 @@ const EventosList = ({ eventos, setEventos, onEventoDeleted }) => {
                     ))}
                 </tbody>
             </table>
+
+            {/* Paginación */}
+            <div className="d-flex justify-content-center mt-4">
+                <nav>
+                    <ul className="pagination">
+                        {/* Botón "Anterior" */}
+                        <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+                            <button
+                                className="page-link"
+                                onClick={() => handlePageChange(currentPage - 1)}
+                                disabled={currentPage === 1}
+                            >
+                                Anterior
+                            </button>
+                        </li>
+
+                        {/* Números de página */}
+                        {Array.from({ length: Math.ceil(eventos.length / itemsPerPage) }, (_, i) => (
+                            <li key={i + 1} className={`page-item ${currentPage === i + 1 ? "active" : ""}`}>
+                                <button
+                                    className="page-link"
+                                    onClick={() => handlePageChange(i + 1)}
+                                >
+                                    {i + 1}
+                                </button>
+                            </li>
+                        ))}
+
+                        {/* Botón "Siguiente" */}
+                        <li className={`page-item ${currentPage === Math.ceil(eventos.length / itemsPerPage) ? "disabled" : ""}`}>
+                            <button
+                                className="page-link"
+                                onClick={() => handlePageChange(currentPage + 1)}
+                                disabled={currentPage === Math.ceil(eventos.length / itemsPerPage)}
+                            >
+                                Siguiente
+                            </button>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
         </div>
     );
 };
+
 export default EventosList;
