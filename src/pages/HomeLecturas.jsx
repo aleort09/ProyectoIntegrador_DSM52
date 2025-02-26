@@ -20,13 +20,15 @@ const HomeLecturas = () => {
             .catch(error => console.error(error));
     };
 
-    const handleAdded=()=>{
+    const handleAdded = () => {
         fetchLecturas();
-    }
-    const handleDeleted=()=>{
-        fetchLecturas();
-    }
+    };
 
+    const handleDeleted = () => {
+        fetchLecturas();
+    };
+
+    // 📌 Función para manejar la subida del archivo Excel
     const handleFileUpload = (event) => {
         const file = event.target.files[0];
         if (!file) return;
@@ -46,10 +48,18 @@ const HomeLecturas = () => {
             axios.post("http://localhost:3000/api/lecturas_sensores/importar", jsonData)
                 .then(response => {
                     alert(response.data.message);
-                    fetchLecturas(); // Refrescar la lista de usuarios
+                    fetchLecturas(); // Refrescar la lista de lecturas
                 })
                 .catch(error => console.error("Error al importar lecturas:", error));
         };
+    };
+
+    // 📌 Función para exportar datos a Excel
+    const exportToExcel = () => {
+        const worksheet = XLSX.utils.json_to_sheet(lecturas);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Lecturas");
+        XLSX.writeFile(workbook, "lecturas.xlsx");
     };
 
     return (
@@ -58,10 +68,12 @@ const HomeLecturas = () => {
             <div className="container">
                 <h1>Gestión de Lecturas</h1>
                 <input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
+                <button onClick={exportToExcel}>Exportar a Excel</button> {/* 📌 Botón de exportación */}
                 <LecturasCreate onLecturaAdded={handleAdded} />
-                <LecturasList lecturas={lecturas} setLecturas={setLecturas} onLecturaDeleted={handleDeleted}/>
+                <LecturasList lecturas={lecturas} setLecturas={setLecturas} onLecturaDeleted={handleDeleted} />
             </div>
         </>
     );
 };
+
 export default HomeLecturas;

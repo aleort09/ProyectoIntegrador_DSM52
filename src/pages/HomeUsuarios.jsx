@@ -20,12 +20,13 @@ const HomeUsuarios = () => {
             .catch(error => console.error(error));
     };
 
-    const handleAdded=()=>{
+    const handleAdded = () => {
         fetchUsuarios();
-    }
-    const handleDeleted=()=>{
+    };
+
+    const handleDeleted = () => {
         fetchUsuarios();
-    }
+    };
 
     // 📌 Función para manejar la subida del archivo Excel
     const handleFileUpload = (event) => {
@@ -53,12 +54,21 @@ const HomeUsuarios = () => {
         };
     };
 
+    // 📌 Función para exportar datos a Excel
+    const exportToExcel = () => {
+        const worksheet = XLSX.utils.json_to_sheet(usuarios);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Usuarios");
+        XLSX.writeFile(workbook, "usuarios.xlsx");
+    };
+
     return (
         <>
             <Menu />
             <div className="container">
                 <h1>Gestión de Usuarios</h1>
                 <input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
+                <button onClick={exportToExcel}>Exportar a Excel</button> {/* 📌 Botón de exportación */}
                 <UsuariosCreate onUsuarioAdded={handleAdded} />
                 <UsuariosList usuarios={usuarios} setUsuarios={setUsuarios} onUsuarioDeleted={handleDeleted} />
             </div>

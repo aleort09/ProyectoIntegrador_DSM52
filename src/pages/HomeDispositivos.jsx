@@ -20,13 +20,15 @@ const HomeDispositivos = () => {
             .catch(error => console.error(error));
     };
 
-    const handleAdded=()=>{
+    const handleAdded = () => {
         fetchDispositivos();
-    }
-    const handleDeleted=()=>{
-        fetchDispositivos();
-    }
+    };
 
+    const handleDeleted = () => {
+        fetchDispositivos();
+    };
+
+    // 📌 Función para manejar la subida del archivo Excel
     const handleFileUpload = (event) => {
         const file = event.target.files[0];
         if (!file) return;
@@ -46,10 +48,18 @@ const HomeDispositivos = () => {
             axios.post("http://localhost:3000/api/dispositivos/importar", jsonData)
                 .then(response => {
                     alert(response.data.message);
-                    fetchDispositivos(); // Refrescar la lista de usuarios
+                    fetchDispositivos(); // Refrescar la lista de dispositivos
                 })
                 .catch(error => console.error("Error al importar dispositivos:", error));
         };
+    };
+
+    // 📌 Función para exportar datos a Excel
+    const exportToExcel = () => {
+        const worksheet = XLSX.utils.json_to_sheet(dispositivos);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Dispositivos");
+        XLSX.writeFile(workbook, "dispositivos.xlsx");
     };
 
     return (
@@ -58,10 +68,12 @@ const HomeDispositivos = () => {
             <div className="container">
                 <h1>Gestión de Dispositivos</h1>
                 <input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
+                <button onClick={exportToExcel}>Exportar a Excel</button> {/* 📌 Botón de exportación */}
                 <DispositivosCreate onDispositivoAdded={handleAdded} />
-                <DispositivosList dispositivos={dispositivos} setDispositivos={setDispositivos} onDispositivoDeleted={handleDeleted}/>
+                <DispositivosList dispositivos={dispositivos} setDispositivos={setDispositivos} onDispositivoDeleted={handleDeleted} />
             </div>
         </>
     );
 };
+
 export default HomeDispositivos;

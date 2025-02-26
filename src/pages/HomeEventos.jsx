@@ -20,13 +20,15 @@ const HomeEventos = () => {
             .catch(error => console.error(error));
     };
 
-    const handleAdded=()=>{
+    const handleAdded = () => {
         fetchEventos();
-    }
-    const handleDeleted=()=>{
-        fetchEventos();
-    }
+    };
 
+    const handleDeleted = () => {
+        fetchEventos();
+    };
+
+    // 📌 Función para manejar la subida del archivo Excel
     const handleFileUpload = (event) => {
         const file = event.target.files[0];
         if (!file) return;
@@ -46,10 +48,18 @@ const HomeEventos = () => {
             axios.post("http://localhost:3000/api/eventos/importar", jsonData)
                 .then(response => {
                     alert(response.data.message);
-                    fetchEventos(); // Refrescar la lista de usuarios
+                    fetchEventos(); // Refrescar la lista de eventos
                 })
                 .catch(error => console.error("Error al importar eventos:", error));
         };
+    };
+
+    // 📌 Función para exportar datos a Excel
+    const exportToExcel = () => {
+        const worksheet = XLSX.utils.json_to_sheet(eventos);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Eventos");
+        XLSX.writeFile(workbook, "eventos.xlsx");
     };
 
     return (
@@ -58,10 +68,12 @@ const HomeEventos = () => {
             <div className="container">
                 <h1>Gestión de Eventos</h1>
                 <input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
+                <button onClick={exportToExcel}>Exportar a Excel</button> {/* 📌 Botón de exportación */}
                 <EventosCreate onEventoAdded={handleAdded} />
-                <EventosList eventos={eventos} setEventos={setEventos} onEventoDeleted={handleDeleted}/>
+                <EventosList eventos={eventos} setEventos={setEventos} onEventoDeleted={handleDeleted} />
             </div>
         </>
     );
 };
+
 export default HomeEventos;

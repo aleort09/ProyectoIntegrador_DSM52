@@ -4,7 +4,9 @@ import './style.css';
 const Menu = () => {
     return (
         <nav className="navbar">
-            <h2 className="logo">JAred</h2>
+            <h2 className="logo">
+                <img src="/logo.png" className="image"></img>
+            </h2>
             <div className="enlaces">
                 <Link to="/dashboard">Inicio</Link>
                 <Link to="/usuarios">Usuarios</Link>
