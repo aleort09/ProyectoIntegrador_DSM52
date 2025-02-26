@@ -21,3 +21,6 @@ git push origin AppsMoviles
 git add .
 git commit -m "Login implementado con roles y estilos"
 git push origin AppsMoviles
+git add .
+git commit -m "Crud completo de bd del proyecto"
+git push origin AppsMoviles

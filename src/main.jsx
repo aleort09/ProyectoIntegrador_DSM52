@@ -3,9 +3,6 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
-import LoginForm from "./components/login/LoginForm";
-import RegisterForm from "./components/login/RegisterForm";
-import ChangePassword from "./components/login/ChangePassword";
 import HomeDispositivos from "./pages/HomeDispositivos";
 import HomeEventos from "./pages/HomeEventos";
 import HomeLecturas from "./pages/HomeLecturas";
@@ -16,6 +13,9 @@ import EventosEdit from "./components/eventos/EventosEdit";
 import LecturasEdit from "./components/lecturas/LecturasEdit";
 import ProductosEdit from "./components/productos/ProductosEdit";
 import UsuariosEdit from "./components/usuarios/UsuariosEdit";
+import LoginForm from "./components/login/LoginForm";
+import RegisterForm from "./components/login/RegisterForm";
+import ChangePassword from "./components/login/ChangePassword";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <>
