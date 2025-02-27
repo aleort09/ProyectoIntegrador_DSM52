@@ -96,15 +96,16 @@ h2{
 }
 
 .navbar {
-    position: sticky;
+    position: fixed; /* Cambia sticky por fixed */
     top: 0;
-    width: auto;
+    left: 0;
+    width: 100%; /* Asegura que ocupe todo el ancho */
     background: #fff;
     color: #000;
     display: flex;
     padding: 10px;
     align-items: center;
-    z-index: 1000;
+    z-index: 1000; /* Asegura que esté por encima de otros elementos */
     justify-content: space-between;
     box-shadow: 1px 1px 20px #000;
 }

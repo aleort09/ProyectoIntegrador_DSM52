@@ -4,8 +4,7 @@ import Menu from "../components/Menu";
 const Dashboard = () => {
     return (
         <>
-            <Menu />
-            <div className="container text-center mt-4">
+            <div className="container text-center mt-5">
                 <h1 className="mb-4">Bienvenido</h1>
                 <div className="row">
                     <div className="col-md-3 mb-4">
