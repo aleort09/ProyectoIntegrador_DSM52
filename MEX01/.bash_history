@@ -31,3 +31,6 @@ git push origin AppsMoviles
 git add .
 git commit -m "Paginado agregado"
 git push origin AppsMoviles
+git add .
+git commit -m "Export agregado"
+git push origin AppsMoviles

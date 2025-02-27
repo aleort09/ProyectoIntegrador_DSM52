@@ -9,13 +9,16 @@ import Menu from "../components/Menu";
 const HomeLecturas = () => {
     const navigate = useNavigate();
     const [lecturas, setLecturas] = useState([]);
+    const [filters, setFilters] = useState({
+        tipo_sensor: ""
+    });
 
     useEffect(() => {
         fetchLecturas();
-    }, []);
+    }, [filters]); // 🔄 Se ejecuta cada vez que cambian los filtros
 
     const fetchLecturas = () => {
-        axios.get("http://localhost:3000/api/lecturas_sensores")
+        axios.get("http://localhost:3000/api/lecturas_sensores", { params: filters })
             .then(response => setLecturas(response.data))
             .catch(error => console.error(error));
     };
@@ -28,7 +31,6 @@ const HomeLecturas = () => {
         fetchLecturas();
     };
 
-    // 📌 Función para manejar la subida del archivo Excel
     const handleFileUpload = (event) => {
         const file = event.target.files[0];
         if (!file) return;
@@ -44,17 +46,15 @@ const HomeLecturas = () => {
 
             console.log("Datos del Excel:", jsonData);
 
-            // Enviar los datos al backend
             axios.post("http://localhost:3000/api/lecturas_sensores/importar", jsonData)
                 .then(response => {
                     alert(response.data.message);
-                    fetchLecturas(); // Refrescar la lista de lecturas
+                    fetchLecturas();
                 })
                 .catch(error => console.error("Error al importar lecturas:", error));
         };
     };
 
-    // 📌 Función para exportar datos a Excel
     const exportToExcel = () => {
         const worksheet = XLSX.utils.json_to_sheet(lecturas);
         const workbook = XLSX.utils.book_new();
@@ -62,15 +62,67 @@ const HomeLecturas = () => {
         XLSX.writeFile(workbook, "lecturas.xlsx");
     };
 
+    const handleFilterChange = (e) => {
+        const { name, value } = e.target;
+        setFilters(prevFilters => ({
+            ...prevFilters,
+            [name]: value
+        }));
+    };
+
     return (
         <>
             <Menu />
-            <div className="container">
-                <h1>Gestión de Lecturas</h1>
-                <input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
-                <button onClick={exportToExcel}>Exportar a Excel</button> {/* 📌 Botón de exportación */}
-                <LecturasCreate onLecturaAdded={handleAdded} />
-                <LecturasList lecturas={lecturas} setLecturas={setLecturas} onLecturaDeleted={handleDeleted} />
+            <div className="container mt-4">
+                <h1 className="text-center mb-4">Gestión de Lecturas</h1>
+                <div className="mb-4">
+                    <LecturasCreate onLecturaAdded={handleAdded} />
+                </div>
+                <div className="mb-3">
+                    <input
+                        type="file"
+                        accept=".xlsx, .xls"
+                        onChange={handleFileUpload}
+                        className="form-control mb-2"
+                    />
+                    <button
+                        onClick={exportToExcel}
+                        className="btn btn-success w-100 mb-3"
+                    >
+                        Exportar a Excel
+                    </button>
+                </div>
+                <div className="row mb-4">
+                    <div className="col-md-6 mb-3">
+                        <label className="form-label">Filtrar por Tipo de Sensor</label>
+                        <select
+                            name="tipo_sensor"
+                            value={filters.tipo_sensor}
+                            onChange={handleFilterChange}
+                            className="form-select"
+                        >
+                            <option value="">Todos</option>
+                            <option value="Temperatura">Temperatura</option>
+                            <option value="Proximidad">Proximidad</option>
+                            <option value="Peso">Peso</option>
+                        </select>
+                    </div>
+                </div>
+                <div className="card">
+                    <div className="card-body">
+                        {lecturas.length === 0 ? (
+                            <div className="alert alert-warning text-center">
+                                No hay datos que coincidan con la búsqueda.
+                            </div>
+                        ) : (
+                            <LecturasList
+                            lecturas={lecturas}
+                            setLecturas={setLecturas}
+                            onLecturaDeleted={handleDeleted}
+                            />
+                        )}
+                    </div>
+                </div>
             </div>
         </>
     );
