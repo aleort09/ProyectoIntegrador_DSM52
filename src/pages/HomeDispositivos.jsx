@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import * as XLSX from "xlsx";
 import Menu from "../components/Menu";
+import DispositivosChart from "../components/charts/DispositivosChart";
 
 const HomeDispositivos = () => {
     const navigate = useNavigate();
@@ -138,6 +139,7 @@ const HomeDispositivos = () => {
                         )}
                     </div>
                 </div>
+                {dispositivos.length > 0 && <DispositivosChart dispositivos={dispositivos} />}
             </div>
         </>
     );

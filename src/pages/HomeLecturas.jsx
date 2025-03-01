@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import * as XLSX from "xlsx";
 import Menu from "../components/Menu";
+import LecturasChart from "../components/charts/LecturasChart";
 
 const HomeLecturas = () => {
     const navigate = useNavigate();
@@ -108,7 +109,7 @@ const HomeLecturas = () => {
                         </select>
                     </div>
                 </div>
-                <div className="card">
+                <div>
                     <div className="card-body">
                         {lecturas.length === 0 ? (
                             <div className="alert alert-warning text-center">
@@ -121,6 +122,11 @@ const HomeLecturas = () => {
                             onLecturaDeleted={handleDeleted}
                             />
                         )}
+                    </div>
+                </div>
+                <div>
+                    <div className="card-body">
+                        <LecturasChart lecturas={lecturas} />
                     </div>
                 </div>
             </div>
