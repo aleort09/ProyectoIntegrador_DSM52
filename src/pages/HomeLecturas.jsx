@@ -74,8 +74,10 @@ const HomeLecturas = () => {
     return (
         <>
             <Menu />
-            <div className="container mt-4">
-                <h1 className="text-center mb-4">Gestión de Lecturas</h1>
+            <div
+            className="p-4"
+            style={{ marginLeft: "250px" }}
+            >
                 <div className="mb-4">
                     <LecturasCreate onLecturaAdded={handleAdded} />
                 </div>

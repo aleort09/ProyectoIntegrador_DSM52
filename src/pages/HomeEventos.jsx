@@ -74,8 +74,10 @@ const HomeEventos = () => {
     return (
         <>
             <Menu />
-            <div className="container mt-4">
-                <h1 className="text-center mb-4">Gestión de Eventos</h1>
+            <div
+            className="p-4"
+            style={{ marginLeft: "250px" }}
+            >
                 <div className="mb-4">
                     <EventosCreate onEventoAdded={handleAdded} />
                 </div>
@@ -115,7 +117,7 @@ const HomeEventos = () => {
                         />
                     </div>
                 </div>
-                <div className="card">
+                <div>
                     <div className="card-body">
                         {eventos.length === 0 ? (
                             <div className="alert alert-warning text-center">

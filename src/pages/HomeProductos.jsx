@@ -75,8 +75,10 @@ const HomeProductos = () => {
     return (
         <>
             <Menu />
-            <div className="container mt-4">
-                <h1 className="text-center mb-4">Gestión de Paquetes</h1>
+            <div
+            className="p-4"
+            style={{ marginLeft: "250px" }}
+            >
                 <div className="mb-4">
                     <ProductosCreate onProductoAdded={handleAdded} />
                 </div>
@@ -136,7 +138,7 @@ const HomeProductos = () => {
                         />
                     </div>
                 </div>
-                <div className="card">
+                <div>
                     <div className="card-body">
                         {productos.length === 0 ? (
                             <div className="alert alert-warning text-center">

@@ -42,7 +42,7 @@ const HomeDispositivos = () => {
         reader.onload = (e) => {
             const data = e.target.result;
             const workbook = XLSX.read(data, { type: "binary" });
-            const sheetName = workbook.SheetNames[0]; 
+            const sheetName = workbook.SheetNames[0];
             const sheet = workbook.Sheets[sheetName];
             const jsonData = XLSX.utils.sheet_to_json(sheet);
 
@@ -75,8 +75,10 @@ const HomeDispositivos = () => {
     return (
         <>
             <Menu />
-            <div className="container mt-4">
-                <h1 className="text-center mb-4">Gestión de Dispositivos</h1>
+            <div
+                className="p-4"
+                style={{ marginLeft: "250px" }}
+            >
                 <div className="mb-4">
                     <DispositivosCreate onDispositivoAdded={handleAdded} />
                 </div>
@@ -124,9 +126,9 @@ const HomeDispositivos = () => {
                         </select>
                     </div>
                 </div>
-                <div className="card">
+                <div>
                     <div className="card-body">
-                    {dispositivos.length === 0 ? (
+                        {dispositivos.length === 0 ? (
                             <div className="alert alert-warning text-center">
                                 No hay dispositivos que coincidan con la búsqueda.
                             </div>

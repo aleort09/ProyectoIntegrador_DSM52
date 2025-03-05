@@ -38,7 +38,7 @@ const HomeUsuarios = () => {
         reader.onload = (e) => {
             const data = e.target.result;
             const workbook = XLSX.read(data, { type: "binary" });
-            const sheetName = workbook.SheetNames[0]; 
+            const sheetName = workbook.SheetNames[0];
             const sheet = workbook.Sheets[sheetName];
             const jsonData = XLSX.utils.sheet_to_json(sheet);
 
@@ -69,10 +69,12 @@ const HomeUsuarios = () => {
     };
 
     return (
-        <>
+        <div>
             <Menu />
-            <div className="container mt-4">
-                <h1 className="text-center mb-4">Gestión de Usuarios</h1>
+            <div
+                className="p-4"
+                style={{ marginLeft: "250px" }}
+            >
                 <div className="mb-4">
                     <UsuariosCreate onUsuarioAdded={handleAdded} />
                 </div>
@@ -112,23 +114,25 @@ const HomeUsuarios = () => {
                         />
                     </div>
                 </div>
-                <div className="card">
+                <div>
                     <div className="card-body">
                         {usuarios.length === 0 ? (
                             <div className="alert alert-warning text-center">
                                 No hay datos que coincidan con la búsqueda.
                             </div>
                         ) : (
-                            <UsuariosList
-                            usuarios={usuarios}
-                            setUsuarios={setUsuarios}
-                            onUsuarioDeleted={handleDeleted}
-                        />
+                            <div style={{ overflowX: "auto" }}> {/* Overflow para la tabla */}
+                                <UsuariosList
+                                    usuarios={usuarios}
+                                    setUsuarios={setUsuarios}
+                                    onUsuarioDeleted={handleDeleted}
+                                />
+                            </div>
                         )}
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     );
 };
 

@@ -41,3 +41,6 @@ git add
 git add .
 git commit -m "css en menu"
 git push origin AppsMoviles
+git add .
+git commit -m "Graficas agregadas"
+git push origin AppsMoviles

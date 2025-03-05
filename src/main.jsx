@@ -16,6 +16,7 @@ import UsuariosEdit from "./components/usuarios/UsuariosEdit";
 import LoginForm from "./components/login/LoginForm";
 import RegisterForm from "./components/login/RegisterForm";
 import ChangePassword from "./components/login/ChangePassword";
+import Perfil from "./pages/Perfil";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <>
@@ -31,6 +32,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/" element={<Home />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/login" element={<LoginForm />} />
+        <Route path="/perfil" element={<Perfil/>}/>
         <Route path="/registrar" element={<RegisterForm />} />
         <Route path="/recuperar" element={<ChangePassword />} />
         <Route path="/dispositivos" element={<HomeDispositivos />} />
