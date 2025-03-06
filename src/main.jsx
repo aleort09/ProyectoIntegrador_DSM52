@@ -17,6 +17,8 @@ import LoginForm from "./components/login/LoginForm";
 import RegisterForm from "./components/login/RegisterForm";
 import ChangePassword from "./components/login/ChangePassword";
 import Perfil from "./pages/Perfil";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Informacion from "./components/Informacion";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <>
@@ -29,22 +31,27 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     ></script>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/login" element={<LoginForm />} />
-        <Route path="/perfil" element={<Perfil/>}/>
         <Route path="/registrar" element={<RegisterForm />} />
         <Route path="/recuperar" element={<ChangePassword />} />
-        <Route path="/dispositivos" element={<HomeDispositivos />} />
-        <Route path="/dispositivos/edit/:id" element={<DispositivosEdit />} />
-        <Route path="/eventos" element={<HomeEventos />} />
-        <Route path="/eventos/edit/:id" element={<EventosEdit />} />
-        <Route path="/lecturas" element={<HomeLecturas />} />
-        <Route path="/lecturas/edit/:id" element={<LecturasEdit />} />
-        <Route path="/productos" element={<HomeProductos />} />
-        <Route path="/productos/edit/:id" element={<ProductosEdit />} />
-        <Route path="/usuarios" element={<HomeUsuarios />} />
-        <Route path="/usuarios/edit/:id" element={<UsuariosEdit />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/informacion" element={<Informacion/>}/>
+        </Route>
+        <Route element={<ProtectedRoute role="Administrador" />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dispositivos" element={<HomeDispositivos />} />
+          <Route path="/dispositivos/edit/:id" element={<DispositivosEdit />} />
+          <Route path="/eventos" element={<HomeEventos />} />
+          <Route path="/eventos/edit/:id" element={<EventosEdit />} />
+          <Route path="/lecturas" element={<HomeLecturas />} />
+          <Route path="/lecturas/edit/:id" element={<LecturasEdit />} />
+          <Route path="/productos" element={<HomeProductos />} />
+          <Route path="/productos/edit/:id" element={<ProductosEdit />} />
+          <Route path="/usuarios" element={<HomeUsuarios />} />
+          <Route path="/usuarios/edit/:id" element={<UsuariosEdit />} />
+          <Route path="/perfil" element={<Perfil />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   </>

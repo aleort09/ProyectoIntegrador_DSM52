@@ -44,3 +44,6 @@ git push origin AppsMoviles
 git add .
 git commit -m "Graficas agregadas"
 git push origin AppsMoviles
+git add .
+git commit -m "Estilos mejorados"
+git push origin AppsMoviles

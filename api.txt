@@ -1,0 +1,723 @@
+const express = require('express');
+const router = express.Router();
+const connection = require('./db');
+const multer = require('multer');
+const XLSX = require('xlsx');
+
+// Configuración de Multer (para recibir archivos)
+const upload = multer({ dest: 'uploads/' });
+
+const failedAttempts = {}; // Almacena intentos fallidos y bloqueo por usuario
+
+// Función para verificar si el correo existe
+router.get('/usuarios/existe/:correo', (req, res) => {
+  const correo = req.params.correo;
+
+  if (failedAttempts[correo] && failedAttempts[correo].locked) {
+    const tiempoRestante = Math.ceil((failedAttempts[correo].unlockTime - Date.now()) / 60000);
+    return res.json({ status: "blocked", message: `Cuenta bloqueada. Intenta en ${tiempoRestante} minutos.` });
+  }
+
+  connection.query(
+    'SELECT COUNT(*) AS existe FROM usuarios WHERE Correo = ?',
+    [correo],
+    (err, results) => {
+      if (err) {
+        console.error('Error al verificar usuario:', err);
+        res.status(500).json({ status: "error", message: 'Error en el servidor' });
+        return;
+      }
+
+      const existe = results[0].existe > 0;
+      if (existe) {
+        delete failedAttempts[correo]; // Resetear intentos si el usuario existe
+        res.json({ status: "success", message: "Usuario encontrado." });
+      } else {
+        if (!failedAttempts[correo]) {
+          failedAttempts[correo] = { count: 1, locked: false, unlockTime: null };
+        } else {
+          failedAttempts[correo].count += 1;
+        }
+
+        if (failedAttempts[correo].count >= 3) {
+          failedAttempts[correo].locked = true;
+          failedAttempts[correo].unlockTime = Date.now() + 5 * 60 * 1000; // Bloqueo por 5 minutos
+          return res.json({ status: "blocked", message: "Cuenta bloqueada por demasiados intentos fallidos." });
+        }
+
+        res.json({ status: "not_found", message: "Correo no válido.", intentos: failedAttempts[correo].count });
+      }
+    }
+  );
+});
+
+
+// Obtener información de un usuario por ID
+router.get('/usuarios/:userId', (req, res) => {
+  const { userId } = req.params;
+
+  connection.query(
+    'SELECT * FROM usuarios WHERE ID_Usuario = ?',
+    [userId],
+    (err, results) => {
+      if (err) {
+        console.error('Error al verificar usuario:', err);
+        res.status(500).json({ error: 'Error en el servidor' });
+        return;
+      }
+
+      if (results.length > 0) {
+        res.json(results[0]);
+      } else {
+        res.status(404).json({ error: 'Usuario no encontrado' });
+      }
+    }
+  );
+});
+
+// Registro de usuarios
+router.post('/usuarios/registro', (req, res) => {
+  const { nombre, apellido, correo, telefono, direccion, contraseña, rol } = req.body;
+
+  const sql =
+    'INSERT INTO usuarios (Nombre, Apellido, Correo, Telefono, Direccion, Contraseña, Rol) VALUES (?, ?, ?, ?, ?, AES_ENCRYPT(?, "llave_secreta"), ?)';
+  connection.query(
+    sql,
+    [nombre, apellido, correo, telefono, direccion, contraseña, rol || 'Cliente'],
+    (err, results) => {
+      if (err) {
+        console.error('Error al registrar usuario:', err);
+        res.status(500).json({ error: 'Error en el servidor' });
+        return;
+      }
+      res.status(201).json({
+        message: 'Usuario registrado exitosamente',
+        userId: results.insertId
+      });
+    }
+  );
+});
+
+// Cambio de contraseña con verificación de intentos fallidos
+router.post('/usuarios/cambiar_password', (req, res) => {
+  const { correo, password } = req.body;
+
+  if (!correo || !password) {
+    return res.status(400).json({ error: "Correo y contraseña son obligatorios" });
+  }
+
+  // Revisar si el usuario está bloqueado
+  if (failedAttempts[correo] && failedAttempts[correo].locked) {
+    const tiempoRestante = Math.ceil((failedAttempts[correo].unlockTime - Date.now()) / 60000);
+    return res.status(403).json({ error: `Demasiados intentos fallidos. Intenta nuevamente en ${tiempoRestante} minutos.` });
+  }
+
+  const sql = 'UPDATE usuarios SET Contraseña = AES_ENCRYPT(?, "llave_secreta") WHERE Correo = ?';
+
+  connection.query(sql, [password, correo], (err, results) => {
+    if (err) {
+      console.error("Error al actualizar contraseña:", err);
+      return res.status(500).json({ error: "Error en el servidor" });
+    }
+
+    if (results.affectedRows === 0) {
+      return res.status(404).json({ error: "Correo no encontrado" });
+    }
+
+    // Restablecer intentos fallidos al cambiar la contraseña con éxito
+    delete failedAttempts[correo];
+
+    res.json({ message: "Contraseña actualizada correctamente" });
+  });
+});
+
+// Login con verificación de intentos fallidos
+router.post('/usuarios/login', (req, res) => {
+  const { correo, contraseña } = req.body;
+
+  if (failedAttempts[correo] && failedAttempts[correo].locked) {
+    const tiempoRestante = Math.ceil((failedAttempts[correo].unlockTime - Date.now()) / 60000);
+    return res.status(403).json({ error: `Demasiados intentos fallidos. Intenta nuevamente en ${tiempoRestante} minutos.` });
+  }
+
+  const sql =
+    'SELECT ID_Usuario, Nombre, Apellido, Correo, Rol FROM usuarios WHERE Correo = ? AND AES_DECRYPT(Contraseña, "llave_secreta") = ?';
+
+  connection.query(sql, [correo, contraseña], (err, results) => {
+    if (err) {
+      console.error('Error al hacer login:', err);
+      res.status(500).json({ error: 'Error en el servidor' });
+      return;
+    }
+
+    if (results.length === 0) {
+      if (!failedAttempts[correo]) {
+        failedAttempts[correo] = { count: 1, locked: false, unlockTime: null };
+      } else {
+        failedAttempts[correo].count += 1;
+      }
+
+      if (failedAttempts[correo].count >= 3) {
+        failedAttempts[correo].locked = true;
+        failedAttempts[correo].unlockTime = Date.now() + 15 * 60 * 1000;
+      }
+
+      res.status(401).json({ error: 'Credenciales incorrectas', intentos: failedAttempts[correo]?.count || 0, bloqueado: failedAttempts[correo]?.locked || false });
+      return;
+    }
+
+    // Restablecer intentos fallidos si el login es exitoso
+    delete failedAttempts[correo];
+
+    res.json({
+      message: 'Login exitoso',
+      userId: results[0].ID_Usuario,
+      rol: results[0].Rol  // ✅ Enviar el rol del usuario
+    });
+  });
+});
+
+// ---------------- Usuarios ----------------
+router.get('/usuarios', (req, res) => {
+  const { nombre, apellido } = req.query;
+  let sql = 'SELECT * FROM usuarios';
+  const filters = [];
+
+  if (nombre) {
+    filters.push(`Nombre LIKE '%${nombre}%'`);
+  }
+  if (apellido) {
+    filters.push(`Apellido LIKE '%${apellido}%'`);
+  }
+
+  if (filters.length > 0) {
+    sql += ' WHERE ' + filters.join(' AND ');
+  }
+
+  connection.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error al obtener registros:', err);
+      res.status(500).json({ error: 'Error al obtener registros' });
+      return;
+    }
+    res.json(results);
+  });
+});
+
+router.get('/usuarios/:id', (req, res) => {
+  const id = req.params.id;
+  connection.query('SELECT * FROM usuarios WHERE ID_Usuario = ?', id, (err, results) => {
+    if (err) {
+      console.error('Error al obtener el registro:', err);
+      res.status(500).json({ error: 'Error al obtener el registro' });
+      return;
+    }
+    if (results.length === 0) {
+      res.status(404).json({ error: 'Registro no encontrado' });
+      return;
+    }
+    res.json(results[0]);
+  });
+});
+
+router.post('/usuarios/create', (req, res) => {
+  const nuevoRegistro = req.body;
+  connection.query('INSERT INTO usuarios SET ?', nuevoRegistro, (err, results) => {
+    if (err) {
+      console.error('Error al crear un nuevo registro:', err);
+      res.status(500).json({ error: 'Error al crear un nuevo registro' });
+      return;
+    }
+    res.status(201).json({ message: 'Registro creado exitosamente' });
+  });
+});
+
+router.put('/usuarios/edit/:id', (req, res) => {
+  const id = req.params.id;
+  const datosActualizados = req.body;
+  connection.query('UPDATE usuarios SET ? WHERE ID_Usuario = ?', [datosActualizados, id], (err, results) => {
+    if (err) {
+      console.error('Error al actualizar el registro:', err);
+      res.status(500).json({ error: 'Error al actualizar el registro' });
+      return;
+    }
+    res.json({ message: 'Registro actualizado exitosamente' });
+  });
+});
+
+router.delete('/usuarios/delete/:id', (req, res) => {
+  const id = req.params.id;
+  connection.query('DELETE FROM usuarios WHERE ID_Usuario = ?', id, (err, results) => {
+    if (err) {
+      console.error('Error al eliminar el registro:', err);
+      res.status(500).json({ error: 'Error al eliminar el registro' });
+      return;
+    }
+    res.json({ message: 'Registro eliminado exitosamente' });
+  });
+});
+
+// ---------------- Dispositivos ----------------
+router.get('/dispositivos', (req, res) => {
+  const { tipo, estado } = req.query;
+  let sql = 'SELECT * FROM dispositivos';
+  const filters = [];
+
+  if (tipo) {
+      filters.push(`Tipo = '${tipo}'`);
+  }
+  if (estado) {
+      filters.push(`Estado = '${estado}'`);
+  }
+
+  if (filters.length > 0) {
+      sql += ' WHERE ' + filters.join(' AND ');
+  }
+
+  connection.query(sql, (err, results) => {
+      if (err) {
+          console.error('Error al obtener registros:', err);
+          res.status(500).json({ error: 'Error al obtener registros' });
+          return;
+      }
+      res.json(results);
+  });
+});
+
+router.get('/dispositivos/:id', (req, res) => {
+  const id = req.params.id;
+  connection.query('SELECT * FROM dispositivos WHERE ID_Dispositivo = ?', id, (err, results) => {
+    if (err) {
+      console.error('Error al obtener el registro:', err);
+      res.status(500).json({ error: 'Error al obtener el registro' });
+      return;
+    }
+    if (results.length === 0) {
+      res.status(404).json({ error: 'Registro no encontrado' });
+      return;
+    }
+    res.json(results[0]);
+  });
+});
+
+router.post('/dispositivos/create', (req, res) => {
+  const nuevoRegistro = req.body;
+  connection.query('INSERT INTO dispositivos SET ?', nuevoRegistro, (err, results) => {
+    if (err) {
+      console.error('Error al crear un nuevo registro:', err);
+      res.status(500).json({ error: 'Error al crear un nuevo registro' });
+      return;
+    }
+    res.status(201).json({ message: 'Registro creado exitosamente' });
+  });
+});
+
+router.put('/dispositivos/edit/:id', (req, res) => {
+  const id = req.params.id;
+  const datosActualizados = req.body;
+  connection.query('UPDATE dispositivos SET ? WHERE ID_Dispositivo = ?', [datosActualizados, id], (err, results) => {
+    if (err) {
+      console.error('Error al actualizar el registro:', err);
+      res.status(500).json({ error: 'Error al actualizar el registro' });
+      return;
+    }
+    res.json({ message: 'Registro actualizado exitosamente' });
+  });
+});
+
+router.delete('/dispositivos/delete/:id', (req, res) => {
+  const id = req.params.id;
+  connection.query('DELETE FROM dispositivos WHERE ID_Dispositivo = ?', id, (err, results) => {
+    if (err) {
+      console.error('Error al eliminar el registro:', err);
+      res.status(500).json({ error: 'Error al eliminar el registro' });
+      return;
+    }
+    res.json({ message: 'Registro eliminado exitosamente' });
+  });
+});
+
+// ---------------- Paquetes ----------------
+router.get('/paquetes', (req, res) => {
+  const { estado, peso, destino } = req.query;
+  let sql = 'SELECT * FROM paquetes';
+  const filters = [];
+
+  if (estado) {
+      filters.push(`Estado = '${estado}'`);
+  }
+  if (peso) {
+      const [min, max] = peso.split('-');
+      if (max) {
+          filters.push(`Peso BETWEEN ${min} AND ${max}`);
+      } else {
+          filters.push(`Peso >= ${min}`);
+      }
+  }
+  if (destino) {
+      filters.push(`Destino LIKE '%${destino}%'`);
+  }
+
+  if (filters.length > 0) {
+      sql += ' WHERE ' + filters.join(' AND ');
+  }
+
+  connection.query(sql, (err, results) => {
+      if (err) {
+          console.error('Error al obtener registros:', err);
+          res.status(500).json({ error: 'Error al obtener registros' });
+          return;
+      }
+      res.json(results);
+  });
+});
+
+router.get('/paquetes/:id', (req, res) => {
+  const id = req.params.id;
+  connection.query('SELECT * FROM paquetes WHERE ID_Paquete = ?', id, (err, results) => {
+    if (err) {
+      console.error('Error al obtener el registro:', err);
+      res.status(500).json({ error: 'Error al obtener el registro' });
+      return;
+    }
+    if (results.length === 0) {
+      res.status(404).json({ error: 'Registro no encontrado' });
+      return;
+    }
+    res.json(results[0]);
+  });
+});
+
+router.post('/paquetes/create', (req, res) => {
+  const nuevoRegistro = req.body;
+  connection.query('INSERT INTO paquetes SET ?', nuevoRegistro, (err, results) => {
+    if (err) {
+      console.error('Error al crear un nuevo registro:', err);
+      res.status(500).json({ error: 'Error al crear un nuevo registro' });
+      return;
+    }
+    res.status(201).json({ message: 'Registro creado exitosamente' });
+  });
+});
+
+router.put('/paquetes/edit/:id', (req, res) => {
+  const id = req.params.id;
+  const datosActualizados = req.body;
+  connection.query('UPDATE paquetes SET ? WHERE ID_Paquete = ?', [datosActualizados, id], (err, results) => {
+    if (err) {
+      console.error('Error al actualizar el registro:', err);
+      res.status(500).json({ error: 'Error al actualizar el registro' });
+      return;
+    }
+    res.json({ message: 'Registro actualizado exitosamente' });
+  });
+});
+
+router.delete('/paquetes/delete/:id', (req, res) => {
+  const id = req.params.id;
+  connection.query('DELETE FROM paquetes WHERE ID_Paquete = ?', id, (err, results) => {
+    if (err) {
+      console.error('Error al eliminar el registro:', err);
+      res.status(500).json({ error: 'Error al eliminar el registro' });
+      return;
+    }
+    res.json({ message: 'Registro eliminado exitosamente' });
+  });
+});
+
+// ---------------- Lecturas de Sensores ----------------
+router.get('/lecturas_sensores', (req, res) => {
+  const {tipo_sensor} = req.query;
+  let sql = 'SELECT * FROM lecturas_sensores';
+  const filters = [];
+
+  if (tipo_sensor) {
+      filters.push(`Tipo_Sensor = '${tipo_sensor}'`);
+  }
+
+  if (filters.length > 0) {
+      sql += ' WHERE ' + filters.join(' AND ');
+  }
+
+  connection.query(sql, (err, results) => {
+      if (err) {
+          console.error('Error al obtener registros:', err);
+          res.status(500).json({ error: 'Error al obtener registros' });
+          return;
+      }
+      res.json(results);
+  });
+});
+
+router.get('/lecturas_sensores/:id', (req, res) => {
+  const id = req.params.id;
+  connection.query('SELECT * FROM lecturas_sensores WHERE ID_Lectura = ?', id, (err, results) => {
+    if (err) {
+      console.error('Error al obtener el registro:', err);
+      res.status(500).json({ error: 'Error al obtener el registro' });
+      return;
+    }
+    if (results.length === 0) {
+      res.status(404).json({ error: 'Registro no encontrado' });
+      return;
+    }
+    res.json(results[0]);
+  });
+});
+
+router.post('/lecturas_sensores/create', (req, res) => {
+  const nuevoRegistro = req.body;
+  connection.query('INSERT INTO lecturas_sensores SET ?', nuevoRegistro, (err, results) => {
+    if (err) {
+      console.error('Error al crear un nuevo registro:', err);
+      res.status(500).json({ error: 'Error al crear un nuevo registro' });
+      return;
+    }
+    res.status(201).json({ message: 'Registro creado exitosamente' });
+  });
+});
+
+router.put('/lecturas_sensores/edit/:id', (req, res) => {
+  const id = req.params.id;
+  const datosActualizados = req.body;
+  connection.query('UPDATE lecturas_sensores SET ? WHERE ID_Lectura = ?', [datosActualizados, id], (err, results) => {
+    if (err) {
+      console.error('Error al actualizar el registro:', err);
+      res.status(500).json({ error: 'Error al actualizar el registro' });
+      return;
+    }
+    res.json({ message: 'Registro actualizado exitosamente' });
+  });
+});
+
+router.delete('/lecturas_sensores/delete/:id', (req, res) => {
+  const id = req.params.id;
+  connection.query('DELETE FROM lecturas_sensores WHERE ID_Lectura = ?', id, (err, results) => {
+    if (err) {
+      console.error('Error al eliminar el registro:', err);
+      res.status(500).json({ error: 'Error al eliminar el registro' });
+      return;
+    }
+    res.json({ message: 'Registro eliminado exitosamente' });
+  });
+});
+
+// ---------------- Eventos ----------------
+router.get('/eventos', (req, res) => {
+  const { id_dispositivo, tipo_evento } = req.query;
+  let sql = 'SELECT * FROM eventos';
+  const filters = [];
+
+  if (id_dispositivo) {
+      filters.push(`ID_Dispositivo = '${id_dispositivo}'`);
+  }
+  if (tipo_evento) {
+      filters.push(`Tipo_Evento = '${tipo_evento}'`);
+  }
+
+  if (filters.length > 0) {
+      sql += ' WHERE ' + filters.join(' AND ');
+  }
+
+  connection.query(sql, (err, results) => {
+      if (err) {
+          console.error('Error al obtener registros:', err);
+          res.status(500).json({ error: 'Error al obtener registros' });
+          return;
+      }
+      res.json(results);
+  });
+});
+
+router.get('/eventos/:id', (req, res) => {
+  const id = req.params.id;
+  connection.query('SELECT * FROM eventos WHERE ID_Evento = ?', id, (err, results) => {
+    if (err) {
+      console.error('Error al obtener el registro:', err);
+      res.status(500).json({ error: 'Error al obtener el registro' });
+      return;
+    }
+    if (results.length === 0) {
+      res.status(404).json({ error: 'Registro no encontrado' });
+      return;
+    }
+    res.json(results[0]);
+  });
+});
+
+router.post('/eventos/create', (req, res) => {
+  const nuevoRegistro = req.body;
+  connection.query('INSERT INTO eventos SET ?', nuevoRegistro, (err, results) => {
+    if (err) {
+      console.error('Error al crear un nuevo registro:', err);
+      res.status(500).json({ error: 'Error al crear un nuevo registro' });
+      return;
+    }
+    res.status(201).json({ message: 'Registro creado exitosamente' });
+  });
+});
+
+router.put('/eventos/edit/:id', (req, res) => {
+  const id = req.params.id;
+  const datosActualizados = req.body;
+  connection.query('UPDATE eventos SET ? WHERE ID_Evento = ?', [datosActualizados, id], (err, results) => {
+    if (err) {
+      console.error('Error al actualizar el registro:', err);
+      res.status(500).json({ error: 'Error al actualizar el registro' });
+      return;
+    }
+    res.json({ message: 'Registro actualizado exitosamente' });
+  });
+});
+
+router.delete('/eventos/delete/:id', (req, res) => {
+  const id = req.params.id;
+  connection.query('DELETE FROM eventos WHERE ID_Evento = ?', id, (err, results) => {
+    if (err) {
+      console.error('Error al eliminar el registro:', err);
+      res.status(500).json({ error: 'Error al eliminar el registro' });
+      return;
+    }
+    res.json({ message: 'Registro eliminado exitosamente' });
+  });
+});
+
+// 📌 Ruta para importar usuarios desde un archivo Excel
+router.post('/usuarios/importar', (req, res) => {
+  const usuarios = req.body; // 📌 Recibe los datos en JSON desde el frontend
+
+  if (!Array.isArray(usuarios) || usuarios.length === 0) {
+    return res.status(400).json({ error: "No hay datos para importar" });
+  }
+
+  const sql = `INSERT INTO usuarios (Nombre, Apellido, Correo, Telefono, Direccion, Contraseña, Rol)
+               VALUES ?`;
+
+  // Transformar los datos en formato de inserción
+  const values = usuarios.map(u => [
+    u.Nombre || "",
+    u.Apellido || "",
+    u.Correo || "",
+    u.Telefono || "",
+    u.Direccion || "",
+    u.Contraseña || "12345", // Puedes asignar una contraseña predeterminada
+    u.Rol || "Cliente"
+  ]);
+
+  connection.query(sql, [values], (err, results) => {
+    if (err) {
+      console.error("Error al importar usuarios:", err);
+      return res.status(500).json({ error: "Error en el servidor" });
+    }
+    res.json({ message: "Usuarios importados exitosamente", inserted: results.affectedRows });
+  });
+});
+
+router.post('/dispositivos/importar', (req, res) => {
+  const dispositivos = req.body;
+
+  if (!Array.isArray(dispositivos) || dispositivos.length === 0) {
+    return res.status(400).json({ error: "No hay datos para importar" });
+  }
+
+  const sql = `INSERT INTO dispositivos (Tipo, Ubicacion, Estado) VALUES ?`;
+
+  const values = dispositivos.map(d => [
+    d.Tipo || "Otro",
+    d.Ubicacion || "Desconocida",
+    d.Estado || "Inactivo"
+  ]);
+
+  connection.query(sql, [values], (err, results) => {
+    if (err) {
+      console.error("Error al importar dispositivos:", err);
+      return res.status(500).json({ error: "Error en el servidor" });
+    }
+    res.json({ message: "Dispositivos importados exitosamente", inserted: results.affectedRows });
+  });
+});
+
+/**
+* 📌 Importar paquetes
+*/
+router.post('/paquetes/importar', (req, res) => {
+  const paquetes = req.body;
+
+  if (!Array.isArray(paquetes) || paquetes.length === 0) {
+    return res.status(400).json({ error: "No hay datos para importar" });
+  }
+
+  const sql = `INSERT INTO paquetes (ID_Usuario, Peso, Dimensiones, Destino, Estado) VALUES ?`;
+
+  const values = paquetes.map(p => [
+    p.ID_Usuario || null,
+    p.Peso || 0.00,
+    p.Dimensiones || "Desconocido",
+    p.Destino || "Desconocido",
+    p.Estado || "En tránsito"
+  ]);
+
+  connection.query(sql, [values], (err, results) => {
+    if (err) {
+      console.error("Error al importar paquetes:", err);
+      return res.status(500).json({ error: "Error en el servidor" });
+    }
+    res.json({ message: "Paquetes importados exitosamente", inserted: results.affectedRows });
+  });
+});
+
+/**
+* 📌 Importar lecturas de sensores
+*/
+router.post('/lecturas_sensores/importar', (req, res) => {
+  const lecturas = req.body;
+
+  if (!Array.isArray(lecturas) || lecturas.length === 0) {
+    return res.status(400).json({ error: "No hay datos para importar" });
+  }
+
+  const sql = `INSERT INTO lecturas_sensores (ID_Dispositivo, Tipo_Sensor, Valor) VALUES ?`;
+
+  const values = lecturas.map(l => [
+    l.ID_Dispositivo || null,
+    l.Tipo_Sensor || "Peso",
+    l.Valor || 0.00
+  ]);
+
+  connection.query(sql, [values], (err, results) => {
+    if (err) {
+      console.error("Error al importar lecturas de sensores:", err);
+      return res.status(500).json({ error: "Error en el servidor" });
+    }
+    res.json({ message: "Lecturas importadas exitosamente", inserted: results.affectedRows });
+  });
+});
+
+/**
+* 📌 Importar eventos en la banda transportadora
+*/
+router.post('/eventos/importar', (req, res) => {
+  const eventos = req.body;
+
+  if (!Array.isArray(eventos) || eventos.length === 0) {
+    return res.status(400).json({ error: "No hay datos para importar" });
+  }
+
+  const sql = `INSERT INTO eventos (ID_Dispositivo, Tipo_Evento, Descripcion) VALUES ?`;
+
+  const values = eventos.map(e => [
+    e.ID_Dispositivo || null,
+    e.Tipo_Evento || "Desconocido",
+    e.Descripcion || "Sin descripción"
+  ]);
+
+  connection.query(sql, [values], (err, results) => {
+    if (err) {
+      console.error("Error al importar eventos:", err);
+      return res.status(500).json({ error: "Error en el servidor" });
+    }
+    res.json({ message: "Eventos importados exitosamente", inserted: results.affectedRows });
+  });
+});
+
+module.exports = router;
