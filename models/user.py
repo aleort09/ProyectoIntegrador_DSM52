@@ -10,7 +10,7 @@ class User(db.Model):
     Correo = db.Column(db.String(100), nullable=False, unique=True)
     Telefono = db.Column(db.String(15))
     Direccion = db.Column(db.String(255))
-    Contraseña = db.Column(db.LargeBinary, nullable=False)
+    Contraseña = db.Column(db.String(255), nullable=False)
     Rol = db.Column(db.Enum('Cliente', 'Empleado', 'Administrador'), nullable=False, default='Cliente')
     Fecha_Registro = db.Column(db.DateTime, default=datetime.utcnow)
 
