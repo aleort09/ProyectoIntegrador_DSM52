@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../components/Navbar";
-import '../components/App.css';
 
 const Home = () => {
     const [user, setUser] = useState(null);
@@ -83,11 +82,6 @@ const Home = () => {
                         )}
                     </div>
                 </div>
-
-                {/* Botón de Cerrar Sesión */}
-                <button className="btn btn-danger" onClick={handleLogout}>
-                    Cerrar Sesión
-                </button>
             </div>
         </>
     );

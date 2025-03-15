@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import '../components/App.css';
 
 const Informacion = () => {
     const [user, setUser] = useState(null);

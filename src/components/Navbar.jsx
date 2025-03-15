@@ -1,6 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import './style.css';
 
 const Navbar = () => {
     const navigate = useNavigate();
@@ -33,7 +32,7 @@ const Navbar = () => {
                         height="40"
                         className="me-2"
                     />
-                    <span className="fw-bold">Nombre de la Empresa</span>
+                    <span className="fw-bold">RavenDev</span>
                 </Link>
 
                 {/* Dropdown en la parte derecha */}
