@@ -5,6 +5,7 @@ from routes.product_routes import product_bp
 from routes.package_detection_routes import package_detection_bp
 from routes.package_classification_routes import package_classification_bp
 from routes.remote_data_routes import remote_data_bp
+from routes.user_routes import user_bp
 import os
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
@@ -30,6 +31,7 @@ app.register_blueprint(product_bp, url_prefix='/productos')
 app.register_blueprint(package_detection_bp, url_prefix='/detecciones')
 app.register_blueprint(package_classification_bp, url_prefix='/clasificaciones')
 app.register_blueprint(remote_data_bp, url_prefix='/remotos')
+app.register_blueprint(user_bp, url_prefix='/users')
 
 if __name__ == '__main__':
     app.run(debug=True)
