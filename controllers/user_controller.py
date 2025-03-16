@@ -1,7 +1,7 @@
 from flask import jsonify, request
-from models.user import User
+from models.user import User, generate_password_hash
 from config import db
-from utils.auth import check_failed_attempts, increment_failed_attempts
+from utils.auth import check_failed_attempts, increment_failed_attempts, failed_attempts
 from datetime import datetime, timedelta
 
 def get_all_users():
