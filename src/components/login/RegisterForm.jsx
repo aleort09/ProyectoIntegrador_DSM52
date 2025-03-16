@@ -5,12 +5,12 @@ import './style.css';
 
 const RegisterForm = () => {
     const [formData, setFormData] = useState({
-        nombre: "",
-        apellido: "",
-        correo: "",
-        telefono: "",
-        direccion: "",
-        contraseña: "",
+        Nombre: "",
+        Apellido: "",
+        Correo: "",
+        Telefono: "",
+        Direccion: "",
+        Contraseña: "",
     });
 
     const navigate = useNavigate();
@@ -21,7 +21,7 @@ const RegisterForm = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        axios.post("http://localhost:3000/api/usuarios/registro", formData)
+        axios.post("https://54.208.187.128/users/registro", formData)
             .then(response => {
                 alert("Registro exitoso");
                 // Guarda el ID del usuario en el localStorage

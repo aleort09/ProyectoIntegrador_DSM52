@@ -29,14 +29,20 @@ const LoginForm = () => {
 
     const handleLogin = async (e) => {
         e.preventDefault();
-
+    
+        console.log("Correo:", correo); // Verifica el valor de correo
+        console.log("Contraseña:", contraseña); // Verifica el valor de contraseña
+    
         if (bloqueado) {
             setMensaje("Demasiados intentos fallidos. Intenta nuevamente en 5 minutos.");
             return;
         }
-
+    
         try {
-            const response = await axios.post("http://localhost:3000/api/usuarios/login", { correo, contraseña });
+            const response = await axios.post("https://54.208.187.128/users/login", {
+                Correo: correo,
+                Contraseña: contraseña
+            });
             localStorage.setItem("userId", response.data.userId);
             localStorage.setItem("rol", response.data.rol);
             setMensaje("Inicio de sesión exitoso. Redirigiendo...");
@@ -48,6 +54,7 @@ const LoginForm = () => {
                 }
             }, 2000);
         } catch (error) {
+            console.error("Error en el login:", error.response ? error.response.data : error.message); // Verifica el error
             setIntentos(prev => prev + 1);
             if (intentos + 1 >= 3) {
                 setMensaje("Has excedido los intentos. Intenta nuevamente en 5 minutos.");
