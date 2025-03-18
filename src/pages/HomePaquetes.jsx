@@ -1,36 +1,37 @@
 import { useNavigate } from "react-router-dom";
-import DispositivosList from "../components/dispositivos/DispositivosList";
-import DispositivosCreate from "../components/dispositivos/DispositivosCreate";
+import PaquetesList from "../components/deteccion_paquetes/PaquetesList";  
+import PaquetesCreate from "../components/deteccion_paquetes/PaquetesCreate";  // Corregido nombre de componente
 import { useEffect, useState } from "react";
 import axios from "axios";
 import * as XLSX from "xlsx";
 import Menu from "../components/Menu";
-import DispositivosChart from "../components/charts/DispositivosChart";
 
-const HomeDispositivos = () => {
+const HomePaquetes = () => {
     const navigate = useNavigate();
-    const [dispositivos, setDispositivos] = useState([]);
+    const [packageDetections, setPackageDetections] = useState([]);
     const [filters, setFilters] = useState({
-        tipo: "",
-        estado: ""
+        estado: "",
+        distanciaMin: "",
+        distanciaMax: "",
     });
 
     useEffect(() => {
-        fetchDispositivos();
-    }, [filters]); // 🔄 Se ejecuta cada vez que cambian los filtros
+        fetchPackageDetections();
+    }, [filters]);
 
-    const fetchDispositivos = () => {
-        axios.get("http://localhost:3000/api/dispositivos", { params: filters })
-            .then(response => setDispositivos(response.data))
+    
+    const fetchPackageDetections = () => {
+        axios.get("http://localhost:3000/api/deteccion_paquetes", { params: filters })
+            .then(response => setPackageDetections(response.data))
             .catch(error => console.error(error));
     };
 
     const handleAdded = () => {
-        fetchDispositivos();
+        fetchPackageDetections();
     };
 
     const handleDeleted = () => {
-        fetchDispositivos();
+        fetchPackageDetections();
     };
 
     const handleFileUpload = (event) => {
@@ -48,20 +49,21 @@ const HomeDispositivos = () => {
 
             console.log("Datos del Excel:", jsonData);
 
-            axios.post("http://localhost:3000/api/dispositivos/importar", jsonData)
+            
+            axios.post("http://localhost:3000/api/deteccion_paquetes/importar", jsonData)
                 .then(response => {
                     alert(response.data.message);
-                    fetchDispositivos();
+                    fetchPackageDetections();
                 })
-                .catch(error => console.error("Error al importar dispositivos:", error));
+                .catch(error => console.error("Error al importar datos de detección:", error));
         };
     };
 
     const exportToExcel = () => {
-        const worksheet = XLSX.utils.json_to_sheet(dispositivos);
+        const worksheet = XLSX.utils.json_to_sheet(packageDetections);
         const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Dispositivos");
-        XLSX.writeFile(workbook, "dispositivos.xlsx");
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Detección de Paquetes");
+        XLSX.writeFile(workbook, "deteccion_paquetes.xlsx");
     };
 
     const handleFilterChange = (e) => {
@@ -75,12 +77,9 @@ const HomeDispositivos = () => {
     return (
         <>
             <Menu />
-            <div
-                className="p-4"
-                style={{ marginLeft: "250px" }}
-            >
+            <div className="p-4" style={{ marginLeft: "250px" }}>
                 <div className="mb-4">
-                    <DispositivosCreate onDispositivoAdded={handleAdded} />
+                    <PaquetesCreate onPackageDetectionAdded={handleAdded} /> 
                 </div>
                 <div className="mb-3">
                     <input
@@ -97,22 +96,7 @@ const HomeDispositivos = () => {
                     </button>
                 </div>
                 <div className="row mb-4">
-                    <div className="col-md-6 mb-3">
-                        <label className="form-label">Filtrar por Tipo de Sensor</label>
-                        <select
-                            name="tipo"
-                            value={filters.tipo}
-                            onChange={handleFilterChange}
-                            className="form-select"
-                        >
-                            <option value="">Todos</option>
-                            <option value="Camara">Camara</option>
-                            <option value="Motor">Motor</option>
-                            <option value="Sensor">Sensor</option>
-                            <option value="Otro">Otro</option>
-                        </select>
-                    </div>
-                    <div className="col-md-6 mb-3">
+                    <div className="col-md-4 mb-3">
                         <label className="form-label">Filtrar por Estado</label>
                         <select
                             name="estado"
@@ -123,28 +107,50 @@ const HomeDispositivos = () => {
                             <option value="">Todos</option>
                             <option value="Activo">Activo</option>
                             <option value="Inactivo">Inactivo</option>
+                            <option value="Error">Error</option>
                         </select>
+                    </div>
+                    <div className="col-md-4 mb-3">
+                        <label className="form-label">Filtrar por Distancia (Mínima)</label>
+                        <input
+                            type="number"
+                            name="distanciaMin"
+                            value={filters.distanciaMin}
+                            onChange={handleFilterChange}
+                            className="form-control"
+                            placeholder="Ingrese la distancia mínima"
+                        />
+                    </div>
+                    <div className="col-md-4 mb-3">
+                        <label className="form-label">Filtrar por Distancia (Máxima)</label>
+                        <input
+                            type="number"
+                            name="distanciaMax"
+                            value={filters.distanciaMax}
+                            onChange={handleFilterChange}
+                            className="form-control"
+                            placeholder="Ingrese la distancia máxima"
+                        />
                     </div>
                 </div>
                 <div>
                     <div className="card-body">
-                        {dispositivos.length === 0 ? (
+                        {packageDetections.length === 0 ? (
                             <div className="alert alert-warning text-center">
-                                No hay dispositivos que coincidan con la búsqueda.
+                                No hay datos que coincidan con la búsqueda.
                             </div>
                         ) : (
-                            <DispositivosList
-                                dispositivos={dispositivos}
-                                setDispositivos={setDispositivos}
-                                onDispositivoDeleted={handleDeleted}
-                            />
+                            <PaquetesList
+                                packageDetections={packageDetections}
+                                setPackageDetections={setPackageDetections}
+                                onPackageDetectionDeleted={handleDeleted}
+                            /> 
                         )}
                     </div>
                 </div>
-                {dispositivos.length > 0 && <DispositivosChart dispositivos={dispositivos} />}
             </div>
         </>
     );
 };
 
-export default HomeDispositivos;
+export default HomePaquetes;

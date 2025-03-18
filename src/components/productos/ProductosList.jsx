@@ -1,105 +1,128 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 import axios from "axios";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import ProductosEdit from "./ProductosEdit";
+import ProductosChart from "../charts/ProductosChart";  
 
-const ProductosList = ({ productos, setProductos, onProductoDeleted }) => {
-    const [currentPage, setCurrentPage] = useState(1); // Estado para la página actual
-    const itemsPerPage = 10; // Número de productos por página
+const ProductosList = () => {
+    const [productos, setProductos] = useState([]);
+    const [filtro, setFiltro] = useState(""); 
+    const [productoEdit, setProductoEdit] = useState(null); 
+    const [loading, setLoading] = useState(true);
 
-    // Calcular el índice de inicio y fin para los productos de la página actual
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const currentProductos = productos.slice(startIndex, endIndex); // Productos de la página actual
-
-    // Función para cambiar de página
-    const handlePageChange = (page) => {
-        setCurrentPage(page);
+    
+    const fetchProductos = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.get("http://localhost:3000/api/productos");
+            setProductos(response.data);
+        } catch (error) {
+            console.error("Error al obtener los productos:", error);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    // Función para eliminar un producto
-    const handleDelete = (id) => {
-        axios.delete(`http://localhost:3000/api/paquetes/delete/${id}`)
-            .then(() => {
-                onProductoDeleted();
-            })
-            .catch(error => console.error(error));
+    
+    useEffect(() => {
+        fetchProductos();
+    }, []);
+
+    
+    const handleDelete = async (id) => {
+        if (window.confirm("¿Seguro que deseas eliminar este producto?")) {
+            try {
+                await axios.delete(`http://localhost:3000/api/productos/delete/${id}`);
+                alert("Producto eliminado");
+                fetchProductos(); // Refrescar los productos después de eliminar
+            } catch (error) {
+                console.error("Error al eliminar el producto:", error);
+            }
+        }
     };
+
+    
+    const handleEdit = (producto) => {
+        setProductoEdit(producto);
+    };
+
+    
+    const productosFiltrados = productos.filter(producto =>
+        producto.Nombre.toLowerCase().includes(filtro.toLowerCase()) || 
+        producto.Stock.toString().includes(filtro)
+    );
+
+    
+    const exportToExcel = () => {
+        const hoja = XLSX.utils.json_to_sheet(productosFiltrados);
+        const libro = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(libro, hoja, "Productos");
+        const excelBuffer = XLSX.write(libro, { bookType: "xlsx", type: "array" });
+        const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+        saveAs(data, "productos.xlsx");
+    };
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <div className="container mt-5">
-            <h2 className="text-center mb-4">Lista de Paquetes</h2>
-            <table className="table table-striped table-hover">
-                <thead className="table-dark">
+            <h2 className="text-center mb-4">Lista de Productos</h2>
+
+            
+            {productoEdit && (
+                <ProductosEdit productoEdit={productoEdit} onProductoSaved={fetchProductos} />
+            )}
+
+        
+            <input 
+                type="text" 
+                placeholder="Buscar producto..." 
+                value={filtro} 
+                onChange={(e) => setFiltro(e.target.value)} 
+                className="form-control my-3"
+            />
+
+        
+            <button className="btn btn-success mb-3" onClick={exportToExcel}>
+                Exportar a Excel
+            </button>
+
+            
+            <table className="table table-bordered">
+                <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Usuario</th>
-                        <th>Peso</th>
-                        <th>Dimensiones</th>
-                        <th>Destino</th>
-                        <th>Estado</th>
+                        <th>Nombre</th>
+                        <th>Stock</th>
                         <th>Fecha de Registro</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {currentProductos.map(producto => (
-                        <tr key={producto.ID_Paquete}>
-                            <td>{producto.ID_Paquete}</td>
-                            <td>{producto.ID_Usuario}</td>
-                            <td>{producto.Peso} kg</td>
-                            <td>{producto.Dimensiones}</td>
-                            <td>{producto.Destino}</td>
-                            <td>{producto.Estado}</td>
+                    {productosFiltrados.map((producto) => (
+                        <tr key={producto.ID_Producto}>
+                            <td>{producto.ID_Producto}</td>
+                            <td>{producto.Nombre}</td>
+                            <td>{producto.Stock}</td>
                             <td>{new Date(producto.Fecha_Registro).toLocaleDateString()}</td>
                             <td>
-                                <Link to={`/productos/edit/${producto.ID_Paquete}`} className="btn btn-primary btn-sm me-2">Editar</Link>
-                                <button onClick={() => handleDelete(producto.ID_Paquete)} className="btn btn-danger btn-sm">Eliminar</button>
+                                <button className="btn btn-warning me-2" onClick={() => handleEdit(producto)}>
+                                    Editar
+                                </button>
+                                <button className="btn btn-danger" onClick={() => handleDelete(producto.ID_Producto)}>
+                                    Eliminar
+                                </button>
                             </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
 
-            {/* Paginación */}
-            <div className="d-flex justify-content-center mt-4">
-                <nav>
-                    <ul className="pagination">
-                        {/* Botón "Anterior" */}
-                        <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
-                            <button
-                                className="page-link"
-                                onClick={() => handlePageChange(currentPage - 1)}
-                                disabled={currentPage === 1}
-                            >
-                                Anterior
-                            </button>
-                        </li>
-
-                        {/* Números de página */}
-                        {Array.from({ length: Math.ceil(productos.length / itemsPerPage) }, (_, i) => (
-                            <li key={i + 1} className={`page-item ${currentPage === i + 1 ? "active" : ""}`}>
-                                <button
-                                    className="page-link"
-                                    onClick={() => handlePageChange(i + 1)}
-                                >
-                                    {i + 1}
-                                </button>
-                            </li>
-                        ))}
-
-                        {/* Botón "Siguiente" */}
-                        <li className={`page-item ${currentPage === Math.ceil(productos.length / itemsPerPage) ? "disabled" : ""}`}>
-                            <button
-                                className="page-link"
-                                onClick={() => handlePageChange(currentPage + 1)}
-                                disabled={currentPage === Math.ceil(productos.length / itemsPerPage)}
-                            >
-                                Siguiente
-                            </button>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
+            
+            <ProductosChart productos={productosFiltrados} />
         </div>
     );
 };

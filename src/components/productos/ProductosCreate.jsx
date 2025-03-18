@@ -3,11 +3,8 @@ import axios from "axios";
 
 const ProductosCreate = ({ onProductoAdded }) => {
     const [producto, setProducto] = useState({
-        ID_Usuario: "",
-        Peso: "",
-        Dimensiones: "",
-        Destino: "",
-        Estado: "En tránsito",
+        Nombre: "",
+        Stock: 0,
     });
 
     const handleChange = (e) => {
@@ -16,50 +13,28 @@ const ProductosCreate = ({ onProductoAdded }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        axios.post("http://localhost:3000/api/paquetes/create", producto)
+        axios.post("http://localhost:3000/api/productos/create", producto)
             .then(() => {
-                alert("Paquete registrado");
+                alert("Producto registrado");
                 onProductoAdded();
-                setProducto({
-                    ID_Usuario: "",
-                    Peso: "",
-                    Dimensiones: "",
-                    Destino: "",
-                    Estado: "En tránsito",
-                });
+                setProducto({ Nombre: "", Stock: 0 }); 
             })
             .catch((error) => console.error(error));
     };
 
     return (
         <div className="container mt-5">
-            <h2 className="text-center mb-4">Crear Paquete</h2>
+            <h2 className="text-center mb-4">Agregar Producto</h2>
             <form onSubmit={handleSubmit} className="card p-4 shadow">
                 <div className="mb-3">
-                    <label className="form-label">ID Usuario</label>
-                    <input type="text" name="ID_Usuario" value={producto.ID_Usuario} onChange={handleChange} className="form-control" required />
+                    <label className="form-label">Nombre del Producto</label>
+                    <input type="text" name="Nombre" value={producto.Nombre} onChange={handleChange} className="form-control" required />
                 </div>
                 <div className="mb-3">
-                    <label className="form-label">Peso (kg)</label>
-                    <input type="number" name="Peso" value={producto.Peso} onChange={handleChange} className="form-control" required />
+                    <label className="form-label">Stock</label>
+                    <input type="number" name="Stock" value={producto.Stock} onChange={handleChange} className="form-control" required min="0" />
                 </div>
-                <div className="mb-3">
-                    <label className="form-label">Dimensiones</label>
-                    <input type="text" name="Dimensiones" value={producto.Dimensiones} onChange={handleChange} className="form-control" required />
-                </div>
-                <div className="mb-3">
-                    <label className="form-label">Destino</label>
-                    <input type="text" name="Destino" value={producto.Destino} onChange={handleChange} className="form-control" required />
-                </div>
-                <div className="mb-3">
-                    <label className="form-label">Estado</label>
-                    <select name="Estado" value={producto.Estado} onChange={handleChange} className="form-select" required>
-                        <option value="En tránsito">En tránsito</option>
-                        <option value="Entregado">Entregado</option>
-                        <option value="Retrasado">Retrasado</option>
-                    </select>
-                </div>
-                <button type="submit" className="btn btn-primary">Agregar Paquete</button>
+                <button type="submit" className="btn btn-primary">Agregar Producto</button>
             </form>
         </div>
     );

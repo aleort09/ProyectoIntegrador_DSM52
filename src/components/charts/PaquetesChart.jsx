@@ -16,17 +16,17 @@ ChartJS.register(
     Title
 );
 
-const DispositivosChart = ({ dispositivos }) => {
+const PaquetesChart = ({ detecciones }) => {
     // Paleta de colores atractivos
     const colores = [
         "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF",
         "#FF9F40", "#E7E9ED", "#8C9EFF", "#00CC99", "#FF99CC"
     ];
 
-    // Función para contar dispositivos por categoría
+    // Función para contar detecciones por categoría
     const contarPorCategoria = (categoria) => {
-        return dispositivos.reduce((acc, dispositivo) => {
-            const key = dispositivo[categoria];
+        return detecciones.reduce((acc, deteccion) => {
+            const key = deteccion[categoria];
             acc[key] = (acc[key] || 0) + 1;
             return acc;
         }, {});
@@ -38,7 +38,7 @@ const DispositivosChart = ({ dispositivos }) => {
         labels: Object.keys(estados),
         datasets: [
             {
-                label: "Dispositivos por Estado",
+                label: "Detecciones por Estado",
                 data: Object.values(estados),
                 backgroundColor: colores.slice(0, Object.keys(estados).length),
                 borderColor: "#fff",
@@ -47,15 +47,21 @@ const DispositivosChart = ({ dispositivos }) => {
         ],
     };
 
-    // Datos para el gráfico de tipos
-    const tipos = contarPorCategoria("Tipo");
-    const dataTipos = {
-        labels: Object.keys(tipos),
+    // Datos para el gráfico de distancias
+    const distancias = detecciones.map(deteccion => deteccion.Distancia);
+    const histogramData = distancias.reduce((acc, dist) => {
+        const range = Math.floor(dist / 10) * 10; // Agrupación por rangos de 10
+        acc[range] = (acc[range] || 0) + 1;
+        return acc;
+    }, {});
+
+    const dataDistancias = {
+        labels: Object.keys(histogramData),
         datasets: [
             {
-                label: "Dispositivos por Tipo",
-                data: Object.values(tipos),
-                backgroundColor: colores.slice(0, Object.keys(tipos).length),
+                label: "Detecciones por Distancia",
+                data: Object.values(histogramData),
+                backgroundColor: colores.slice(0, Object.keys(histogramData).length),
                 borderColor: "#fff",
                 borderWidth: 2,
             },
@@ -107,7 +113,7 @@ const DispositivosChart = ({ dispositivos }) => {
             <div className="col-md-6">
                 <div className="card mb-4 shadow-sm">
                     <div className="card-body">
-                        <h5 className="card-title text-center mb-4">Dispositivos por Estado</h5>
+                        <h5 className="card-title text-center mb-4">Detecciones por Estado</h5>
                         <Pie data={dataEstados} options={options} />
                     </div>
                 </div>
@@ -115,8 +121,8 @@ const DispositivosChart = ({ dispositivos }) => {
             <div className="col-md-6">
                 <div className="card mb-4 shadow-sm">
                     <div className="card-body">
-                        <h5 className="card-title text-center mb-4">Dispositivos por Tipo</h5>
-                        <Pie data={dataTipos} options={options} />
+                        <h5 className="card-title text-center mb-4">Detecciones por Distancia</h5>
+                        <Pie data={dataDistancias} options={options} />
                     </div>
                 </div>
             </div>
@@ -124,4 +130,4 @@ const DispositivosChart = ({ dispositivos }) => {
     );
 };
 
-export default DispositivosChart;
+export default PaquetesChart;
