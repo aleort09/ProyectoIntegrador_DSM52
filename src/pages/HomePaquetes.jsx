@@ -50,7 +50,7 @@ const HomePaquetes = () => {
             console.log("Datos del Excel:", jsonData);
 
             
-            axios.post("https://54.208.187.128/import/detecciones", jsonData)
+            axios.post("https://54.208.187.128/import/deteccion_paquetes", jsonData)
                 .then(response => {
                     alert(response.data.message);
                     fetchPackageDetections();
