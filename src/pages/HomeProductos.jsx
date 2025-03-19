@@ -26,17 +26,14 @@ const HomeProductos = () => {
             .catch((error) => console.error(error));
     };
 
-    
     const handleAdded = () => {
         fetchProductos();
     };
 
-    
     const handleDeleted = () => {
         fetchProductos();
     };
 
-    
     const handleFileUpload = (event) => {
         const file = event.target.files[0];
         if (!file) return;
@@ -52,7 +49,6 @@ const HomeProductos = () => {
 
             console.log("Datos del Excel:", jsonData);
 
-            
             axios
                 .post("https://54.208.187.128/import/productos", jsonData)
                 .then((response) => {
@@ -65,7 +61,6 @@ const HomeProductos = () => {
         };
     };
 
-    
     const exportToExcel = () => {
         const worksheet = XLSX.utils.json_to_sheet(productos);
         const workbook = XLSX.utils.book_new();
@@ -73,7 +68,6 @@ const HomeProductos = () => {
         XLSX.writeFile(workbook, "productos.xlsx");
     };
 
-    
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
         setFilters((prevFilters) => ({
@@ -151,4 +145,3 @@ const HomeProductos = () => {
 };
 
 export default HomeProductos;
-

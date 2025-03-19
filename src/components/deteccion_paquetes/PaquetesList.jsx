@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Axios from "axios";
+import PaquetesChart from "../charts/PaquetesChart";
 import * as XLSX from "xlsx";
-import PaquetesChart from "./PaquetesChart";
 
 const PaquetesList = ({ packageDetections, onPackageDetectionDeleted }) => {
     const handleDelete = (id) => {

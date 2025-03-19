@@ -48,3 +48,31 @@ git add .
 git commit -m "Estilos mejorados"
 git push origin AppsMoviles
 git push origin AppsMoviles
+git add .
+git add .
+git commit -m "Implementando API"
+git push origin AppsMoviles
+git add .
+git commit -m "Cambios agregados"
+git push origin AppsMoviles
+git add .
+git commit -m "Cambios en algunos componentes"
+git push origin AppsMoviles
+git add .
+git commit -m "Cambios en componentes 2.0"
+git push origin AppsMoviles
+git add .
+git commit -m "Arreglo en detecciones"
+git push origin AppsMoviles
+git add . 
+git commit -m "arreglo en detecciones 2.0"
+git push origin AppsMoviles
+git add .
+git commit -m "Arreglo en detecciones 2.1"
+git push origin AppsMoviles
+git add .
+git commit -m "Arreglo en detecciones 2.2"
+git push origin AppsMoviles
+git add .
+git commit -m "Agregando estilos a componentes"
+git push origin AppsMoviles

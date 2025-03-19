@@ -1,66 +1,56 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
 import ProductosEdit from "./ProductosEdit";
-import ProductosChart from "../charts/ProductosChart";  
+import ProductosChart from "../charts/ProductosChart";
 
-const ProductosList = () => {
-    const [productos, setProductos] = useState([]);
+const ProductosList = ({ productos, setProductos, onProductoDeleted }) => {
     const [filtro, setFiltro] = useState(""); 
     const [productoEdit, setProductoEdit] = useState(null); 
     const [loading, setLoading] = useState(true);
 
-    
-    const fetchProductos = async () => {
-        setLoading(true);
-        try {
-            const response = await axios.get("https://54.208.187.128/productos");
-            setProductos(response.data);
-        } catch (error) {
-            console.error("Error al obtener los productos:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    
-    useEffect(() => {
-        fetchProductos();
-    }, []);
-
-    
     const handleDelete = async (id) => {
         if (window.confirm("¿Seguro que deseas eliminar este producto?")) {
             try {
                 await axios.delete(`https://54.208.187.128/productos/delete/${id}`);
                 alert("Producto eliminado");
-                fetchProductos(); // Refrescar los productos después de eliminar
+                onProductoDeleted(); 
             } catch (error) {
                 console.error("Error al eliminar el producto:", error);
             }
         }
     };
 
-    
     const handleEdit = (producto) => {
         setProductoEdit(producto);
     };
 
-    
     const productosFiltrados = productos.filter(producto =>
         producto.Nombre.toLowerCase().includes(filtro.toLowerCase()) || 
         producto.Stock.toString().includes(filtro)
     );
 
-    
     const exportToExcel = () => {
+        // Crear una hoja de cálculo con los datos filtrados
         const hoja = XLSX.utils.json_to_sheet(productosFiltrados);
         const libro = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(libro, hoja, "Productos");
+
+        // Generar el archivo Excel en formato binario
         const excelBuffer = XLSX.write(libro, { bookType: "xlsx", type: "array" });
+
+        // Crear un Blob con el archivo Excel
         const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-        saveAs(data, "productos.xlsx");
+
+        // Crear un enlace de descarga
+        const url = URL.createObjectURL(data);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "productos.xlsx"; // Nombre del archivo
+        document.body.appendChild(link);
+        link.click(); // Simular clic en el enlace para descargar
+        document.body.removeChild(link); // Eliminar el enlace del DOM
+        URL.revokeObjectURL(url); // Liberar la URL del Blob
     };
 
     if (loading) {
@@ -71,12 +61,10 @@ const ProductosList = () => {
         <div className="container mt-5">
             <h2 className="text-center mb-4">Lista de Productos</h2>
 
-            
             {productoEdit && (
-                <ProductosEdit productoEdit={productoEdit} onProductoSaved={fetchProductos} />
+                <ProductosEdit productoEdit={productoEdit} onProductoSaved={() => { setProductoEdit(null); onProductoDeleted(); }} />
             )}
 
-        
             <input 
                 type="text" 
                 placeholder="Buscar producto..." 
@@ -85,12 +73,10 @@ const ProductosList = () => {
                 className="form-control my-3"
             />
 
-        
             <button className="btn btn-success mb-3" onClick={exportToExcel}>
                 Exportar a Excel
             </button>
 
-            
             <table className="table table-bordered">
                 <thead>
                     <tr>
@@ -121,7 +107,6 @@ const ProductosList = () => {
                 </tbody>
             </table>
 
-            
             <ProductosChart productos={productosFiltrados} />
         </div>
     );

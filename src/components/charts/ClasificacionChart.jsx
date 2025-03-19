@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
+import { Bar, Pie } from "react-chartjs-2";
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend } from "chart.js";
+
+// Registrar los componentes necesarios de Chart.js
+ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend);
 
 const ClasificacionChart = () => {
   const [clasificaciones, setClasificaciones] = useState([]);
@@ -24,10 +28,18 @@ const ClasificacionChart = () => {
     return acc;
   }, {});
 
-  const dataBarras = Object.keys(etiquetasContadas).map((color) => ({
-    name: color,
-    cantidad: etiquetasContadas[color],
-  }));
+  const dataBarras = {
+    labels: Object.keys(etiquetasContadas),
+    datasets: [
+      {
+        label: "Cantidad por Color",
+        data: Object.values(etiquetasContadas),
+        backgroundColor: "#8884d8",
+        borderColor: "#8884d8",
+        borderWidth: 1,
+      },
+    ],
+  };
 
   // Procesar datos para gráfico de pastel (proporción de acciones)
   const accionesContadas = clasificaciones.reduce((acc, item) => {
@@ -35,12 +47,18 @@ const ClasificacionChart = () => {
     return acc;
   }, {});
 
-  const dataPie = Object.keys(accionesContadas).map((accion) => ({
-    name: accion,
-    value: accionesContadas[accion],
-  }));
-
-  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+  const dataPie = {
+    labels: Object.keys(accionesContadas),
+    datasets: [
+      {
+        label: "Distribución de Acciones",
+        data: Object.values(accionesContadas),
+        backgroundColor: ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"],
+        borderColor: ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"],
+        borderWidth: 1,
+      },
+    ],
+  };
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
@@ -49,30 +67,39 @@ const ClasificacionChart = () => {
       {/* Gráfico de Barras */}
       <div className="mb-6">
         <h3 className="text-lg font-semibold mb-2">Clasificaciones por Color</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={dataBarras}>
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="cantidad" fill="#8884d8" />
-          </BarChart>
-        </ResponsiveContainer>
+        <div style={{ height: "300px" }}>
+          <Bar
+            data={dataBarras}
+            options={{
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                y: {
+                  beginAtZero: true,
+                },
+              },
+            }}
+          />
+        </div>
       </div>
 
       {/* Gráfico de Pastel */}
       <div>
         <h3 className="text-lg font-semibold mb-2">Distribución de Acciones</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <PieChart>
-            <Pie data={dataPie} cx="50%" cy="50%" outerRadius={100} fill="#82ca9d" dataKey="value" label>
-              {dataPie.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-              ))}
-            </Pie>
-            <Tooltip />
-            <Legend />
-          </PieChart>
-        </ResponsiveContainer>
+        <div style={{ height: "300px" }}>
+          <Pie
+            data={dataPie}
+            options={{
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  position: "bottom",
+                },
+              },
+            }}
+          />
+        </div>
       </div>
     </div>
   );
