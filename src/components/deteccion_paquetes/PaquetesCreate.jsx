@@ -44,7 +44,7 @@ const PaquetesCreate = ({ onSave }) => {
     return (
         <form onSubmit={handleSubmit} className="card p-4 shadow">
             <div className="mb-3">
-                <label className="form-label">Distancia:</label>
+                <label className="form-label">Distancia (cm):</label>
                 <input
                     type="number"
                     name="Distancia"

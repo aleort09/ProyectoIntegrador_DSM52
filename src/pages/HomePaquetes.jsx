@@ -9,18 +9,13 @@ import Menu from "../components/Menu";
 const HomePaquetes = () => {
     const navigate = useNavigate();
     const [packageDetections, setPackageDetections] = useState([]);
-    const [filters, setFilters] = useState({
-        estado: "",
-        distanciaMin: "",
-        distanciaMax: "",
-    });
 
     useEffect(() => {
         fetchPackageDetections();
-    }, [filters]);
+    }, []);
 
     const fetchPackageDetections = () => {
-        axios.get("https://54.208.187.128/detecciones", { params: filters })
+        axios.get("https://54.208.187.128/detecciones")
             .then(response => {
                 // Asegúrate de que siempre sea un array
                 setPackageDetections(response.data || []);
@@ -68,14 +63,6 @@ const HomePaquetes = () => {
         XLSX.writeFile(workbook, "deteccion_paquetes.xlsx");
     };
 
-    const handleFilterChange = (e) => {
-        const { name, value } = e.target;
-        setFilters(prevFilters => ({
-            ...prevFilters,
-            [name]: value
-        }));
-    };
-
     return (
         <>
             <Menu />
@@ -96,44 +83,6 @@ const HomePaquetes = () => {
                     >
                         Exportar a Excel
                     </button>
-                </div>
-                <div className="row mb-4">
-                    <div className="col-md-4 mb-3">
-                        <label className="form-label">Filtrar por Estado</label>
-                        <select
-                            name="estado"
-                            value={filters.estado}
-                            onChange={handleFilterChange}
-                            className="form-select"
-                        >
-                            <option value="">Todos</option>
-                            <option value="Activo">Activo</option>
-                            <option value="Inactivo">Inactivo</option>
-                            <option value="Error">Error</option>
-                        </select>
-                    </div>
-                    <div className="col-md-4 mb-3">
-                        <label className="form-label">Filtrar por Distancia (Mínima)</label>
-                        <input
-                            type="number"
-                            name="distanciaMin"
-                            value={filters.distanciaMin}
-                            onChange={handleFilterChange}
-                            className="form-control"
-                            placeholder="Ingrese la distancia mínima"
-                        />
-                    </div>
-                    <div className="col-md-4 mb-3">
-                        <label className="form-label">Filtrar por Distancia (Máxima)</label>
-                        <input
-                            type="number"
-                            name="distanciaMax"
-                            value={filters.distanciaMax}
-                            onChange={handleFilterChange}
-                            className="form-control"
-                            placeholder="Ingrese la distancia máxima"
-                        />
-                    </div>
                 </div>
                 <div>
                     <div className="card-body">
