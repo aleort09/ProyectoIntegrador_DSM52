@@ -33,7 +33,7 @@ const ProductosList = () => {
     const handleDelete = async (id) => {
         if (window.confirm("¿Seguro que deseas eliminar este producto?")) {
             try {
-                await axios.delete(`http://localhost:3000/api/productos/delete/${id}`);
+                await axios.delete(`https://54.208.187.128/productos/delete/${id}`);
                 alert("Producto eliminado");
                 fetchProductos(); // Refrescar los productos después de eliminar
             } catch (error) {

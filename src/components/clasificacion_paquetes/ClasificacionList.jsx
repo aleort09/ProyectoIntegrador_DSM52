@@ -32,7 +32,7 @@ const ClasificacionList = () => {
     if (!window.confirm("¿Estás seguro de eliminar esta clasificación?")) return;
 
     try {
-      await axios.delete(`http://localhost:5000/clasificacion_paquetes/delete/${id}`);
+      await axios.delete(`https://54.208.187.128/clasificaciones/delete/${id}`);
       setClasificaciones(clasificaciones.filter((c) => c.ID_Clasificacion !== id));
       setMensaje("Clasificación eliminada correctamente.");
     } catch (err) {

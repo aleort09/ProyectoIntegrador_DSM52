@@ -18,7 +18,7 @@ const Menu = () => {
     ];
 
     return (
-        <div className="d-flex flex-column p-3" style={{ width: "250px", height: "100vh", position: "fixed", left: 0, top: 0, backgroundColor: "#254064", boxShadow: "2px 0 10px rgba(0, 0, 0, 0.1)" }}>
+        <div className="d-flex flex-column p-3" style={{ width: "200px", height: "100vh", position: "fixed", left: 0, top: 0, backgroundColor: "#254064", boxShadow: "2px 0 10px rgba(0, 0, 0, 0.1)" }}>
             <div className="d-flex align-items-center justify-content-center mb-3">
                 <img src="/logo.png" alt="Logo" className="img-fluid" style={{ maxWidth: "100%", height: "auto", transition: "transform 0.3s ease" }} onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")} onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")} />
             </div>

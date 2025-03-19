@@ -55,7 +55,7 @@ const PaquetesList = () => {
 
   // Función para eliminar un paquete
   const handleDelete = (id) => {
-    Axios.delete(`/api/deteccion_paquetes/delete/${id}`)
+    Axios.delete(`https://54.208.187.128/detecciones/delete/${id}`)
       .then(() => {
         setPaquetes(paquetes.filter((paquete) => paquete.ID_Paquete !== id));
         setFilteredPaquetes(filteredPaquetes.filter((paquete) => paquete.ID_Paquete !== id));

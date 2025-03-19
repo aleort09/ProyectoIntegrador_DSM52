@@ -33,7 +33,7 @@ const handleChange = (e) => {
   // Función para manejar el envío del formulario (guardar cambios)
   const handleSubmit = (e) => {
     e.preventDefault();
-    Axios.put(`https://54.208.187.128/detecciones/update/${id}`, formData)
+    Axios.put(`https://54.208.187.128/detecciones/edit/${id}`, formData)
       .then((response) => {
         if (response.status === 200) {
           alert("Paquete actualizado exitosamente");
