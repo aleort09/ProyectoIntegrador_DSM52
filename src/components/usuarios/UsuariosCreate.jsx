@@ -8,6 +8,7 @@ const UsuariosCreate = ({ onUsuarioAdded }) => {
         Correo: "",
         Telefono: "",
         Direccion: "",
+        Contraseña: "", // Agregar el campo Contraseña
         Rol: "Cliente",
     });
 
@@ -27,10 +28,14 @@ const UsuariosCreate = ({ onUsuarioAdded }) => {
                     Correo: "",
                     Telefono: "",
                     Direccion: "",
+                    Contraseña: "", // Reiniciar el campo Contraseña
                     Rol: "Cliente",
                 });
             })
-            .catch((error) => console.error(error));
+            .catch((error) => {
+                console.error(error);
+                alert("Error al registrar usuario");
+            });
     };
 
     return (
@@ -56,6 +61,10 @@ const UsuariosCreate = ({ onUsuarioAdded }) => {
                 <div className="mb-3">
                     <label className="form-label">Dirección</label>
                     <input type="text" name="Direccion" value={usuario.Direccion} onChange={handleChange} className="form-control" required />
+                </div>
+                <div className="mb-3">
+                    <label className="form-label">Contraseña</label>
+                    <input type="password" name="Contraseña" value={usuario.Contraseña} onChange={handleChange} className="form-control" required />
                 </div>
                 <div className="mb-3">
                     <label className="form-label">Rol</label>

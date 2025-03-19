@@ -11,7 +11,7 @@ const ClasificacionChart = () => {
 
   const fetchClasificaciones = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/clasificacion_paquetes");
+      const response = await axios.get("https://54.208.187.128/clasificaciones");
       setClasificaciones(response.data);
     } catch (err) {
       console.error("Error al obtener clasificaciones", err);

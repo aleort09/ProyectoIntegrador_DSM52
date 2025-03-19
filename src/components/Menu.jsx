@@ -14,8 +14,7 @@ const Menu = () => {
         { path: "/deteccion_paquetes", icon: "bi-box-seam", label: "Detección de Paquetes" },
         { path: "/clasificacion_paquetes", icon: "bi-tags", label: "Clasificación de Paquetes" },
         { path: "/productos", icon: "bi-bag", label: "Productos" },
-        { path: "/datos_remotos", icon: "bi-device-hdd", label: "Datos Remotos" },
-        { path: "/eventos", icon: "bi-calendar-event", label: "Eventos" },
+        { path: "/remotos", icon: "bi-device-hdd", label: "Datos Remotos" },
     ];
 
     return (

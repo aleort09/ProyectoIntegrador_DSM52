@@ -15,7 +15,7 @@ const RemotosChart = () => {
 
   const fetchRemotos = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/datos_remotos");
+      const response = await axios.get("https://54.208.187.128/remotos");
       setRemotos(response.data);
     } catch (err) {
       console.error("Error al obtener los datos remotos", err);
