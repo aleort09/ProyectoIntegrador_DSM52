@@ -27,7 +27,7 @@ const Home = () => {
         <>
             <Navbar />
             <div className="container mt-4">
-                <h1>Bienvenido, {user.nombre} {user.Apellido}</h1>
+                <h1>Bienvenido, {user.Nombre} {user.Apellido}</h1>
                 <p>Aquí tienes un resumen de tu actividad:</p>
             </div>
         </>

@@ -47,7 +47,7 @@ const Dashboard = () => {
 
                     {/* Tarjeta de Datos Remotos */}
                     <div className="col-md-3 mb-4">
-                        <Link to="/datos_remotos" className="text-decoration-none">
+                        <Link to="/remotos" className="text-decoration-none">
                             <div className="card shadow-lg h-100" style={{ transition: "transform 0.3s ease" }}>
                                 <img
                                     src="/lecturas.jpg"
