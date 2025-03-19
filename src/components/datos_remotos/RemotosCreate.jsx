@@ -17,7 +17,7 @@ const RemotosCreate = () => {
     };
 
     try {
-      const response = await axios.post("http://localhost:5000/datos_remotos/create", nuevoDato);
+      const response = await axios.post("https://54.208.187.128/remotos/create", nuevoDato);
       setMensaje("Dato remoto creado correctamente.");
       setIdDeteccion("");
       setIdClasificacion("");

@@ -24,10 +24,10 @@ const ProductosEdit = ({ productoEdit, onProductoSaved }) => {
         e.preventDefault();
         try {
             if (productoEdit) {
-                await axios.put(`http://localhost:3000/api/productos/update/${productoEdit.ID_Producto}`, producto);
+                await axios.put(`https://54.208.187.128/productos/edit/${productoEdit.ID_Producto}`, producto);
                 alert("Producto actualizado");
             } else {
-                await axios.post("http://localhost:3000/api/productos/create", producto);
+                await axios.post("https://54.208.187.128/productos/create", producto);
                 alert("Producto agregado");
             }
             onProductoSaved();

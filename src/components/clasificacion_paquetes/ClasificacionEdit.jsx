@@ -18,7 +18,7 @@ const ClasificacionEdit = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/clasificacion_paquetes/${classification_id}`
+          `https://54.208.187.128/clasificaciones/${classification_id}`
         );
         setFormData(response.data);
       } catch (err) {
@@ -39,7 +39,7 @@ const ClasificacionEdit = () => {
 
     try {
       await axios.put(
-        `http://localhost:5000/clasificacion_paquetes/edit/${classification_id}`,
+        `https://54.208.187.128/clasificaciones/edit/${classification_id}`,
         formData
       );
       setMessage("Clasificación actualizada con éxito.");

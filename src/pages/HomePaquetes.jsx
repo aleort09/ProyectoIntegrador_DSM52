@@ -21,7 +21,7 @@ const HomePaquetes = () => {
 
     
     const fetchPackageDetections = () => {
-        axios.get("http://localhost:3000/api/deteccion_paquetes", { params: filters })
+        axios.get("https://54.208.187.128/detecciones", { params: filters })
             .then(response => setPackageDetections(response.data))
             .catch(error => console.error(error));
     };
@@ -50,7 +50,7 @@ const HomePaquetes = () => {
             console.log("Datos del Excel:", jsonData);
 
             
-            axios.post("http://localhost:3000/api/deteccion_paquetes/importar", jsonData)
+            axios.post("https://54.208.187.128/import/deteccion_paquetes", jsonData)
                 .then(response => {
                     alert(response.data.message);
                     fetchPackageDetections();

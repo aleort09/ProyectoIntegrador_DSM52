@@ -22,7 +22,7 @@ const ClasificacionCreate = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/clasificacion_paquetes/create",
+        "https://54.208.187.128/clasificaciones/create",
         formData
       );
       setMessage("Clasificación creada con éxito.");

@@ -23,7 +23,7 @@ const PaquetesCreate = ({ onSave }) => {
     setIsLoading(true);
     setError(""); 
 
-    Axios.post("/api/deteccion_paquetes/create", formData)
+    Axios.post("https://54.208.187.128/detecciones/create", formData)
       .then((response) => {
         if (response.status === 201) {
           onSave(); 

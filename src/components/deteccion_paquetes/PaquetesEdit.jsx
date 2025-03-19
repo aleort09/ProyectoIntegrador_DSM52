@@ -12,7 +12,7 @@ const [formData, setFormData] = useState({
 
   // Cargar los datos del paquete al editar
 useEffect(() => {
-    Axios.get(`/api/deteccion_paquetes/${id}`)
+    Axios.get(`https://54.208.187.128/detecciones/${id}`)
     .then((response) => {
         setFormData(response.data); // Establecer los datos del paquete en el formulario
     })
@@ -33,7 +33,7 @@ const handleChange = (e) => {
   // Función para manejar el envío del formulario (guardar cambios)
   const handleSubmit = (e) => {
     e.preventDefault();
-    Axios.put(`/api/deteccion_paquetes/update/${id}`, formData)
+    Axios.put(`https://54.208.187.128/detecciones/update/${id}`, formData)
       .then((response) => {
         if (response.status === 200) {
           alert("Paquete actualizado exitosamente");

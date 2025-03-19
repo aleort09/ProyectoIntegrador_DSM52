@@ -10,7 +10,6 @@ const Home = () => {
     useEffect(() => {
         const userId = localStorage.getItem("userId");
         if (userId) {
-            // Obtener datos del usuario
             axios.get(`https://54.208.187.128/users/${userId}`)
                 .then(response => setUser(response.data))
                 .catch(error => console.error("Error al obtener usuario:", error));

@@ -16,7 +16,7 @@ const UsuariosEdit = () => {
     });
 
     useEffect(() => {
-        axios.get(`http://localhost:3000/api/usuarios/${id}`)
+        axios.get(`https://54.208.187.128/users/${id}`)
             .then(response => setUsuario(response.data))
             .catch(error => console.error(error));
     }, [id]);
@@ -27,7 +27,7 @@ const UsuariosEdit = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        axios.put(`http://localhost:3000/api/usuarios/edit/${id}`, usuario)
+        axios.put(`https://54.208.187.128/users/edit/${id}`, usuario)
             .then(() => {
                 alert("Usuario actualizado");
                 navigate("/usuarios");

@@ -12,7 +12,7 @@ const PaquetesList = () => {
 
   // Obtener la lista de paquetes
   useEffect(() => {
-    Axios.get("/api/deteccion_paquetes")
+    Axios.get("https://54.208.187.128/detecciones")
       .then((response) => {
         setPaquetes(response.data);
         setFilteredPaquetes(response.data);

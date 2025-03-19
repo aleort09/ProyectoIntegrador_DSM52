@@ -18,7 +18,7 @@ const UsuariosList = ({ usuarios, setUsuarios, onUsuarioDeleted }) => {
 
     // Función para eliminar un usuario
     const handleDelete = (id) => {
-        axios.delete(`http://localhost:3000/api/usuarios/delete/${id}`)
+        axios.delete(`https://54.208.187.128/users/delete/${id}`)
             .then(() => {
                 onUsuarioDeleted();
             })

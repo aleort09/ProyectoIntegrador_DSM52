@@ -21,7 +21,7 @@ const HomeProductos = () => {
     // Obtener productos con los filtros aplicados
     const fetchProductos = () => {
         axios
-            .get("http://localhost:3000/api/productos", { params: filters })
+            .get("https://54.208.187.128/productos", { params: filters })
             .then((response) => setProductos(response.data))
             .catch((error) => console.error(error));
     };
@@ -54,7 +54,7 @@ const HomeProductos = () => {
 
             
             axios
-                .post("http://localhost:3000/api/productos/importar", jsonData)
+                .post("https://54.208.187.128/import/productos", jsonData)
                 .then((response) => {
                     alert(response.data.message);
                     fetchProductos();

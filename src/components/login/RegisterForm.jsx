@@ -5,12 +5,12 @@ import './style.css';
 
 const RegisterForm = () => {
     const [formData, setFormData] = useState({
-        Nombre: "",
+        nombre: "",
         Apellido: "",
-        Correo: "",
-        Telefono: "",
-        Direccion: "",
-        Contraseña: "",
+        correo: "",
+        telefono: "",
+        direccion: "",
+        contraseña: "",
     });
 
     const navigate = useNavigate();
@@ -24,9 +24,8 @@ const RegisterForm = () => {
         axios.post("https://54.208.187.128/users/registro", formData)
             .then(response => {
                 alert("Registro exitoso");
-                // Guarda el ID del usuario en el localStorage
                 localStorage.setItem("userId", response.data.userId);
-                navigate("/"); // Redirige al inicio
+                navigate("/");
             })
             .catch(error => {
                 console.error("Error al registrar usuario:", error);

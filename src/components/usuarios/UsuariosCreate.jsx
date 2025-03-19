@@ -17,7 +17,7 @@ const UsuariosCreate = ({ onUsuarioAdded }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        axios.post("http://localhost:3000/api/usuarios/create", usuario)
+        axios.post("https://54.208.187.128/users/create", usuario)
             .then(() => {
                 alert("Usuario registrado");
                 onUsuarioAdded();

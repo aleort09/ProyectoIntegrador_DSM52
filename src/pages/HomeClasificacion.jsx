@@ -21,7 +21,7 @@ const HomeClasificacion = () => {
 
     
     const fetchPackageClassifications = () => {
-        axios.get("http://localhost:3000/api/clasificacion_paquetes", { params: filters })
+        axios.get("https://54.208.187.128/clasificaciones", { params: filters })
             .then(response => setPackageClassifications(response.data))
             .catch(error => console.error(error));
     };
@@ -50,7 +50,7 @@ const HomeClasificacion = () => {
             console.log("Datos del Excel:", jsonData);
 
             
-            axios.post("http://localhost:3000/api/clasificacion_paquetes/importar", jsonData)
+            axios.post("https://54.208.187.128/import/clasificacion_paquetes", jsonData)
                 .then(response => {
                     alert(response.data.message);
                     fetchPackageClassifications();

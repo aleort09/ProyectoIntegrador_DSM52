@@ -16,7 +16,7 @@ const HomeUsuarios = () => {
     }, [filters]);
 
     const fetchUsuarios = () => {
-        axios.get("http://localhost:3000/api/usuarios", { params: filters })
+        axios.get("https://54.208.187.128/users", { params: filters })
             .then(response => setUsuarios(response.data))
             .catch(error => console.error(error));
     };
@@ -44,7 +44,7 @@ const HomeUsuarios = () => {
 
             console.log("Datos del Excel:", jsonData);
 
-            axios.post("http://localhost:3000/api/usuarios/importar", jsonData)
+            axios.post("https://54.208.187.128/import/usuarios", jsonData)
                 .then(response => {
                     alert(response.data.message);
                     fetchUsuarios();

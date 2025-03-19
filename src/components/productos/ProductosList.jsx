@@ -15,7 +15,7 @@ const ProductosList = () => {
     const fetchProductos = async () => {
         setLoading(true);
         try {
-            const response = await axios.get("http://localhost:3000/api/productos");
+            const response = await axios.get("https://54.208.187.128/productos");
             setProductos(response.data);
         } catch (error) {
             console.error("Error al obtener los productos:", error);
