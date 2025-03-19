@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import PaquetesList from "../components/deteccion_paquetes/PaquetesList";  
-import PaquetesCreate from "../components/deteccion_paquetes/PaquetesCreate";  // Corregido nombre de componente
+import PaquetesList from "../components/deteccion_paquetes/PaquetesList";
+import PaquetesCreate from "../components/deteccion_paquetes/PaquetesCreate";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import * as XLSX from "xlsx";
@@ -19,11 +19,16 @@ const HomePaquetes = () => {
         fetchPackageDetections();
     }, [filters]);
 
-    
     const fetchPackageDetections = () => {
         axios.get("https://54.208.187.128/detecciones", { params: filters })
-            .then(response => setPackageDetections(response.data))
-            .catch(error => console.error(error));
+            .then(response => {
+                // Asegúrate de que siempre sea un array
+                setPackageDetections(response.data || []);
+            })
+            .catch(error => {
+                console.error(error);
+                setPackageDetections([]); // En caso de error, establece un array vacío
+            });
     };
 
     const handleAdded = () => {
@@ -47,9 +52,6 @@ const HomePaquetes = () => {
             const sheet = workbook.Sheets[sheetName];
             const jsonData = XLSX.utils.sheet_to_json(sheet);
 
-            console.log("Datos del Excel:", jsonData);
-
-            
             axios.post("https://54.208.187.128/import/deteccion_paquetes", jsonData)
                 .then(response => {
                     alert(response.data.message);
@@ -79,7 +81,7 @@ const HomePaquetes = () => {
             <Menu />
             <div className="p-4" style={{ marginLeft: "250px" }}>
                 <div className="mb-4">
-                    <PaquetesCreate onPackageDetectionAdded={handleAdded} /> 
+                    <PaquetesCreate onPackageDetectionAdded={handleAdded} />
                 </div>
                 <div className="mb-3">
                     <input
@@ -142,9 +144,8 @@ const HomePaquetes = () => {
                         ) : (
                             <PaquetesList
                                 packageDetections={packageDetections}
-                                setPackageDetections={setPackageDetections}
                                 onPackageDetectionDeleted={handleDeleted}
-                            /> 
+                            />
                         )}
                     </div>
                 </div>
