@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
+import Swal from "sweetalert2";
 import './style.css';
+import { FaEnvelope, FaLock } from "react-icons/fa";
 
 const LoginForm = () => {
     const [correo, setCorreo] = useState("");
     const [contraseña, setContraseña] = useState("");
     const [intentos, setIntentos] = useState(0);
     const [bloqueado, setBloqueado] = useState(false);
-    const [mensaje, setMensaje] = useState(""); 
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -17,10 +18,13 @@ const LoginForm = () => {
             const tiempoRestante = Date.now() - parseInt(bloqueoGuardado, 10);
             if (tiempoRestante < 5 * 60 * 1000) {
                 setBloqueado(true);
-                setMensaje("Has excedido los intentos. Intenta nuevamente en 5 minutos.");
+                Swal.fire({
+                    icon: "error",
+                    title: "Demasiados intentos",
+                    text: "Intenta nuevamente en 5 minutos."
+                });
                 setTimeout(() => {
                     setBloqueado(false);
-                    setMensaje("");
                     localStorage.removeItem("bloqueo");
                 }, 5 * 60 * 1000 - tiempoRestante);
             }
@@ -29,23 +33,29 @@ const LoginForm = () => {
 
     const handleLogin = async (e) => {
         e.preventDefault();
-    
-        console.log("Correo:", correo); // Verifica el valor de correo
-        console.log("Contraseña:", contraseña); // Verifica el valor de contraseña
-    
+
         if (bloqueado) {
-            setMensaje("Demasiados intentos fallidos. Intenta nuevamente en 5 minutos.");
+            Swal.fire("Espera", "Demasiados intentos fallidos. Intenta nuevamente en 5 minutos.", "warning");
             return;
         }
-    
+
         try {
             const response = await axios.post("https://54.208.187.128/users/login", {
                 Correo: correo,
                 Contraseña: contraseña
             });
+
             localStorage.setItem("userId", response.data.userId);
             localStorage.setItem("rol", response.data.rol);
-            setMensaje("Inicio de sesión exitoso. Redirigiendo...");
+
+            Swal.fire({
+                icon: "success",
+                title: "¡Inicio exitoso!",
+                text: "Redirigiendo...",
+                timer: 2000,
+                showConfirmButton: false
+            });
+
             setTimeout(() => {
                 if (response.data.rol === "Administrador") {
                     navigate("/dashboard");
@@ -54,35 +64,40 @@ const LoginForm = () => {
                 }
             }, 2000);
         } catch (error) {
-            console.error("Error en el login:", error.response ? error.response.data : error.message); // Verifica el error
             setIntentos(prev => prev + 1);
             if (intentos + 1 >= 3) {
-                setMensaje("Has excedido los intentos. Intenta nuevamente en 5 minutos.");
+                Swal.fire("Error", "Has excedido los intentos. Intenta nuevamente en 5 minutos.", "error");
                 setBloqueado(true);
                 localStorage.setItem("bloqueo", Date.now());
                 setTimeout(() => {
                     setBloqueado(false);
-                    setMensaje("");
                     localStorage.removeItem("bloqueo");
                 }, 5 * 60 * 1000);
             } else {
-                setMensaje("Credenciales incorrectas.");
+                Swal.fire("Error", "Credenciales incorrectas.", "error");
             }
         }
     };
 
     return (
         <div className="auth-container">
-            <div className="auth-box">
+            <div className="auth-box animate-fade-in">
                 <h2 className="text-center">Iniciar Sesión</h2>
-                {mensaje && <div className={`alert ${mensaje.includes("exitoso") ? "alert-success" : "alert-danger"}`}>{mensaje}</div>}
                 <form onSubmit={handleLogin}>
-                    <input type="email" placeholder="Correo" value={correo} onChange={(e) => setCorreo(e.target.value)} required className="form-control" disabled={bloqueado} />
-                    <input type="password" placeholder="Contraseña" value={contraseña} onChange={(e) => setContraseña(e.target.value)} required className="form-control" disabled={bloqueado} />
-                    <button type="submit" className="btn btn-primary w-100" disabled={bloqueado}>Ingresar</button>
+                    <div className="input-group">
+                        <FaEnvelope className="input-icon" />
+                        <input type="email" placeholder="Correo" value={correo} onChange={(e) => setCorreo(e.target.value)} required disabled={bloqueado} />
+                    </div>
+                    <div className="input-group">
+                        <FaLock className="input-icon" />
+                        <input type="password" placeholder="Contraseña" value={contraseña} onChange={(e) => setContraseña(e.target.value)} required disabled={bloqueado} />
+                    </div>
+                    <button type="submit" className="btn-login" disabled={bloqueado}>Ingresar</button>
                 </form>
-                <p>¿No tienes una cuenta? <Link to="/registrar">Regístrate</Link></p>
-                <p>¿Olvidaste tu contraseña? <Link to="/recuperar">Presiona aquí</Link></p>
+                <div className="auth-links">
+                    <p>¿No tienes una cuenta? <Link to="/registrar">Regístrate</Link></p>
+                    <p>¿Olvidaste tu contraseña? <Link to="/recuperar">Presiona aquí</Link></p>
+                </div>
             </div>
         </div>
     );

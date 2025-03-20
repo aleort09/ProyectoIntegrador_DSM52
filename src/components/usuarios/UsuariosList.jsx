@@ -94,7 +94,6 @@ const UsuariosList = ({ usuarios, setUsuarios, onUsuarioDeleted, userRole }) => 
                             <td>{usuario.Direccion}</td>
                             <td>{usuario.Rol}</td>
                             <td>{new Date(usuario.Fecha_Registro).toLocaleDateString()}</td>
-                            {/* Mostrar acciones solo si el rol no es "empleado" */}
                             {userRole !== "empleado" && (
                                 <td>
                                     <Link

@@ -71,38 +71,42 @@ const ProductosCreate = ({ onProductoAdded = () => { } }) => {
         <>
             <Menu />
             <div className="container mt-5" style={containerStyle}>
-                <h2 className="text-center mb-4">Agregar Producto</h2>
-                <button onClick={() => navigate(-1)} className="btn btn-secondary mb-3">
-                    <i className="bi bi-arrow-left me-2"></i>Regresar
-                </button>
-                <form onSubmit={handleSubmit} className="card p-4 shadow">
-                    <div className="mb-3">
-                        <label className="form-label">Nombre del Producto</label>
-                        <input
-                            type="text"
-                            name="Nombre"
-                            value={producto.Nombre}
-                            onChange={handleChange}
-                            className="form-control"
-                            required
-                        />
+                <div className="row justify-content-center">
+                    <div className="col-md-8 col-lg-6">
+                        <h2 className="text-center mb-4">Agregar Producto</h2>
+                        <button onClick={() => navigate(-1)} className="btn btn-secondary mb-3">
+                            <i className="bi bi-arrow-left me-2"></i>Regresar
+                        </button>
+                        <form onSubmit={handleSubmit} className="card p-4 shadow">
+                            <div className="mb-3">
+                                <label className="form-label">Nombre del Producto</label>
+                                <input
+                                    type="text"
+                                    name="Nombre"
+                                    value={producto.Nombre}
+                                    onChange={handleChange}
+                                    className="form-control"
+                                    required
+                                />
+                            </div>
+                            <div className="mb-3">
+                                <label className="form-label">Stock</label>
+                                <input
+                                    type="number"
+                                    name="Stock"
+                                    value={producto.Stock}
+                                    onChange={handleChange}
+                                    className="form-control"
+                                    required
+                                    min="0"
+                                />
+                            </div>
+                            <button type="submit" className="btn btn-primary">
+                                Agregar Producto
+                            </button>
+                        </form>
                     </div>
-                    <div className="mb-3">
-                        <label className="form-label">Stock</label>
-                        <input
-                            type="number"
-                            name="Stock"
-                            value={producto.Stock}
-                            onChange={handleChange}
-                            className="form-control"
-                            required
-                            min="0"
-                        />
-                    </div>
-                    <button type="submit" className="btn btn-primary">
-                        Agregar Producto
-                    </button>
-                </form>
+                </div>
             </div>
         </>
     );

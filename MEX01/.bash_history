@@ -94,3 +94,14 @@ git push origin AppsMoviles
 git add .
 git commit -m "Cambios en estilos de menu"
 git push origin AppsMoviles
+git add .
+git commit -m "Cambios en estilos y componentes de usuario"
+git push origin AppsMoviles
+git add .
+git commit -m "Cambios en Menu"
+git add .
+git commit -m "Cambios en Menu"
+git push origin AppsMoviles
+git add .
+git commit -m "cambios en productos"
+git push origin AppsMoviles

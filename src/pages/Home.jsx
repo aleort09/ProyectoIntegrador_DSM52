@@ -1,11 +1,9 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../components/Navbar";
 
 const Home = () => {
     const [user, setUser] = useState(null);
-    const navigate = useNavigate();
 
     useEffect(() => {
         const userId = localStorage.getItem("userId");
@@ -15,11 +13,6 @@ const Home = () => {
                 .catch(error => console.error("Error al obtener usuario:", error));
         }
     }, []);
-
-    const handleLogout = () => {
-        localStorage.clear();
-        navigate("/login");
-    };
 
     if (!user) return <p className="loading-text">Cargando datos del usuario...</p>;
 

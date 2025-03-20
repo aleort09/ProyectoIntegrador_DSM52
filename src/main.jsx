@@ -24,6 +24,7 @@ import ChangePassword from "./components/login/ChangePassword";
 import Perfil from "./pages/Perfil";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Informacion from "./components/Informacion";
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <>
@@ -56,8 +57,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/clasificacion_paquetes/edit/:id" element={<ClasificacionEdit />} />
           <Route path="/clasificacion_paquetes/create" element={<ClasificacionCreate />} /> {/* Nueva ruta */}
           <Route path="/deteccion_paquetes" element={<HomePaquetes />} />
-          <Route path="/deteccion_paquetes/edit/:id" element={<PaquetesEdit />} />
-          <Route path="/deteccion_paquetes/create" element={<PaquetesCreate />} /> {/* Nueva ruta */}
+          <Route path="/paquetes/edit/:id" element={<PaquetesEdit />} />
+          <Route path="/paquetes/create" element={<PaquetesCreate />} /> {/* Nueva ruta */}
           <Route path="/remotos" element={<HomeRemotos />} />
           <Route path="/remotos/edit/:id" element={<RemotosEdit />} />
           <Route path="/remotos/create" element={<RemotosCreate />} /> {/* Nueva ruta */}
