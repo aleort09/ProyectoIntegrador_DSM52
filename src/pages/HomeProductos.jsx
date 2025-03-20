@@ -1,37 +1,38 @@
 import { useNavigate } from "react-router-dom";
 import ProductosList from "../components/productos/ProductosList";
-import ProductosCreate from "../components/productos/ProductosCreate";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import * as XLSX from "xlsx";
 import Menu from "../components/Menu";
+import { FaPlus } from "react-icons/fa";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import Swal from "sweetalert2";
 
 const HomeProductos = () => {
     const navigate = useNavigate();
     const [productos, setProductos] = useState([]);
     const [filters, setFilters] = useState({
-        estado: "",
-        destino: "",
+        nombre: "",
     });
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         fetchProductos();
     }, [filters]);
 
-    // Obtener productos con los filtros aplicados
     const fetchProductos = () => {
+        setLoading(true);
         axios
             .get("https://54.208.187.128/productos", { params: filters })
-            .then((response) => setProductos(response.data))
-            .catch((error) => console.error(error));
-    };
-
-    const handleAdded = () => {
-        fetchProductos();
-    };
-
-    const handleDeleted = () => {
-        fetchProductos();
+            .then((response) => {
+                setProductos(response.data);
+                setLoading(false);
+            })
+            .catch((error) => {
+                console.error(error);
+                setLoading(false);
+            });
     };
 
     const handleFileUpload = (event) => {
@@ -47,17 +48,26 @@ const HomeProductos = () => {
             const sheet = workbook.Sheets[sheetName];
             const jsonData = XLSX.utils.sheet_to_json(sheet);
 
-            console.log("Datos del Excel:", jsonData);
-
             axios
                 .post("https://54.208.187.128/importar/productos", jsonData)
                 .then((response) => {
-                    alert(response.data.message);
+                    Swal.fire({
+                        title: "¡Éxito!",
+                        text: response.data.message,
+                        icon: "success",
+                        confirmButtonText: "Aceptar",
+                    });
                     fetchProductos();
                 })
-                .catch((error) =>
-                    console.error("Error al importar productos:", error)
-                );
+                .catch((error) => {
+                    console.error("Error al importar productos:", error);
+                    Swal.fire({
+                        title: "Error",
+                        text: "Hubo un problema al importar los productos.",
+                        icon: "error",
+                        confirmButtonText: "Aceptar",
+                    });
+                });
         };
     };
 
@@ -68,6 +78,21 @@ const HomeProductos = () => {
         XLSX.writeFile(workbook, "productos.xlsx");
     };
 
+    const exportToPDF = () => {
+        const doc = new jsPDF();
+        doc.text("Lista de Productos", 10, 10);
+        autoTable(doc, {
+            head: [["ID", "Nombre", "Stock", "Fecha de Registro"]],
+            body: productos.map((producto) => [
+                producto.ID_Producto,
+                producto.Nombre,
+                producto.Stock,
+                new Date(producto.Fecha_Registro).toLocaleDateString(),
+            ]),
+        });
+        doc.save("productos.pdf");
+    };
+
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
         setFilters((prevFilters) => ({
@@ -76,67 +101,79 @@ const HomeProductos = () => {
         }));
     };
 
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
+    const containerStyle = {
+        marginLeft: isMobile ? "0" : "200px",
+        marginTop: isMobile ? "30px" : "0",
+        padding: "5px",
+        transition: "all 0.3s ease",
+    };
+
     return (
         <>
             <Menu />
-            <div className="p-4" style={{ marginLeft: "250px" }}>
-                <div className="mb-4">
-                    <ProductosCreate onProductoAdded={handleAdded} />
-                </div>
-                <div className="mb-3">
-                    <input
-                        type="file"
-                        accept=".xlsx, .xls"
-                        onChange={handleFileUpload}
-                        className="form-control mb-2"
-                    />
-                    <button
-                        onClick={exportToExcel}
-                        className="btn btn-success w-100 mb-3"
-                    >
-                        Exportar a Excel
-                    </button>
-                </div>
-                <div className="row mb-4">
-                    <div className="col-md-6 mb-3">
-                        <label className="form-label">Filtrar por Estado</label>
-                        <select
-                            name="estado"
-                            value={filters.estado}
-                            onChange={handleFilterChange}
-                            className="form-select"
-                        >
-                            <option value="">Todos</option>
-                            <option value="En tránsito">En tránsito</option>
-                            <option value="Entregado">Entregado</option>
-                            <option value="Pendiente">Pendiente</option>
-                        </select>
-                    </div>
-                    <div className="col-md-6 mb-3">
-                        <label className="form-label">Filtrar por Destino</label>
+            <div className="main-content" style={containerStyle}>
+                <div className="p-4">
+                    <h2 className="text-center">Gestión de Productos</h2>
+                    <div className="mb-3">
+                        <label className="form-label">Importar productos desde Excel</label>
                         <input
-                            type="text"
-                            name="destino"
-                            placeholder="Ingrese el destino"
-                            value={filters.destino}
-                            onChange={handleFilterChange}
-                            className="form-control"
+                            type="file"
+                            accept=".xlsx, .xls"
+                            onChange={handleFileUpload}
+                            className="form-control mb-2"
                         />
+                        <div className="d-flex gap-2">
+                            <button onClick={exportToExcel} className="btn btn-success flex-grow-1">
+                                Exportar a Excel
+                            </button>
+                            <button onClick={exportToPDF} className="btn btn-danger flex-grow-1">
+                                Exportar a PDF
+                            </button>
+                        </div>
                     </div>
-                </div>
-                <div>
-                    <div className="card-body">
-                        {productos.length === 0 ? (
-                            <div className="alert alert-warning text-center">
-                                No hay productos disponibles.
-                            </div>
-                        ) : (
-                            <ProductosList
-                                productos={productos}
-                                setProductos={setProductos}
-                                onProductoDeleted={handleDeleted}
+                    <div className="row mb-4">
+                        <div className="col-md-4 mb-3">
+                            <label className="form-label">Filtrar por Nombre</label>
+                            <input
+                                type="text"
+                                name="nombre"
+                                placeholder="Ingrese el nombre"
+                                value={filters.nombre}
+                                onChange={handleFilterChange}
+                                className="form-control"
                             />
-                        )}
+                        </div>
+                    </div>
+                    <div>
+                        <div className="card-body">
+                            <button onClick={() => navigate("/productos/create")} className="btn btn-primary">
+                                <FaPlus /> Crear Producto
+                            </button>
+                            {loading ? (
+                                <div className="text-center">Cargando...</div>
+                            ) : productos.length === 0 ? (
+                                <div className="alert alert-warning text-center">
+                                    No hay productos disponibles.
+                                </div>
+                            ) : (
+                                <ProductosList
+                                    productos={productos}
+                                    setProductos={setProductos}
+                                    onProductoDeleted={fetchProductos}
+                                />
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

@@ -1,59 +1,131 @@
 import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import Swal from "sweetalert2";
+import Menu from "../Menu.jsx";
 
-const ProductosEdit = ({ productoEdit, onProductoSaved }) => {
+const ProductosEdit = () => {
+    const { id } = useParams();
+    const navigate = useNavigate();
     const [producto, setProducto] = useState({
         Nombre: "",
-        Stock: 0
+        Stock: 0,
     });
 
     useEffect(() => {
-        if (productoEdit) {
-            setProducto({
-                Nombre: productoEdit.Nombre,
-                Stock: productoEdit.Stock
-            });
-        }
-    }, [productoEdit]);
+        axios
+            .get(`https://54.208.187.128/productos/${id}`)
+            .then((response) => setProducto(response.data))
+            .catch((error) => console.error(error));
+    }, [id]);
 
     const handleChange = (e) => {
         setProducto({ ...producto, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
-        try {
-            if (productoEdit) {
-                await axios.put(`https://54.208.187.128/productos/edit/${productoEdit.ID_Producto}`, producto);
-                alert("Producto actualizado");
-            } else {
-                await axios.post("https://54.208.187.128/productos/create", producto);
-                alert("Producto agregado");
-            }
-            onProductoSaved();
-            setProducto({ Nombre: "", Stock: 0 });
-        } catch (error) {
-            console.error("Error al guardar el producto:", error);
+        if (producto.Stock < 0) {
+            Swal.fire({
+                title: "Error",
+                text: "El stock no puede ser negativo.",
+                icon: "error",
+                confirmButtonText: "Aceptar",
+            });
+            return;
         }
+
+        Swal.fire({
+            title: "¿Estás seguro?",
+            text: "¿Deseas actualizar la información del producto?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Sí, actualizar",
+            cancelButtonText: "Cancelar",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                axios
+                    .put(`https://54.208.187.128/productos/edit/${id}`, producto)
+                    .then(() => {
+                        Swal.fire({
+                            title: "¡Actualizado!",
+                            text: "El producto ha sido actualizado correctamente.",
+                            icon: "success",
+                            confirmButtonText: "Aceptar",
+                        }).then(() => {
+                            navigate("/productos");
+                        });
+                    })
+                    .catch((error) => {
+                        console.error(error);
+                        Swal.fire({
+                            title: "Error",
+                            text: "No se pudo actualizar el producto. Inténtelo de nuevo más tarde.",
+                            icon: "error",
+                            confirmButtonText: "Aceptar",
+                        });
+                    });
+            }
+        });
     };
 
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+    const containerStyle = {
+        marginLeft: isMobile ? "0" : "205px",
+        marginTop: isMobile ? "30px" : "0",
+        padding: "5px",
+        transition: "all 0.3s ease"
+    };
+
+
     return (
-        <div className="container mt-3">
-            <h3 className="text-center">{productoEdit ? "Editar Producto" : "Agregar Producto"}</h3>
-            <form onSubmit={handleSubmit} className="card p-4 shadow">
-                <div className="mb-3">
-                    <label className="form-label">Nombre</label>
-                    <input type="text" name="Nombre" value={producto.Nombre} onChange={handleChange} className="form-control" required />
-                </div>
-                <div className="mb-3">
-                    <label className="form-label">Stock</label>
-                    <input type="number" name="Stock" value={producto.Stock} onChange={handleChange} className="form-control" required />
-                </div>
-                <button type="submit" className="btn btn-primary">
-                    {productoEdit ? "Actualizar" : "Agregar"}
+        <>
+            <Menu />
+            <div className="container mt-5" style={containerStyle}>
+                <h2 className="text-center mb-4">Editar Producto</h2>
+                <button onClick={() => navigate(-1)} className="btn btn-secondary mb-3">
+                    <i className="bi bi-arrow-left me-2"></i>Regresar
                 </button>
-            </form>
-        </div>
+                <form onSubmit={handleSubmit} className="card p-4 shadow">
+                    <div className="mb-3">
+                        <label className="form-label">Nombre</label>
+                        <input
+                            type="text"
+                            name="Nombre"
+                            value={producto.Nombre}
+                            onChange={handleChange}
+                            className="form-control"
+                            required
+                        />
+                    </div>
+                    <div className="mb-3">
+                        <label className="form-label">Stock</label>
+                        <input
+                            type="number"
+                            name="Stock"
+                            value={producto.Stock}
+                            onChange={handleChange}
+                            className="form-control"
+                            required
+                            min="0"
+                        />
+                    </div>
+                    <button type="submit" className="btn btn-primary">
+                        Actualizar Producto
+                    </button>
+                </form>
+            </div>
+        </>
     );
 };
 

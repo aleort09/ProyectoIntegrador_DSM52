@@ -113,7 +113,6 @@ const HomeUsuarios = () => {
 
     return (
         <>
-
             <Menu />
             <div className="main-content" style={containerStyle}>
                 <div className="p-4">

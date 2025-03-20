@@ -80,7 +80,6 @@ const UsuariosList = ({ usuarios, setUsuarios, onUsuarioDeleted, userRole }) => 
                         <th>Dirección</th>
                         <th>Rol</th>
                         <th>Fecha de Registro</th>
-                        {/* Mostrar columna de acciones solo si el rol no es "empleado" */}
                         {userRole !== "empleado" && <th>Acciones</th>}
                     </tr>
                 </thead>

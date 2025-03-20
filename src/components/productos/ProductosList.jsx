@@ -1,114 +1,148 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
-import * as XLSX from "xlsx";
-import ProductosEdit from "./ProductosEdit";
+import Swal from "sweetalert2";
+import { FaEdit, FaTrash } from "react-icons/fa";
 import ProductosChart from "../charts/ProductosChart";
+import Menu from "../Menu";
 
-const ProductosList = ({ productos, setProductos, onProductoDeleted }) => {
-    const [filtro, setFiltro] = useState(""); 
-    const [productoEdit, setProductoEdit] = useState(null); 
-    const [loading, setLoading] = useState(true);
+const ProductosList = ({ productos, setProductos, onProductoDeleted, userRole }) => {
+    const [currentPage, setCurrentPage] = useState(1);
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const itemsPerPage = 10;
 
-    const handleDelete = async (id) => {
-        if (window.confirm("¿Seguro que deseas eliminar este producto?")) {
-            try {
-                await axios.delete(`https://54.208.187.128/productos/delete/${id}`);
-                alert("Producto eliminado");
-                onProductoDeleted(); 
-            } catch (error) {
-                console.error("Error al eliminar el producto:", error);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentProductos = productos.slice(startIndex, endIndex);
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+
+    const handleDelete = (id) => {
+        Swal.fire({
+            title: "¿Estás seguro?",
+            text: "¡No podrás revertir esto!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Sí, eliminar",
+            cancelButtonText: "Cancelar",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                setLoading(true);
+                axios
+                    .delete(`https://54.208.187.128/productos/delete/${id}`)
+                    .then(() => {
+                        setError(null);
+                        onProductoDeleted();
+                        Swal.fire({
+                            title: "¡Eliminado!",
+                            text: "El producto ha sido eliminado.",
+                            icon: "success",
+                            confirmButtonText: "Aceptar",
+                        });
+                        setLoading(false);
+                    })
+                    .catch((error) => {
+                        console.error(error);
+                        setError("No se pudo eliminar el Producto. Inténtelo de nuevo más tarde.");
+                        setLoading(false);
+                    });
             }
-        }
+        });
     };
 
-    const handleEdit = (producto) => {
-        setProductoEdit(producto);
-    };
-
-    const productosFiltrados = productos.filter(producto =>
-        producto.Nombre.toLowerCase().includes(filtro.toLowerCase()) || 
-        producto.Stock.toString().includes(filtro)
-    );
-
-    const exportToExcel = () => {
-        // Crear una hoja de cálculo con los datos filtrados
-        const hoja = XLSX.utils.json_to_sheet(productosFiltrados);
-        const libro = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(libro, hoja, "Productos");
-
-        // Generar el archivo Excel en formato binario
-        const excelBuffer = XLSX.write(libro, { bookType: "xlsx", type: "array" });
-
-        // Crear un Blob con el archivo Excel
-        const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-
-        // Crear un enlace de descarga
-        const url = URL.createObjectURL(data);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = "productos.xlsx"; // Nombre del archivo
-        document.body.appendChild(link);
-        link.click(); // Simular clic en el enlace para descargar
-        document.body.removeChild(link); // Eliminar el enlace del DOM
-        URL.revokeObjectURL(url); // Liberar la URL del Blob
-    };
-
-    if (loading) {
-        return <div>Loading...</div>;
-    }
+    const totalPages = Math.ceil(productos.length / itemsPerPage);
 
     return (
-        <div className="container mt-5">
-            <h2 className="text-center mb-4">Lista de Productos</h2>
-
-            {productoEdit && (
-                <ProductosEdit productoEdit={productoEdit} onProductoSaved={() => { setProductoEdit(null); onProductoDeleted(); }} />
-            )}
-
-            <input 
-                type="text" 
-                placeholder="Buscar producto..." 
-                value={filtro} 
-                onChange={(e) => setFiltro(e.target.value)} 
-                className="form-control my-3"
-            />
-
-            <button className="btn btn-success mb-3" onClick={exportToExcel}>
-                Exportar a Excel
-            </button>
-
-            <table className="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nombre</th>
-                        <th>Stock</th>
-                        <th>Fecha de Registro</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {productosFiltrados.map((producto) => (
-                        <tr key={producto.ID_Producto}>
-                            <td>{producto.ID_Producto}</td>
-                            <td>{producto.Nombre}</td>
-                            <td>{producto.Stock}</td>
-                            <td>{new Date(producto.Fecha_Registro).toLocaleDateString()}</td>
-                            <td>
-                                <button className="btn btn-warning me-2" onClick={() => handleEdit(producto)}>
-                                    Editar
-                                </button>
-                                <button className="btn btn-danger" onClick={() => handleDelete(producto.ID_Producto)}>
-                                    Eliminar
-                                </button>
-                            </td>
+        <>
+            <Menu />
+            <div className="container mt-5">
+                {error && (
+                    <div className="alert alert-danger" role="alert">
+                        {error}
+                    </div>
+                )}
+                {loading && <div className="text-center">Cargando...</div>}
+                <table className="table table-striped table-hover">
+                    <thead className="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Stock</th>
+                            <th>Fecha de Registro</th>
+                            {userRole !== "empleado" && <th>Acciones</th>}
                         </tr>
-                    ))}
-                </tbody>
-            </table>
-
-            <ProductosChart productos={productosFiltrados} />
-        </div>
+                    </thead>
+                    <tbody>
+                        {currentProductos.map((producto) => (
+                            <tr key={producto.ID_Producto}>
+                                <td>{producto.ID_Producto}</td>
+                                <td>{producto.Nombre}</td>
+                                <td>{producto.Stock}</td>
+                                <td>{new Date(producto.Fecha_Registro).toLocaleDateString()}</td>
+                                {userRole !== "empleado" && (
+                                    <td>
+                                        <Link
+                                            to={`/productos/edit/${producto.ID_Producto}`}
+                                            className="btn btn-primary btn-sm me-2"
+                                        >
+                                            <FaEdit className="icon-edit" />
+                                        </Link>
+                                        <button
+                                            onClick={() => handleDelete(producto.ID_Producto)}
+                                            className="btn btn-danger btn-sm"
+                                        >
+                                            <FaTrash className="icon-delete" />
+                                        </button>
+                                    </td>
+                                )}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+                {totalPages > 1 && (
+                    <div className="d-flex justify-content-center mt-4">
+                        <nav>
+                            <ul className="pagination">
+                                <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+                                    <button
+                                        className="page-link"
+                                        onClick={() => handlePageChange(currentPage - 1)}
+                                        disabled={currentPage === 1}
+                                    >
+                                        Anterior
+                                    </button>
+                                </li>
+                                {Array.from({ length: totalPages }, (_, i) => (
+                                    <li key={i + 1} className={`page-item ${currentPage === i + 1 ? "active" : ""}`}>
+                                        <button
+                                            className="page-link"
+                                            onClick={() => handlePageChange(i + 1)}
+                                        >
+                                            {i + 1}
+                                        </button>
+                                    </li>
+                                ))}
+                                <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
+                                    <button
+                                        className="page-link"
+                                        onClick={() => handlePageChange(currentPage + 1)}
+                                        disabled={currentPage === totalPages}
+                                    >
+                                        Siguiente
+                                    </button>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                )}
+                <ProductosChart productos={productos} />
+            </div>
+        </>
     );
 };
 

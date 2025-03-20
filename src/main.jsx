@@ -14,6 +14,10 @@ import ClasificacionEdit from "./components/clasificacion_paquetes/Clasificacion
 import PaquetesEdit from "./components/deteccion_paquetes/PaquetesEdit";
 import RemotosEdit from "./components/datos_remotos/RemotosEdit";
 import UsuariosCreate from "./components/usuarios/UsuariosCreate";
+import ProductosCreate from "./components/productos/ProductosCreate"; // Importa el nuevo componente
+import ClasificacionCreate from "./components/clasificacion_paquetes/ClasificacionCreate"; // Importa el nuevo componente
+import PaquetesCreate from "./components/deteccion_paquetes/PaquetesCreate"; // Importa el nuevo componente
+import RemotosCreate from "./components/datos_remotos/RemotosCreate"; // Importa el nuevo componente
 import LoginForm from "./components/login/LoginForm";
 import RegisterForm from "./components/login/RegisterForm";
 import ChangePassword from "./components/login/ChangePassword";
@@ -43,19 +47,22 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/productos" element={<HomeProductos />} />
           <Route path="/productos/edit/:id" element={<ProductosEdit />} />
+          <Route path="/productos/create" element={<ProductosCreate />} />
           <Route path="/usuarios" element={<HomeUsuarios />} />
           <Route path="/usuarios/edit/:id" element={<UsuariosEdit />} />
-          <Route path="usuarios/create" element={<UsuariosCreate/>}/>
+          <Route path="/usuarios/create" element={<UsuariosCreate />} />
           <Route path="/perfil" element={<Perfil />} />
           <Route path="/clasificacion_paquetes" element={<HomeClasificacion />} />
           <Route path="/clasificacion_paquetes/edit/:id" element={<ClasificacionEdit />} />
+          <Route path="/clasificacion_paquetes/create" element={<ClasificacionCreate />} /> {/* Nueva ruta */}
           <Route path="/deteccion_paquetes" element={<HomePaquetes />} />
           <Route path="/deteccion_paquetes/edit/:id" element={<PaquetesEdit />} />
+          <Route path="/deteccion_paquetes/create" element={<PaquetesCreate />} /> {/* Nueva ruta */}
           <Route path="/remotos" element={<HomeRemotos />} />
           <Route path="/remotos/edit/:id" element={<RemotosEdit />} />
+          <Route path="/remotos/create" element={<RemotosCreate />} /> {/* Nueva ruta */}
         </Route>
       </Routes>
     </BrowserRouter>
   </>
 );
-
