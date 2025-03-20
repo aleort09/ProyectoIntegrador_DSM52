@@ -6,7 +6,7 @@ import * as XLSX from "xlsx";
 import Menu from "../components/Menu";
 import { FaPlus } from "react-icons/fa";
 import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable"; // Importación correcta de jspdf-autotable
+import autoTable from "jspdf-autotable";
 import Swal from "sweetalert2";
 
 const HomeUsuarios = () => {
@@ -72,7 +72,7 @@ const HomeUsuarios = () => {
     const exportToPDF = () => {
         const doc = new jsPDF();
         doc.text("Lista de Usuarios", 10, 10);
-        autoTable(doc, { // Usamos autoTable correctamente
+        autoTable(doc, {
             head: [["ID", "Nombre", "Apellido", "Correo", "Teléfono", "Dirección", "Rol", "Fecha de Registro"]],
             body: usuarios.map(user => [
                 user.ID_Usuario,
@@ -93,72 +93,93 @@ const HomeUsuarios = () => {
         setFilters(prevFilters => ({ ...prevFilters, [name]: value }));
     };
 
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+    const containerStyle = {
+        marginLeft: isMobile ? "0" : "200px",
+        marginTop: isMobile ? "30px" : "0",
+        padding: "5px",
+        transition: "all 0.3s ease"
+    };
+
+
     return (
-        <div>
+        <>
+
             <Menu />
-            <div className="p-4" style={{ marginLeft: "10px", marginRight:"10px" }}>
-                <h2 className="text-center">Gestión de Usuarios</h2>
-                <div className="mb-3">
-                    <label className="form-label">Importar usuarios desde Excel</label>
-                    <input
-                        type="file"
-                        accept=".xlsx, .xls"
-                        onChange={handleFileUpload}
-                        className="form-control mb-2"
-                    />
-                    <div className="d-flex gap-2">
-                        <button onClick={exportToExcel} className="btn btn-success flex-grow-1">
-                            Exportar a Excel
-                        </button>
-                        <button onClick={exportToPDF} className="btn btn-danger flex-grow-1">
-                            Exportar a PDF
-                        </button>
-                    </div>
-                </div>
-                <div className="row mb-4">
-                    <div className="col-md-6">
+            <div className="main-content" style={containerStyle}>
+                <div className="p-4">
+                    <h2 className="text-center">Gestión de Usuarios</h2>
+                    <div className="mb-3">
+                        <label className="form-label">Importar usuarios desde Excel</label>
                         <input
-                            type="text"
-                            name="nombre"
-                            placeholder="Filtrar por nombre"
-                            value={filters.nombre}
-                            onChange={handleFilterChange}
-                            className="form-control"
+                            type="file"
+                            accept=".xlsx, .xls"
+                            onChange={handleFileUpload}
+                            className="form-control mb-2"
                         />
-                    </div>
-                    <div className="col-md-6">
-                        <input
-                            type="text"
-                            name="apellido"
-                            placeholder="Filtrar por apellido"
-                            value={filters.apellido}
-                            onChange={handleFilterChange}
-                            className="form-control"
-                        />
-                    </div>
-                </div>
-                <div className="card-body">
-                    <div className="mb-4">
-                        <button onClick={() => navigate("/usuarios/create")} className="btn btn-primary">
-                            <FaPlus /> Crear Usuario
-                        </button>
-                    </div>
-                    {usuarios.length === 0 ? (
-                        <div className="alert alert-warning text-center">
-                            No hay datos que coincidan con la búsqueda.
+                        <div className="d-flex gap-2">
+                            <button onClick={exportToExcel} className="btn btn-success flex-grow-1">
+                                Exportar a Excel
+                            </button>
+                            <button onClick={exportToPDF} className="btn btn-danger flex-grow-1">
+                                Exportar a PDF
+                            </button>
                         </div>
-                    ) : (
-                        <div style={{ overflowX: "auto" }}>
-                            <UsuariosList
-                                usuarios={usuarios}
-                                setUsuarios={setUsuarios}
-                                onUsuarioDeleted={handleDeleted}
+                    </div>
+                    <div className="row mb-4">
+                        <div className="col-md-6">
+                            <input
+                                type="text"
+                                name="nombre"
+                                placeholder="Filtrar por nombre"
+                                value={filters.nombre}
+                                onChange={handleFilterChange}
+                                className="form-control"
                             />
                         </div>
-                    )}
+                        <div className="col-md-6">
+                            <input
+                                type="text"
+                                name="apellido"
+                                placeholder="Filtrar por apellido"
+                                value={filters.apellido}
+                                onChange={handleFilterChange}
+                                className="form-control"
+                            />
+                        </div>
+                    </div>
+                    <div className="card-body">
+                        <div className="mb-4">
+                            <button onClick={() => navigate("/usuarios/create")} className="btn btn-primary">
+                                <FaPlus /> Crear Usuario
+                            </button>
+                        </div>
+                        {usuarios.length === 0 ? (
+                            <div className="alert alert-warning text-center">
+                                No hay datos que coincidan con la búsqueda.
+                            </div>
+                        ) : (
+                            <div style={{ overflowX: "auto" }}>
+                                <UsuariosList
+                                    usuarios={usuarios}
+                                    setUsuarios={setUsuarios}
+                                    onUsuarioDeleted={handleDeleted}
+                                />
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 };
 

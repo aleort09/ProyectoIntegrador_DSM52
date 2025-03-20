@@ -55,10 +55,10 @@ const UsuariosCreate = ({ onUsuarioAdded = () => {} }) => {
         <>
         <Menu/>
         <div className="container mt-5">
+            <h2 className="text-center mb-4">Crear Usuario</h2>
             <button onClick={() => navigate(-1)} className="btn btn-secondary mb-3">
                 Regresar
             </button>
-            <h2 className="text-center mb-4">Crear Usuario</h2>
             <form onSubmit={handleSubmit} className="card p-4 shadow">
                 <div className="mb-3">
                     <label className="form-label">Nombre</label>

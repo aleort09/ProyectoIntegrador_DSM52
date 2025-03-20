@@ -1,9 +1,20 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const Menu = () => {
     const navigate = useNavigate();
     const [isMenuOpen, setIsMenuOpen] = useState(false); // Estado para controlar el menú
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768); // Estado para detectar dispositivos móviles
+
+    // Función para detectar cambios en el tamaño de la pantalla
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     const handleLogout = () => {
         localStorage.clear();
@@ -21,57 +32,69 @@ const Menu = () => {
 
     return (
         <>
-            {/* Botón para desplegar/ocultar el menú (siempre visible) */}
-            <button
-                className="btn btn-primary fixed-top"
-                style={{
-                    zIndex: 1000,
-                    left: 0,
-                    top: 0,
-                    width: "200px",
-                    borderRadius: 0,
-                    padding: "10px",
-                    backgroundColor: "#254064",
-                    border: "none",
-                }}
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-                <i className={`bi ${isMenuOpen ? "bi-x" : "bi-list"}`}></i>
-            </button>
+            {/* Integración de la fuente de Google Fonts */}
+            <style>
+                {`
+                    @import url('https://fonts.googleapis.com/css2?family=Rubik+Moonrocks&display=swap');
+                    .custom-font {
+                        font-family: ${isMobile ? "'Rubik Moonrocks', cursive" : "inherit"};
+                        font-size: ${isMobile ? "1.5rem" : "1rem"};
+                    }
+                `}
+            </style>
+
+            {/* Botón para desplegar/ocultar el menú en móviles */}
+            {isMobile && (
+                <button
+                    className="btn btn-primary fixed-top w-100"
+                    style={{
+                        zIndex: 1000,
+                        left: 0,
+                        top: 0,
+                        borderRadius: 0,
+                        padding: "10px",
+                        backgroundColor: "#254064",
+                        border: "none",
+                    }}
+                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                >
+                    <i className={`bi ${isMenuOpen ? "bi-x" : "bi-list"}`}></i>
+                </button>
+            )}
 
             {/* Menú principal */}
             <div
                 className="d-flex flex-column p-3 text-white"
                 style={{
-                    width: "200px",
-                    height: "calc(100vh - 30px)", // Altura ajustada para evitar cortes
+                    width: isMobile ? "100%" : "200px", // Ancho completo en móviles, 200px en ordenadores
+                    height: isMobile ? "100vh" : "100vh", // Altura completa en móviles, altura completa en ordenadores
                     backgroundColor: "#254064",
                     position: "fixed",
-                    left: 0,
-                    top: isMenuOpen ? "30px" : "-100vh", // Desplazamiento desde arriba
+                    left: isMobile ? (isMenuOpen ? 0 : "-100%") : 0, // Desplazamiento en móviles, siempre visible en ordenadores
+                    top: isMobile ? "30px" : 0, // Margen superior en móviles, sin margen en ordenadores
                     boxShadow: "2px 0 10px rgba(0, 0, 0, 0.1)",
-                    transition: "top 0.3s ease",
+                    transition: "left 0.3s ease",
                     zIndex: 999,
                     overflowY: "auto", // Permite desplazamiento vertical si el contenido es largo
                 }}
             >
+                {/* Logo con tamaño fijo */}
                 <div className="d-flex align-items-center justify-content-center mb-3">
                     <img
                         src="/logo.png"
                         alt="Logo"
-                        className="img-fluid"
-                        style={{ maxWidth: "100%", height: "auto", transition: "transform 0.3s ease" }}
+                        style={{ width: "150px", height: "auto", transition: "transform 0.3s ease" }}
                         onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
                         onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
                     />
                 </div>
 
-                <ul className="nav nav-pills flex-column mb-auto">
+                <ul className="nav nav-pills flex-column mb-2">
                     {menuItems.map((item, index) => (
                         <li key={index} className="nav-item mb-2">
                             <Link
                                 to={item.path}
-                                className="nav-link d-flex align-items-center p-3 rounded text-white"
+                                className="nav-link d-flex align-items-center p-3 rounded text-white custom-font"
                                 style={{ transition: "all 0.3s ease" }}
                                 onMouseEnter={(e) => {
                                     e.currentTarget.style.backgroundColor = "#ccc";
@@ -89,12 +112,12 @@ const Menu = () => {
                     ))}
                 </ul>
 
-                <div className="mt-auto">
+                <div className="mt-2">
                     <hr style={{ borderColor: "#fff" }} />
                     <div className="dropdown">
                         <Link
                             to="#"
-                            className="d-flex align-items-center text-white text-decoration-none dropdown-toggle p-3 rounded"
+                            className="d-flex align-items-center text-white text-decoration-none dropdown-toggle p-3 rounded custom-font"
                             id="dropdownUser"
                             data-bs-toggle="dropdown"
                             aria-expanded="false"
@@ -108,13 +131,7 @@ const Menu = () => {
                                 e.currentTarget.style.color = "#fff";
                             }}
                         >
-                            <img
-                                src="perfil.gif"
-                                alt="Perfil"
-                                width="80"
-                                height="80"
-                                className="rounded-circle me-2"
-                            />
+                            <i className="bi bi-person-circle me-2" style={{ fontSize: "1.5rem" }}></i>
                             <strong>Perfil</strong>
                         </Link>
                         <ul
@@ -122,7 +139,7 @@ const Menu = () => {
                             aria-labelledby="dropdownUser"
                         >
                             <li>
-                                <Link to="/perfil" className="dropdown-item">
+                                <Link to="/perfil" className="dropdown-item custom-font">
                                     Ver Perfil
                                 </Link>
                             </li>
@@ -130,7 +147,7 @@ const Menu = () => {
                                 <hr className="dropdown-divider" />
                             </li>
                             <li>
-                                <button onClick={handleLogout} className="dropdown-item">
+                                <button onClick={handleLogout} className="dropdown-item custom-font">
                                     Cerrar Sesión
                                 </button>
                             </li>
