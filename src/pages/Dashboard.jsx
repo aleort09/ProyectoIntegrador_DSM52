@@ -1,13 +1,10 @@
 import { Link } from "react-router-dom";
-import Menu from "../components/Menu";
 
 const Dashboard = () => {
     return (
         <>
-            <Menu />
             <div
                 className="container text-center mt-5"
-                style={{ marginLeft: "250px", padding: "20px" }}
             >
                 <h1 className="mb-4">Bienvenido</h1>
                 <div className="row">

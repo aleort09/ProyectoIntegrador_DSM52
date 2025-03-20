@@ -28,12 +28,11 @@ const Menu = () => {
                     zIndex: 1000,
                     left: 0,
                     top: 0,
-                    width: "200px", // Mismo ancho que el menú
-                    borderRadius: 0, // Sin bordes redondeados
-                    padding: "10px", // Padding para que el ícono esté centrado
-                    marginTop: "0", // Sin margen superior
-                    backgroundColor: "#254064", // Color del menú
-                    border: "none", // Sin bordes
+                    width: "200px",
+                    borderRadius: 0,
+                    padding: "10px",
+                    backgroundColor: "#254064",
+                    border: "none",
                 }}
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
@@ -45,15 +44,15 @@ const Menu = () => {
                 className="d-flex flex-column p-3 text-white"
                 style={{
                     width: "200px",
-                    height: "100vh",
+                    height: "calc(100vh - 30px)", // Altura ajustada para evitar cortes
                     backgroundColor: "#254064",
                     position: "fixed",
-                    left: isMenuOpen ? 0 : "-200px", // Desplazamiento del menú
-                    top: 0,
+                    left: 0,
+                    top: isMenuOpen ? "30px" : "-100vh", // Desplazamiento desde arriba
                     boxShadow: "2px 0 10px rgba(0, 0, 0, 0.1)",
-                    transition: "left 0.3s ease",
+                    transition: "top 0.3s ease",
                     zIndex: 999,
-                    marginTop: "30px", // Margen superior para que el botón y el menú se vean como uno solo
+                    overflowY: "auto", // Permite desplazamiento vertical si el contenido es largo
                 }}
             >
                 <div className="d-flex align-items-center justify-content-center mb-3">
