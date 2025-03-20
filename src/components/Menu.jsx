@@ -32,7 +32,6 @@ const Menu = () => {
 
     return (
         <>
-            {/* Integración de la fuente de Google Fonts */}
             <style>
                 {`
                     @import url('https://fonts.googleapis.com/css2?family=Rubik+Moonrocks&display=swap');
@@ -43,24 +42,26 @@ const Menu = () => {
                 `}
             </style>
 
-            {/* Botón para desplegar/ocultar el menú en móviles */}
             {isMobile && (
-                <button
-                    className="btn btn-primary fixed-top w-100"
-                    style={{
-                        zIndex: 1000,
-                        left: 0,
-                        top: 0,
-                        borderRadius: 0,
-                        padding: "10px",
-                        backgroundColor: "#254064",
-                        border: "none",
-                    }}
-                    onClick={() => setIsMenuOpen(!isMenuOpen)}
-                >
-                    <i className={`bi ${isMenuOpen ? "bi-x" : "bi-list"}`}></i>
-                </button>
-            )}
+    <button
+        className="btn btn-primary fixed-top w-100 d-flex align-items-center justify-content-center gap-2"
+        style={{
+            zIndex: 1000,
+            left: 0,
+            top: 0,
+            borderRadius: 0,
+            padding: "10px",
+            backgroundColor: "#254064",
+            border: "none",
+        }}
+        onClick={() => setIsMenuOpen(!isMenuOpen)}
+    >
+        <i className={`bi ${isMenuOpen ? "bi-x" : "bi-list"}`} style={{ fontSize: "1.2rem" }}></i>
+        <span style={{ margin: 0 }}>{isMenuOpen ? "VR menu" : "Ocultar Menu"}</span>
+    </button>
+)}
+
+
 
             {/* Menú principal */}
             <div
@@ -71,30 +72,29 @@ const Menu = () => {
                     backgroundColor: "#254064",
                     position: "fixed",
                     left: isMobile ? (isMenuOpen ? 0 : "-100%") : 0, // Desplazamiento en móviles, siempre visible en ordenadores
-                    top: isMobile ? "30px" : 0, // Margen superior en móviles, sin margen en ordenadores
+                    top: isMobile ? "40px" : 0, // Margen superior en móviles, sin margen en ordenadores
                     boxShadow: "2px 0 10px rgba(0, 0, 0, 0.1)",
                     transition: "left 0.3s ease",
                     zIndex: 999,
-                    overflowY: "auto", // Permite desplazamiento vertical si el contenido es largo
                 }}
             >
                 {/* Logo con tamaño fijo */}
-                <div className="d-flex align-items-center justify-content-center mb-1">
+                <div className="d-flex align-items-center justify-content-center mb-3">
                     <img
                         src="/logo.png"
                         alt="Logo"
-                        style={{ width: "150px", height: "auto", transition: "transform 0.3s ease" }}
+                        style={{ width: "100px", height: "auto", transition: "transform 0.3s ease" }}
                         onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
                         onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
                     />
                 </div>
 
-                <ul className="nav nav-pills flex-column mb-1">
+                <ul className="nav nav-pills flex-column mb-3">
                     {menuItems.map((item, index) => (
                         <li key={index} className="nav-item mb-1">
                             <Link
                                 to={item.path}
-                                className="nav-link d-flex align-items-center p-3 rounded text-white custom-font"
+                                className="nav-link d-flex align-items-center p-2 rounded text-white custom-font"
                                 style={{ transition: "all 0.3s ease" }}
                                 onMouseEnter={(e) => {
                                     e.currentTarget.style.backgroundColor = "#ccc";
@@ -112,7 +112,7 @@ const Menu = () => {
                     ))}
                 </ul>
 
-                <div className="mt-1">
+                <div className="mt-3">
                     <hr style={{ borderColor: "#fff" }} />
                     <div className="dropdown">
                         <Link
@@ -131,7 +131,7 @@ const Menu = () => {
                                 e.currentTarget.style.color = "#fff";
                             }}
                         >
-                            <i className="bi bi-person-circle me-2" style={{ fontSize: "1.5rem" }}></i>
+                            <i className="bi bi-person-circle me-2" style={{ fontSize: "1rem" }}></i>
                             <strong>Perfil</strong>
                         </Link>
                         <ul

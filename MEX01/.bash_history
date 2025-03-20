@@ -79,3 +79,18 @@ git push origin AppsMoviles
 git add .
 git commit -m "Arreglos en Graficas"
 git push origin AppsMoviles
+git add .
+git commit -m "Cambios en Usuarios"
+git push origin AppsMoviles
+git add .
+git commit -m "Modificaciones en Menu"
+git push origin AppsMoviles
+git add .
+git commit -m "Cambios en Menu 2.0"
+git push origin AppsMoviles
+git add .
+git commit -m "Cambios en Menu 3.0"
+git push origin AppsMoviles
+git add .
+git commit -m "Cambios en estilos de menu"
+git push origin AppsMoviles
