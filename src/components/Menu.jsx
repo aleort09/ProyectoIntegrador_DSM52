@@ -79,7 +79,7 @@ const Menu = () => {
                 }}
             >
                 {/* Logo con tamaño fijo */}
-                <div className="d-flex align-items-center justify-content-center mb-3">
+                <div className="d-flex align-items-center justify-content-center mb-1">
                     <img
                         src="/logo.png"
                         alt="Logo"
@@ -89,9 +89,9 @@ const Menu = () => {
                     />
                 </div>
 
-                <ul className="nav nav-pills flex-column mb-2">
+                <ul className="nav nav-pills flex-column mb-1">
                     {menuItems.map((item, index) => (
-                        <li key={index} className="nav-item mb-2">
+                        <li key={index} className="nav-item mb-1">
                             <Link
                                 to={item.path}
                                 className="nav-link d-flex align-items-center p-3 rounded text-white custom-font"
@@ -112,7 +112,7 @@ const Menu = () => {
                     ))}
                 </ul>
 
-                <div className="mt-2">
+                <div className="mt-1">
                     <hr style={{ borderColor: "#fff" }} />
                     <div className="dropdown">
                         <Link
