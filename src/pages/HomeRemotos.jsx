@@ -50,7 +50,7 @@ const HomeRemotos = () => {
             console.log("Datos del Excel:", jsonData);
 
             // Asegurarse de que el endpoint para importar datos remotos esté correcto
-            axios.post("https://54.208.187.128/import/datos_remotos", jsonData)
+            axios.post("https://54.208.187.128/importar/datos_remotos", jsonData)
                 .then(response => {
                     alert(response.data.message);
                     fetchRemoteData();

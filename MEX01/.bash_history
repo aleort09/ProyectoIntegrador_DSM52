@@ -76,3 +76,6 @@ git push origin AppsMoviles
 git add .
 git commit -m "Agregando estilos a componentes"
 git push origin AppsMoviles
+git add .
+git commit -m "Arreglos en Graficas"
+git push origin AppsMoviles

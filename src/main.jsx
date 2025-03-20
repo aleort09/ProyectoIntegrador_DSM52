@@ -13,6 +13,7 @@ import UsuariosEdit from "./components/usuarios/UsuariosEdit";
 import ClasificacionEdit from "./components/clasificacion_paquetes/ClasificacionEdit";
 import PaquetesEdit from "./components/deteccion_paquetes/PaquetesEdit";
 import RemotosEdit from "./components/datos_remotos/RemotosEdit";
+import UsuariosCreate from "./components/usuarios/UsuariosCreate";
 import LoginForm from "./components/login/LoginForm";
 import RegisterForm from "./components/login/RegisterForm";
 import ChangePassword from "./components/login/ChangePassword";
@@ -44,6 +45,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/productos/edit/:id" element={<ProductosEdit />} />
           <Route path="/usuarios" element={<HomeUsuarios />} />
           <Route path="/usuarios/edit/:id" element={<UsuariosEdit />} />
+          <Route path="usuarios/create" element={<UsuariosCreate/>}/>
           <Route path="/perfil" element={<Perfil />} />
           <Route path="/clasificacion_paquetes" element={<HomeClasificacion />} />
           <Route path="/clasificacion_paquetes/edit/:id" element={<ClasificacionEdit />} />

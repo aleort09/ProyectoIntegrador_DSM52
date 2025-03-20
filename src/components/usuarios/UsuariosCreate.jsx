@@ -1,15 +1,17 @@
 import { useState } from "react";
 import axios from "axios";
+import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
-const UsuariosCreate = ({ onUsuarioAdded }) => {
+const UsuariosCreate = ({ onUsuarioAdded = () => {} }) => {
+    const navigate = useNavigate();
     const [usuario, setUsuario] = useState({
         Nombre: "",
         Apellido: "",
         Correo: "",
         Telefono: "",
         Direccion: "",
-        Contraseña: "", // Agregar el campo Contraseña
-        Rol: "Cliente",
+        Contraseña: ""
     });
 
     const handleChange = (e) => {
@@ -20,26 +22,39 @@ const UsuariosCreate = ({ onUsuarioAdded }) => {
         e.preventDefault();
         axios.post("https://54.208.187.128/users/create", usuario)
             .then(() => {
-                alert("Usuario registrado");
+                Swal.fire({
+                    title: "¡Éxito!",
+                    text: "Usuario registrado correctamente.",
+                    icon: "success",
+                    confirmButtonText: "Aceptar",
+                });
                 onUsuarioAdded();
+                navigate("/usuarios");
                 setUsuario({
                     Nombre: "",
                     Apellido: "",
                     Correo: "",
                     Telefono: "",
                     Direccion: "",
-                    Contraseña: "", // Reiniciar el campo Contraseña
-                    Rol: "Cliente",
+                    Contraseña: ""
                 });
             })
             .catch((error) => {
-                console.error(error);
-                alert("Error al registrar usuario");
+                console.error("Error en la solicitud:", error);
+                Swal.fire({
+                    title: "Error",
+                    text: "Error al registrar usuario.",
+                    icon: "error",
+                    confirmButtonText: "Aceptar",
+                });
             });
     };
 
     return (
         <div className="container mt-5">
+            <button onClick={() => navigate(-1)} className="btn btn-secondary mb-3">
+                Regresar
+            </button>
             <h2 className="text-center mb-4">Crear Usuario</h2>
             <form onSubmit={handleSubmit} className="card p-4 shadow">
                 <div className="mb-3">
@@ -65,13 +80,6 @@ const UsuariosCreate = ({ onUsuarioAdded }) => {
                 <div className="mb-3">
                     <label className="form-label">Contraseña</label>
                     <input type="password" name="Contraseña" value={usuario.Contraseña} onChange={handleChange} className="form-control" required />
-                </div>
-                <div className="mb-3">
-                    <label className="form-label">Rol</label>
-                    <select name="Rol" value={usuario.Rol} onChange={handleChange} className="form-select" required>
-                        <option value="Cliente">Cliente</option>
-                        <option value="Administrador">Administrador</option>
-                    </select>
                 </div>
                 <button type="submit" className="btn btn-primary">Agregar Usuario</button>
             </form>

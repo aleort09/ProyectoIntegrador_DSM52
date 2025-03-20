@@ -50,7 +50,7 @@ const HomeProductos = () => {
             console.log("Datos del Excel:", jsonData);
 
             axios
-                .post("https://54.208.187.128/import/productos", jsonData)
+                .post("https://54.208.187.128/importar/productos", jsonData)
                 .then((response) => {
                     alert(response.data.message);
                     fetchProductos();

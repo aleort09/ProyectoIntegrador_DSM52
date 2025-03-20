@@ -47,7 +47,7 @@ const HomePaquetes = () => {
             const sheet = workbook.Sheets[sheetName];
             const jsonData = XLSX.utils.sheet_to_json(sheet);
 
-            axios.post("https://54.208.187.128/import/deteccion_paquetes", jsonData)
+            axios.post("https://54.208.187.128/importar/deteccion_paquetes", jsonData)
                 .then(response => {
                     alert(response.data.message);
                     fetchPackageDetections();
