@@ -57,7 +57,7 @@ const Menu = () => {
         onClick={() => setIsMenuOpen(!isMenuOpen)}
     >
         <i className={`bi ${isMenuOpen ? "bi-x" : "bi-list"}`} style={{ fontSize: "1.2rem" }}></i>
-        <span style={{ margin: 0 }}>{isMenuOpen ? "VR menu" : "Ocultar Menu"}</span>
+        <span style={{ margin: 0 }}>{isMenuOpen ? "Ocultar Menú" : "Ver Menú"}</span>
     </button>
 )}
 
@@ -91,7 +91,7 @@ const Menu = () => {
 
                 <ul className="nav nav-pills flex-column mb-3">
                     {menuItems.map((item, index) => (
-                        <li key={index} className="nav-item mb-1">
+                        <li key={index} className="nav-item mb-3">
                             <Link
                                 to={item.path}
                                 className="nav-link d-flex align-items-center p-2 rounded text-white custom-font"
