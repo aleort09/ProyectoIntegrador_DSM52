@@ -6,7 +6,8 @@ import * as XLSX from "xlsx";
 import Menu from "../components/Menu";
 import { FaPlus } from "react-icons/fa";
 import jsPDF from "jspdf";
-import "jspdf-autotable";
+import autoTable from "jspdf-autotable"; // Importación correcta de jspdf-autotable
+import Swal from "sweetalert2";
 
 const HomeUsuarios = () => {
     const navigate = useNavigate();
@@ -41,10 +42,23 @@ const HomeUsuarios = () => {
 
             axios.post("https://54.208.187.128/importar/usuarios", jsonData)
                 .then(response => {
-                    alert(response.data.message);
+                    Swal.fire({
+                        title: "¡Éxito!",
+                        text: response.data.message,
+                        icon: "success",
+                        confirmButtonText: "Aceptar",
+                    });
                     fetchUsuarios();
                 })
-                .catch(error => console.error("Error al importar usuarios:", error));
+                .catch(error => {
+                    console.error("Error al importar usuarios:", error);
+                    Swal.fire({
+                        title: "Error",
+                        text: "Hubo un problema al importar los usuarios.",
+                        icon: "error",
+                        confirmButtonText: "Aceptar",
+                    });
+                });
         };
     };
 
@@ -58,7 +72,7 @@ const HomeUsuarios = () => {
     const exportToPDF = () => {
         const doc = new jsPDF();
         doc.text("Lista de Usuarios", 10, 10);
-        doc.autoTable({
+        autoTable(doc, { // Usamos autoTable correctamente
             head: [["ID", "Nombre", "Apellido", "Correo", "Teléfono", "Dirección", "Rol", "Fecha de Registro"]],
             body: usuarios.map(user => [
                 user.ID_Usuario,
@@ -82,9 +96,10 @@ const HomeUsuarios = () => {
     return (
         <div>
             <Menu />
-            <div className="p-4" style={{ marginLeft: "250px" }}>
-                <h2>Gestión de Usuarios</h2>
+            <div className="p-4" style={{ marginLeft: "10px", marginRight:"10px" }}>
+                <h2 className="text-center">Gestión de Usuarios</h2>
                 <div className="mb-3">
+                    <label className="form-label">Importar usuarios desde Excel</label>
                     <input
                         type="file"
                         accept=".xlsx, .xls"

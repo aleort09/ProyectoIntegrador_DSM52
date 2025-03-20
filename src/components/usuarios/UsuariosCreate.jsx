@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import Menu from "../Menu";
 
 const UsuariosCreate = ({ onUsuarioAdded = () => {} }) => {
     const navigate = useNavigate();
@@ -51,6 +52,8 @@ const UsuariosCreate = ({ onUsuarioAdded = () => {} }) => {
     };
 
     return (
+        <>
+        <Menu/>
         <div className="container mt-5">
             <button onClick={() => navigate(-1)} className="btn btn-secondary mb-3">
                 Regresar
@@ -84,6 +87,7 @@ const UsuariosCreate = ({ onUsuarioAdded = () => {} }) => {
                 <button type="submit" className="btn btn-primary">Agregar Usuario</button>
             </form>
         </div>
+        </>
     );
 };
 
