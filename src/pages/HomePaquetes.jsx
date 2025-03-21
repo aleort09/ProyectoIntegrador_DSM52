@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import PaquetesList from "../components/deteccion_paquetes/PaquetesList";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import axios from "axios";
 import * as XLSX from "xlsx";
 import Menu from "../components/Menu";
@@ -9,6 +9,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import Swal from "sweetalert2";
 import PaquetesChart from "../components/charts/PaquetesChart";
+import isEqual from "lodash/isEqual";
 
 const HomePaquetes = () => {
     const navigate = useNavigate();
@@ -18,30 +19,46 @@ const HomePaquetes = () => {
         fecha: "",
     });
     const [loading, setLoading] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const prevPackageDetections = useRef([]);
 
-    useEffect(() => {
-        fetchPackageDetections();
-    }, [filters]);
-
-    const fetchPackageDetections = () => {
+    // Función para obtener las detecciones de paquetes
+    const fetchPackageDetections = async () => {
         setLoading(true);
-        axios
-            .get("https://ravendev.jeotech.x10.mx/detecciones", { params: filters })
-            .then((response) => {
-                setPackageDetections(response.data || []);
-                setLoading(false);
-            })
-            .catch((error) => {
-                console.error(error);
-                setLoading(false);
-                Swal.fire({
-                    title: "Error",
-                    text: "Hubo un problema al cargar los datos.",
-                    icon: "error",
-                    confirmButtonText: "Aceptar",
-                });
+        try {
+            const response = await axios.get("https://ravendev.jeotech.x10.mx/detecciones", {
+                params: filters,
             });
+            const newData = response.data || [];
+
+            // Comparar datos antiguos y nuevos para evitar actualizaciones innecesarias
+            if (!isEqual(newData, prevPackageDetections.current)) {
+                setPackageDetections(newData);
+                prevPackageDetections.current = newData;
+            }
+        } catch (error) {
+            console.error(error);
+            Swal.fire({
+                title: "Error",
+                text: "Hubo un problema al cargar los datos.",
+                icon: "error",
+                confirmButtonText: "Aceptar",
+            });
+        } finally {
+            setLoading(false);
+        }
     };
+
+    // Polling condicional: Verificar si hay nuevos datos cada 5 segundos
+    useEffect(() => {
+        fetchPackageDetections(); // Llamada inicial para cargar los datos
+
+        const pollingInterval = setInterval(() => {
+            fetchPackageDetections(); // Verificar si hay nuevos datos
+        }, 5000); // Intervalo de 5 segundos
+
+        return () => clearInterval(pollingInterval); // Limpiar el intervalo al desmontar el componente
+    }, [filters]);
 
     const handleAdded = () => {
         fetchPackageDetections();
@@ -115,6 +132,7 @@ const HomePaquetes = () => {
             ...prevFilters,
             [name]: value,
         }));
+        setCurrentPage(1); // Reiniciar la paginación al cambiar los filtros
     };
 
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -127,12 +145,26 @@ const HomePaquetes = () => {
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
     }, []);
+
     const containerStyle = {
         marginLeft: isMobile ? "0" : "200px",
         marginTop: isMobile ? "30px" : "0",
         padding: "5px",
-        transition: "all 0.3s ease"
+        transition: "all 0.3s ease",
     };
+
+    // Memoizar el JSX de la tabla para evitar renderizados innecesarios
+    const memoizedTable = useMemo(() => {
+        return (
+            <PaquetesList
+                key={currentPage} // Usar la página actual como clave
+                packageDetections={packageDetections}
+                onPackageDetectionDeleted={handleDeleted}
+                currentPage={currentPage}
+                onPageChange={setCurrentPage}
+            />
+        );
+    }, [packageDetections, currentPage]);
 
     return (
         <>
@@ -198,10 +230,7 @@ const HomePaquetes = () => {
                                 No hay datos que coincidan con la búsqueda.
                             </div>
                         ) : (
-                            <PaquetesList
-                                packageDetections={packageDetections}
-                                onPackageDetectionDeleted={handleDeleted}
-                            />
+                            memoizedTable
                         )}
                     </div>
                     <div className="mb-4">

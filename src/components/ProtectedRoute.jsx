@@ -8,7 +8,8 @@ const ProtectedRoute = ({ role }) => {
         return <Navigate to="/login" />;
     }
 
-    if (role && userRole !== role) {
+    // Si se especifica un rol y el usuario no está autorizado
+    if (role && !role.includes(userRole)) {
         return <Navigate to="/" />;
     }
 

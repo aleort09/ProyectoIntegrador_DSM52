@@ -57,7 +57,7 @@ const LoginForm = () => {
             });
 
             setTimeout(() => {
-                if (response.data.rol === "Administrador") {
+                if (response.data.rol === "Administrador" || response.data.rol === "Empleado") {
                     navigate("/dashboard");
                 } else {
                     navigate("/");

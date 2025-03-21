@@ -2,15 +2,22 @@ import React, { useState, useEffect } from "react";
 import Axios from "axios";
 import Menu from "../Menu";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2"; // Para notificaciones más amigables
 
-const PaquetesCreate = ({ onSave }) => {
+const PaquetesCreate = ({ onPaqueteAdded = () => {} }) => {
     const navigate = useNavigate();
 
+    // Estados del formulario
     const [formData, setFormData] = useState({
         Distancia: "",
         Estado: "Detectado",
     });
 
+    // Estados para manejar la carga y errores
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState("");
+
+    // Manejar cambios en los campos del formulario
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prevData) => ({
@@ -19,6 +26,7 @@ const PaquetesCreate = ({ onSave }) => {
         }));
     };
 
+    // Manejar el envío del formulario
     const handleSubmit = (e) => {
         e.preventDefault();
         setIsLoading(true);
@@ -27,21 +35,43 @@ const PaquetesCreate = ({ onSave }) => {
         Axios.post("https://ravendev.jeotech.x10.mx/detecciones/create", formData)
             .then((response) => {
                 if (response.status === 201) {
-                    onSave();
+                    // Notificar éxito
+                    Swal.fire({
+                        title: "¡Éxito!",
+                        text: "Detección de paquete creada exitosamente.",
+                        icon: "success",
+                        confirmButtonText: "Aceptar",
+                    });
+
+                    
                     setFormData({
                         Distancia: "",
                         Estado: "Detectado",
                     });
-                    alert("Detección de paquete creada exitosamente");
+
+                    // Llamar a la función de callback (si se proporciona)
+                    onPaqueteAdded();
+                    navigate("/deteccion_paquetes");
                 }
             })
             .catch((error) => {
-                setIsLoading(false);
                 console.error("Error creating data", error);
                 setError("Hubo un problema al crear la detección de paquete. Inténtalo de nuevo.");
+
+                // Notificar error
+                Swal.fire({
+                    title: "Error",
+                    text: "Hubo un problema al crear la detección de paquete.",
+                    icon: "error",
+                    confirmButtonText: "Aceptar",
+                });
+            })
+            .finally(() => {
+                setIsLoading(false); // Finalizar el estado de carga
             });
     };
 
+    // Manejar el responsive design
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
     useEffect(() => {
@@ -52,13 +82,13 @@ const PaquetesCreate = ({ onSave }) => {
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
     }, []);
+
     const containerStyle = {
         marginLeft: isMobile ? "0" : "205px",
         marginTop: isMobile ? "30px" : "0",
         padding: "5px",
-        transition: "all 0.3s ease"
+        transition: "all 0.3s ease",
     };
-
 
     return (
         <>
@@ -66,7 +96,7 @@ const PaquetesCreate = ({ onSave }) => {
             <div className="container mt-5" style={containerStyle}>
                 <div className="row justify-content-center">
                     <div className="col-md-8 col-lg-6">
-                        <h2 className="text-center mb-4">Agregar Producto</h2>
+                        <h2 className="text-center mb-4">Agregar Detección</h2>
                         <button onClick={() => navigate(-1)} className="btn btn-secondary mb-3">
                             <i className="bi bi-arrow-left me-2"></i>Regresar
                         </button>
@@ -94,8 +124,13 @@ const PaquetesCreate = ({ onSave }) => {
                                     <option value="No detectado">No detectado</option>
                                 </select>
                             </div>
-                            <button type="submit" className="btn btn-primary">
-                                Guardar
+                            {error && <div className="alert alert-danger">{error}</div>}
+                            <button
+                                type="submit"
+                                className="btn btn-primary"
+                                disabled={isLoading} // Deshabilitar el botón durante la carga
+                            >
+                                {isLoading ? "Guardando..." : "Guardar"}
                             </button>
                         </form>
                     </div>

@@ -1,22 +1,22 @@
-import React, { useState } from "react";
+import React, { memo, useMemo } from "react";
 import Axios from "axios";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { FaEdit, FaTrash } from "react-icons/fa";
 
-const PaquetesList = ({ packageDetections, onPackageDetectionDeleted, userRole }) => {
-    const [currentPage, setCurrentPage] = useState(1);
+const PaquetesList = memo(({ packageDetections, onPackageDetectionDeleted, currentPage, onPageChange }) => {
+    const userRole = localStorage.getItem("rol");
     const itemsPerPage = 10;
 
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const currentPaquetes = packageDetections.slice(startIndex, endIndex);
+    // Memoizar el cálculo de los paquetes actuales
+    const currentPaquetes = useMemo(() => {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        return packageDetections.slice(startIndex, endIndex);
+    }, [packageDetections, currentPage]);
 
-    const totalPages = Math.ceil(packageDetections.length / itemsPerPage);
-
-    const handlePageChange = (page) => {
-        setCurrentPage(page);
-    };
+    // Memoizar el cálculo del total de páginas
+    const totalPages = useMemo(() => Math.ceil(packageDetections.length / itemsPerPage), [packageDetections]);
 
     const handleDelete = (id) => {
         Swal.fire({
@@ -46,7 +46,6 @@ const PaquetesList = ({ packageDetections, onPackageDetectionDeleted, userRole }
     return (
         <div className="container mt-5">
             <h2 className="text-center mb-4">Lista de Paquetes</h2>
-
             <table className="table table-striped table-hover">
                 <thead className="table-dark">
                     <tr>
@@ -93,7 +92,7 @@ const PaquetesList = ({ packageDetections, onPackageDetectionDeleted, userRole }
                             <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
                                 <button
                                     className="page-link"
-                                    onClick={() => handlePageChange(currentPage - 1)}
+                                    onClick={() => onPageChange(currentPage - 1)}
                                     disabled={currentPage === 1}
                                 >
                                     Anterior
@@ -104,7 +103,7 @@ const PaquetesList = ({ packageDetections, onPackageDetectionDeleted, userRole }
                                 <li key={i + 1} className={`page-item ${currentPage === i + 1 ? "active" : ""}`}>
                                     <button
                                         className="page-link"
-                                        onClick={() => handlePageChange(i + 1)}
+                                        onClick={() => onPageChange(i + 1)}
                                     >
                                         {i + 1}
                                     </button>
@@ -114,7 +113,7 @@ const PaquetesList = ({ packageDetections, onPackageDetectionDeleted, userRole }
                             <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
                                 <button
                                     className="page-link"
-                                    onClick={() => handlePageChange(currentPage + 1)}
+                                    onClick={() => onPageChange(currentPage + 1)}
                                     disabled={currentPage === totalPages}
                                 >
                                     Siguiente
@@ -126,6 +125,6 @@ const PaquetesList = ({ packageDetections, onPackageDetectionDeleted, userRole }
             )}
         </div>
     );
-};
+});
 
 export default PaquetesList;

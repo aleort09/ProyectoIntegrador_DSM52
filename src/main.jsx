@@ -44,7 +44,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/" element={<Home />} />
           <Route path="/informacion" element={<Informacion />} />
         </Route>
-        <Route element={<ProtectedRoute role="Administrador" />}>
+        <Route element={<ProtectedRoute role={["Administrador", "Empleado"]} />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/productos" element={<HomeProductos />} />
           <Route path="/productos/edit/:id" element={<ProductosEdit />} />
@@ -55,14 +55,15 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/perfil" element={<Perfil />} />
           <Route path="/clasificacion_paquetes" element={<HomeClasificacion />} />
           <Route path="/clasificacion_paquetes/edit/:id" element={<ClasificacionEdit />} />
-          <Route path="/clasificacion_paquetes/create" element={<ClasificacionCreate />} /> {/* Nueva ruta */}
+          <Route path="/clasificacion_paquetes/create" element={<ClasificacionCreate />} />
           <Route path="/deteccion_paquetes" element={<HomePaquetes />} />
           <Route path="/paquetes/edit/:id" element={<PaquetesEdit />} />
-          <Route path="/paquetes/create" element={<PaquetesCreate />} /> {/* Nueva ruta */}
+          <Route path="/paquetes/create" element={<PaquetesCreate />} />
           <Route path="/remotos" element={<HomeRemotos />} />
           <Route path="/remotos/edit/:id" element={<RemotosEdit />} />
-          <Route path="/remotos/create" element={<RemotosCreate />} /> {/* Nueva ruta */}
+          <Route path="/remotos/create" element={<RemotosCreate />} />
         </Route>
+
       </Routes>
     </BrowserRouter>
   </>

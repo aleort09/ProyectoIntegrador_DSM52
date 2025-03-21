@@ -5,7 +5,8 @@ import Swal from "sweetalert2";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import Menu from "../Menu";
 
-const UsuariosList = ({ usuarios, setUsuarios, onUsuarioDeleted, userRole }) => {
+const UsuariosList = ({ usuarios, setUsuarios, onUsuarioDeleted }) => {
+    const userRole = localStorage.getItem("rol");
     const [currentPage, setCurrentPage] = useState(1); // Estado para la página actual
     const [error, setError] = useState(null); // Estado para manejar errores
     const itemsPerPage = 10; // Número de usuarios por página
@@ -80,7 +81,7 @@ const UsuariosList = ({ usuarios, setUsuarios, onUsuarioDeleted, userRole }) => 
                         <th>Dirección</th>
                         <th>Rol</th>
                         <th>Fecha de Registro</th>
-                        {userRole !== "empleado" && <th>Acciones</th>}
+                        {userRole !== "Empleado" && <th>Acciones</th>}
                     </tr>
                 </thead>
                 <tbody>
@@ -94,7 +95,7 @@ const UsuariosList = ({ usuarios, setUsuarios, onUsuarioDeleted, userRole }) => 
                             <td>{usuario.Direccion}</td>
                             <td>{usuario.Rol}</td>
                             <td>{new Date(usuario.Fecha_Registro).toLocaleDateString()}</td>
-                            {userRole !== "empleado" && (
+                            {userRole !== "Empleado" && (
                                 <td>
                                     <Link
                                         to={`/usuarios/edit/${usuario.ID_Usuario}`}

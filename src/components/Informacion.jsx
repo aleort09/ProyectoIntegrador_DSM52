@@ -33,24 +33,24 @@ const Informacion = () => {
 
     const [refresh, setRefresh] = useState(false); // Estado adicional para forzar re-renderizado
 
-const handleSave = async () => {
-    const userId = localStorage.getItem("userId");
-    try {
-        const response = await axios.put(`https://ravendev.jeotech.x10.mx/users/edit/${userId}`, formData);
-        console.log("Respuesta de la API:", response.data); // Verifica la respuesta
+    const handleSave = async () => {
+        const userId = localStorage.getItem("userId");
+        try {
+            const response = await axios.put(`https://ravendev.jeotech.x10.mx/users/edit/${userId}`, formData);
+            console.log("Respuesta de la API:", response.data); // Verifica la respuesta
 
-        // Actualizar el estado `user` con los nuevos datos
-        setUser((prevUser) => ({
-            ...prevUser,
-            ...response.data, // Sobrescribe solo los campos actualizados
-        }));
+            // Actualizar el estado `user` con los nuevos datos
+            setUser((prevUser) => ({
+                ...prevUser,
+                ...response.data, // Sobrescribe solo los campos actualizados
+            }));
 
-        setEditMode(false); // Salir del modo edición
-        setRefresh((prev) => !prev); // Forzar re-renderizado
-    } catch (error) {
-        console.error("Error al actualizar usuario:", error);
-    }
-};
+            setEditMode(false); // Salir del modo edición
+            setRefresh((prev) => !prev); // Forzar re-renderizado
+        } catch (error) {
+            console.error("Error al actualizar usuario:", error);
+        }
+    };
 
     const handleDelete = async () => {
         const userId = localStorage.getItem("userId");
@@ -77,10 +77,10 @@ const handleSave = async () => {
     if (!user) return <p className="loading-text">Cargando datos del usuario...</p>;
 
     return (
-        <div className="container mt-4">
-            <h2 className="mb-4">Perfil del Usuario</h2>
-            <div className="card shadow">
-                <div className="card-body">
+        <div className="container mt-5">
+            <h2 className="mb-4 text-center">Perfil del Usuario</h2>
+            <div className="card shadow-lg">
+                <div className="card-body p-4">
                     {editMode ? (
                         <>
                             <div className="mb-3">
@@ -133,7 +133,7 @@ const handleSave = async () => {
                                     className="form-control"
                                 />
                             </div>
-                            <div className="d-flex gap-2">
+                            <div className="d-flex gap-2 justify-content-end">
                                 <button className="btn btn-success" onClick={handleSave}>
                                     <i className="bi bi-save me-2"></i>Guardar
                                 </button>
@@ -144,12 +144,14 @@ const handleSave = async () => {
                         </>
                     ) : (
                         <>
-                            <p><strong>Nombre:</strong> {user.Nombre} {user.Apellido}</p>
-                            <p><strong>Correo:</strong> {user.Correo}</p>
-                            <p><strong>Teléfono:</strong> {user.Telefono}</p>
-                            <p><strong>Dirección:</strong> {user.Direccion}</p>
-                            <p><strong>Rol:</strong> {user.Rol}</p>
-                            <div className="d-flex gap-2">
+                            <div className="mb-3">
+                                <p><strong>Nombre:</strong> {user.Nombre} {user.Apellido}</p>
+                                <p><strong>Correo:</strong> {user.Correo}</p>
+                                <p><strong>Teléfono:</strong> {user.Telefono}</p>
+                                <p><strong>Dirección:</strong> {user.Direccion}</p>
+                                <p><strong>Rol:</strong> {user.Rol}</p>
+                            </div>
+                            <div className="d-flex gap-2 justify-content-end">
                                 <button className="btn btn-primary" onClick={handleEdit}>
                                     <i className="bi bi-pencil me-2"></i>Editar
                                 </button>
@@ -161,9 +163,11 @@ const handleSave = async () => {
                     )}
                 </div>
             </div>
-            <button className="btn btn-secondary mt-3" onClick={handleGoBack}>
-                <i className="bi bi-arrow-left me-2"></i>Regresar
-            </button>
+            <div className="text-center mt-4">
+                <button className="btn btn-secondary" onClick={handleGoBack}>
+                    <i className="bi bi-arrow-left me-2"></i>Regresar
+                </button>
+            </div>
         </div>
     );
 };

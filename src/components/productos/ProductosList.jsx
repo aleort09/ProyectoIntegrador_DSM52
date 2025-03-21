@@ -6,7 +6,8 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 import ProductosChart from "../charts/ProductosChart";
 import Menu from "../Menu";
 
-const ProductosList = ({ productos, setProductos, onProductoDeleted, userRole }) => {
+const ProductosList = ({ productos, setProductos, onProductoDeleted }) => {
+    const userRole = localStorage.getItem("rol");
     const [currentPage, setCurrentPage] = useState(1);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -74,7 +75,7 @@ const ProductosList = ({ productos, setProductos, onProductoDeleted, userRole })
                             <th>Nombre</th>
                             <th>Stock</th>
                             <th>Fecha de Registro</th>
-                            {userRole !== "empleado" && <th>Acciones</th>}
+                            {userRole !== "Empleado" && <th>Acciones</th>}
                         </tr>
                     </thead>
                     <tbody>
@@ -84,7 +85,7 @@ const ProductosList = ({ productos, setProductos, onProductoDeleted, userRole })
                                 <td>{producto.Nombre}</td>
                                 <td>{producto.Stock}</td>
                                 <td>{new Date(producto.Fecha_Registro).toLocaleDateString()}</td>
-                                {userRole !== "empleado" && (
+                                {userRole !== "Empleado" && (
                                     <td>
                                         <Link
                                             to={`/productos/edit/${producto.ID_Producto}`}

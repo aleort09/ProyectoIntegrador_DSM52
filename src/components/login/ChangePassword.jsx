@@ -30,9 +30,9 @@ const ChangePassword = () => {
 
     const verificarCorreo = async (e) => {
         e.preventDefault();
-
+    
         if (bloqueado) return;
-
+    
         if (intentos >= 2) {
             setBloqueado(true);
             localStorage.setItem("bloqueoCambio", Date.now());
@@ -43,31 +43,35 @@ const ChangePassword = () => {
             }, 5 * 60 * 1000);
             return;
         }
-
+    
         try {
             const response = await axios.get(`https://ravendev.jeotech.x10.mx/users/existe/${correo}`);
             if (response.data.status === "success") {
                 setCorreoValido(true);
                 Swal.fire("Validado", "Correo válido. Ingresa tu nueva contraseña.", "success");
-            } else {
-                setIntentos(prev => prev + 1);
-                Swal.fire("Error", `Correo incorrecto.`, "error");
             }
         } catch (error) {
-            console.error("Error al verificar el correo:", error);
-            Swal.fire("Error", "Hubo un problema al verificar el correo.", "error");
+            // Si el backend devuelve 404, mostramos el mensaje del backend
+            if (error.response && error.response.status === 404) {
+                setIntentos(prev => prev + 1);
+                Swal.fire("Error", error.response.data.message || "Correo incorrecto.", "error");
+            } else {
+                console.error("Error al verificar el correo:", error);
+                Swal.fire("Error", "Hubo un problema al verificar el correo.", "error");
+            }
         }
     };
+    
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+    
         if (bloqueado) return;
-
+    
         try {
             const response = await axios.post("https://ravendev.jeotech.x10.mx/users/cambiar_password", {
-                correo,
-                password
+                Correo: correo, // 👈 Cambiado a mayúscula
+                Contraseña: password // 👈 Cambiado a mayúscula
             });
             Swal.fire("Éxito", response.data.message, "success");
             setCorreo("");
@@ -78,9 +82,10 @@ const ChangePassword = () => {
             }, 2000);
         } catch (error) {
             console.error("Error al cambiar contraseña:", error);
-            Swal.fire("Error", "Hubo un error al cambiar tu contraseña.", "error");
+            Swal.fire("Error", error.response?.data?.message || "Hubo un error al cambiar tu contraseña.", "error");
         }
     };
+    
 
     return (
         <div className="auth-container">
