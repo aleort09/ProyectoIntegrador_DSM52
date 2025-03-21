@@ -105,3 +105,6 @@ git push origin AppsMoviles
 git add .
 git commit -m "cambios en productos"
 git push origin AppsMoviles
+git add .
+git commit -m "Cambios en diseño"
+git push origin AppsMoviles

@@ -85,12 +85,12 @@ const LoginForm = () => {
                 <h2 className="text-center">Iniciar Sesión</h2>
                 <form onSubmit={handleLogin}>
                     <div className="input-group">
-                        <FaEnvelope className="input-icon" />
-                        <input type="email" placeholder="Correo" value={correo} onChange={(e) => setCorreo(e.target.value)} required disabled={bloqueado} />
+                        <span className="input-group-text"><FaEnvelope/></span>
+                        <input type="email" placeholder="Correo" className="form-control" value={correo} onChange={(e) => setCorreo(e.target.value)} required disabled={bloqueado} />
                     </div>
                     <div className="input-group">
-                        <FaLock className="input-icon" />
-                        <input type="password" placeholder="Contraseña" value={contraseña} onChange={(e) => setContraseña(e.target.value)} required disabled={bloqueado} />
+                        <span className="input-group-text"><FaLock/></span>
+                        <input type="password" placeholder="Contraseña" className="form-control" value={contraseña} onChange={(e) => setContraseña(e.target.value)} required disabled={bloqueado} />
                     </div>
                     <button type="submit" className="btn-login" disabled={bloqueado}>Ingresar</button>
                 </form>

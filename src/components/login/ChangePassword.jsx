@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import Swal from "sweetalert2";
 import './style.css';
+import { FaEnvelope, FaLock } from "react-icons/fa";
 
 const ChangePassword = () => {
     const [correo, setCorreo] = useState("");
@@ -9,45 +11,34 @@ const ChangePassword = () => {
     const [correoValido, setCorreoValido] = useState(false);
     const [intentos, setIntentos] = useState(0);
     const [bloqueado, setBloqueado] = useState(false);
-    const [mensaje, setMensaje] = useState("");
     const navigate = useNavigate();
 
-    // Verifica si el usuario ya estaba bloqueado al cargar la página
     useEffect(() => {
         const bloqueoGuardado = localStorage.getItem("bloqueoCambio");
         if (bloqueoGuardado) {
             const tiempoPasado = Date.now() - parseInt(bloqueoGuardado, 10);
             if (tiempoPasado < 5 * 60 * 1000) {
                 setBloqueado(true);
-                setMensaje("Demasiados intentos fallidos. Intenta nuevamente en 5 minutos.");
-
-                // Desbloqueo automático cuando pasen los 5 minutos
+                Swal.fire("Bloqueado", "Demasiados intentos. Intenta nuevamente en 5 minutos.", "error");
                 setTimeout(() => {
                     setBloqueado(false);
-                    setMensaje("");
                     localStorage.removeItem("bloqueoCambio");
                 }, 5 * 60 * 1000 - tiempoPasado);
             }
         }
     }, []);
 
-    // Validar si el correo existe antes de permitir cambiar la contraseña
     const verificarCorreo = async (e) => {
         e.preventDefault();
 
-        if (bloqueado) {
-            setMensaje("Demasiados intentos fallidos. Intenta nuevamente en 5 minutos.");
-            return;
-        }
+        if (bloqueado) return;
 
-        if (intentos >= 2) { // Último intento antes del bloqueo
+        if (intentos >= 2) {
             setBloqueado(true);
-            setMensaje("Has excedido los intentos. Espera 5 minutos.");
             localStorage.setItem("bloqueoCambio", Date.now());
-
+            Swal.fire("Bloqueado", "Has excedido los intentos. Espera 5 minutos.", "warning");
             setTimeout(() => {
                 setBloqueado(false);
-                setMensaje("");
                 localStorage.removeItem("bloqueoCambio");
             }, 5 * 60 * 1000);
             return;
@@ -57,18 +48,17 @@ const ChangePassword = () => {
             const response = await axios.get(`https://54.208.187.128/users/existe/${correo}`);
             if (response.data.status === "success") {
                 setCorreoValido(true);
-                setMensaje("Correo válido. Ingresa tu nueva contraseña.");
+                Swal.fire("Validado", "Correo válido. Ingresa tu nueva contraseña.", "success");
             } else {
                 setIntentos(prev => prev + 1);
-                setMensaje(`Correo incorrecto. Intento ${intentos + 1} de 3.`);
+                Swal.fire("Error", `Correo incorrecto.`, "error");
             }
         } catch (error) {
             console.error("Error al verificar el correo:", error);
-            setMensaje("Error en la verificación.");
+            Swal.fire("Error", "Hubo un problema al verificar el correo.", "error");
         }
     };
 
-    // Cambiar contraseña
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -79,18 +69,16 @@ const ChangePassword = () => {
                 correo,
                 password
             });
-            setMensaje(response.data.message);
+            Swal.fire("Éxito", response.data.message, "success");
             setCorreo("");
             setPassword("");
             setCorreoValido(false);
-
-            // Redirige al login después de 2 segundos
             setTimeout(() => {
                 navigate("/login");
             }, 2000);
         } catch (error) {
             console.error("Error al cambiar contraseña:", error);
-            setMensaje("Hubo un error al cambiar tu contraseña.");
+            Swal.fire("Error", "Hubo un error al cambiar tu contraseña.", "error");
         }
     };
 
@@ -98,42 +86,44 @@ const ChangePassword = () => {
         <div className="auth-container">
             <div className="auth-box">
                 <h2 className="text-center">Cambiar Contraseña</h2>
-                {mensaje && <div className={`alert ${mensaje.includes("éxito") ? "alert-success" : "alert-danger"}`}>{mensaje}</div>}
 
-                {/* Formulario para validar el correo */}
-                {!correoValido && (
+                {!correoValido ? (
                     <form onSubmit={verificarCorreo}>
-                        <input
-                            type="email"
-                            placeholder="Correo"
-                            value={correo}
-                            onChange={(e) => setCorreo(e.target.value)}
-                            required
-                            className="form-control"
-                            disabled={bloqueado}
-                        />
+                        <div className="input-group">
+                            <span className="input-group-text"><FaEnvelope /></span>
+                            <input
+                                type="email"
+                                placeholder="Correo"
+                                value={correo}
+                                onChange={(e) => setCorreo(e.target.value)}
+                                className="form-control"
+                                required
+                                disabled={bloqueado}
+                            />
+                        </div>
                         <button type="submit" className="btn btn-primary w-100 mt-2" disabled={bloqueado}>
-                            {bloqueado ? "Bloqueado" : "Validar Correo"}
+                            Validar Correo
                         </button>
                     </form>
-                )}
-
-                {/* Si el correo es válido, aparece el formulario para cambiar la contraseña */}
-                {correoValido && (
+                ) : (
                     <form onSubmit={handleSubmit} className="mt-3">
-                        <input
-                            type="password"
-                            placeholder="Nueva Contraseña"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            className="form-control"
-                        />
+                        <div className="input-group">
+                            <span className="input-group-text"><FaLock /></span>
+                            <input
+                                type="password"
+                                placeholder="Nueva Contraseña"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="form-control"
+                                required
+                            />
+                        </div>
                         <button type="submit" className="btn btn-primary w-100 mt-2">
                             Cambiar Contraseña
                         </button>
                     </form>
                 )}
+                <p className="mt-3 auth-links">¿Ya tienes una cuenta? <Link to="/login">Inicia Sesión</Link></p>
             </div>
         </div>
     );
