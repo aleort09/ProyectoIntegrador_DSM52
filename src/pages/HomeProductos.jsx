@@ -24,7 +24,7 @@ const HomeProductos = () => {
     const fetchProductos = () => {
         setLoading(true);
         axios
-            .get("https://54.208.187.128/productos", { params: filters })
+            .get("https://ravendev.jeotech.x10.mx/productos", { params: filters })
             .then((response) => {
                 setProductos(response.data);
                 setLoading(false);
@@ -49,7 +49,7 @@ const HomeProductos = () => {
             const jsonData = XLSX.utils.sheet_to_json(sheet);
 
             axios
-                .post("https://54.208.187.128/importar/productos", jsonData)
+                .post("https://ravendev.jeotech.x10.mx/importar/productos", jsonData)
                 .then((response) => {
                     Swal.fire({
                         title: "¡Éxito!",

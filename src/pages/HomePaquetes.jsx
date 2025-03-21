@@ -26,7 +26,7 @@ const HomePaquetes = () => {
     const fetchPackageDetections = () => {
         setLoading(true);
         axios
-            .get("https://54.208.187.128/detecciones", { params: filters })
+            .get("https://ravendev.jeotech.x10.mx/detecciones", { params: filters })
             .then((response) => {
                 setPackageDetections(response.data || []);
                 setLoading(false);
@@ -65,7 +65,7 @@ const HomePaquetes = () => {
             const jsonData = XLSX.utils.sheet_to_json(sheet);
 
             axios
-                .post("https://54.208.187.128/importar/deteccion_paquetes", jsonData)
+                .post("https://ravendev.jeotech.x10.mx/importar/deteccion_paquetes", jsonData)
                 .then((response) => {
                     Swal.fire({
                         title: "¡Éxito!",

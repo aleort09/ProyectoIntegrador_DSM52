@@ -22,7 +22,7 @@ const ClasificacionCreate = () => {
 
         try {
             const response = await axios.post(
-                "https://54.208.187.128/clasificaciones/create",
+                "https://ravendev.jeotech.x10.mx/clasificaciones/create",
                 formData
             );
             setMessage("Clasificación creada con éxito.");

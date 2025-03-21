@@ -35,7 +35,7 @@ const UsuariosList = ({ usuarios, setUsuarios, onUsuarioDeleted, userRole }) => 
         }).then((result) => {
             if (result.isConfirmed) {
                 // Si el usuario confirma, hacer la solicitud DELETE
-                axios.delete(`https://54.208.187.128/users/delete/${id}`)
+                axios.delete(`https://ravendev.jeotech.x10.mx/users/delete/${id}`)
                     .then(() => {
                         setError(null); // Limpiar el error si la solicitud es exitosa
                         onUsuarioDeleted(); // Llamar a la función de actualización

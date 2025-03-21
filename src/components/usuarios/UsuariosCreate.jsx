@@ -21,7 +21,7 @@ const UsuariosCreate = ({ onUsuarioAdded = () => { } }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        axios.post("https://54.208.187.128/users/create", usuario)
+        axios.post("https://ravendev.jeotech.x10.mx/users/create", usuario)
             .then(() => {
                 Swal.fire({
                     title: "¡Éxito!",

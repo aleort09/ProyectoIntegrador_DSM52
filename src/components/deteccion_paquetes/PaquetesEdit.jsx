@@ -14,7 +14,7 @@ const PaquetesEdit = () => {
     });
 
     useEffect(() => {
-        Axios.get(`https://54.208.187.128/detecciones/${id}`)
+        Axios.get(`https://ravendev.jeotech.x10.mx/detecciones/${id}`)
             .then((response) => {
                 setFormData(response.data);
             })
@@ -45,7 +45,7 @@ const PaquetesEdit = () => {
             cancelButtonText: "Cancelar",
         }).then((result) => {
             if (result.isConfirmed) {
-                Axios.put(`https://54.208.187.128/detecciones/edit/${id}`, formData)
+                Axios.put(`https://ravendev.jeotech.x10.mx/detecciones/edit/${id}`, formData)
                     .then((response) => {
                         if (response.status === 200) {
                             Swal.fire({

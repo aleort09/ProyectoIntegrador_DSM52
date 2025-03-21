@@ -8,7 +8,7 @@ const Home = () => {
     useEffect(() => {
         const userId = localStorage.getItem("userId");
         if (userId) {
-            axios.get(`https://54.208.187.128/users/${userId}`)
+            axios.get(`https://ravendev.jeotech.x10.mx/users/${userId}`)
                 .then(response => setUser(response.data))
                 .catch(error => console.error("Error al obtener usuario:", error));
         }

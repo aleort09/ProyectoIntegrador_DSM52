@@ -34,7 +34,7 @@ const ProductosList = ({ productos, setProductos, onProductoDeleted, userRole })
             if (result.isConfirmed) {
                 setLoading(true);
                 axios
-                    .delete(`https://54.208.187.128/productos/delete/${id}`)
+                    .delete(`https://ravendev.jeotech.x10.mx/productos/delete/${id}`)
                     .then(() => {
                         setError(null);
                         onProductoDeleted();

@@ -19,7 +19,7 @@ const UsuariosEdit = () => {
 
     // Obtener los datos del usuario al cargar el componente
     useEffect(() => {
-        axios.get(`https://54.208.187.128/users/${id}`)
+        axios.get(`https://ravendev.jeotech.x10.mx/users/${id}`)
             .then(response => setUsuario(response.data))
             .catch(error => console.error(error));
     }, [id]);
@@ -45,7 +45,7 @@ const UsuariosEdit = () => {
             cancelButtonText: "Cancelar",
         }).then((result) => {
             if (result.isConfirmed) {
-                axios.put(`https://54.208.187.128/users/edit/${id}`, usuario)
+                axios.put(`https://ravendev.jeotech.x10.mx/users/edit/${id}`, usuario)
                     .then(() => {
                         Swal.fire({
                             title: "¡Actualizado!",

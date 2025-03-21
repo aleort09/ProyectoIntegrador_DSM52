@@ -14,7 +14,7 @@ const ProductosEdit = () => {
 
     useEffect(() => {
         axios
-            .get(`https://54.208.187.128/productos/${id}`)
+            .get(`https://ravendev.jeotech.x10.mx/productos/${id}`)
             .then((response) => setProducto(response.data))
             .catch((error) => console.error(error));
     }, [id]);
@@ -47,7 +47,7 @@ const ProductosEdit = () => {
         }).then((result) => {
             if (result.isConfirmed) {
                 axios
-                    .put(`https://54.208.187.128/productos/edit/${id}`, producto)
+                    .put(`https://ravendev.jeotech.x10.mx/productos/edit/${id}`, producto)
                     .then(() => {
                         Swal.fire({
                             title: "¡Actualizado!",

@@ -13,7 +13,7 @@ const Informacion = () => {
         const userId = localStorage.getItem("userId");
         if (userId) {
             try {
-                const response = await axios.get(`https://54.208.187.128/users/${userId}`);
+                const response = await axios.get(`https://ravendev.jeotech.x10.mx/users/${userId}`);
                 setUser(response.data);
                 setFormData(response.data);
             } catch (error) {
@@ -36,7 +36,7 @@ const Informacion = () => {
 const handleSave = async () => {
     const userId = localStorage.getItem("userId");
     try {
-        const response = await axios.put(`http://localhost:3000/api/usuarios/edit/${userId}`, formData);
+        const response = await axios.put(`https://ravendev.jeotech.x10.mx/users/edit/${userId}`, formData);
         console.log("Respuesta de la API:", response.data); // Verifica la respuesta
 
         // Actualizar el estado `user` con los nuevos datos
@@ -55,7 +55,7 @@ const handleSave = async () => {
     const handleDelete = async () => {
         const userId = localStorage.getItem("userId");
         try {
-            await axios.delete(`http://localhost:3000/api/usuarios/${userId}`);
+            await axios.delete(`https://ravendev.jeotech.x10.mx/users/delete/${userId}`);
             localStorage.clear();
             navigate("/login");
         } catch (error) {

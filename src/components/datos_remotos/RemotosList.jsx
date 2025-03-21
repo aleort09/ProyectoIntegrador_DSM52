@@ -15,7 +15,7 @@ const RemotosList = () => {
 
   const fetchRemotos = async () => {
     try {
-      const response = await axios.get("https://54.208.187.128/remotos", {
+      const response = await axios.get("https://ravendev.jeotech.x10.mx/remotos", {
         params: {
           estado_conexion: filtroEstado,
           fecha: filtroFecha,
@@ -31,7 +31,7 @@ const RemotosList = () => {
     if (!window.confirm("¿Estás seguro de eliminar este dato remoto?")) return;
 
     try {
-      await axios.delete(`https://54.208.187.128/remotos/delete/${id}`);
+      await axios.delete(`https://ravendev.jeotech.x10.mx/remotos/delete/${id}`);
       setRemotos(remotos.filter((r) => r.ID_Dato !== id));
       setMensaje("Dato remoto eliminado correctamente.");
     } catch (err) {

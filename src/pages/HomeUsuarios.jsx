@@ -19,7 +19,7 @@ const HomeUsuarios = () => {
     }, [filters]);
 
     const fetchUsuarios = () => {
-        axios.get("https://54.208.187.128/users", { params: filters })
+        axios.get("https://ravendev.jeotech.x10.mx/users", { params: filters })
             .then(response => setUsuarios(response.data))
             .catch(error => console.error(error));
     };
@@ -40,7 +40,7 @@ const HomeUsuarios = () => {
             const sheet = workbook.Sheets[sheetName];
             const jsonData = XLSX.utils.sheet_to_json(sheet);
 
-            axios.post("https://54.208.187.128/importar/usuarios", jsonData)
+            axios.post("https://ravendev.jeotech.x10.mx/importar/usuarios", jsonData)
                 .then(response => {
                     Swal.fire({
                         title: "¡Éxito!",

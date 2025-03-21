@@ -16,7 +16,7 @@ const RemotosEdit = () => {
   useEffect(() => {
     const fetchDato = async () => {
       try {
-        const response = await axios.get(`https://54.208.187.128/remotos/${id}`);
+        const response = await axios.get(`https://ravendev.jeotech.x10.mx/remotos/${id}`);
         const dato = response.data;
         setIdDeteccion(dato.ID_Deteccion);
         setIdClasificacion(dato.ID_Clasificacion);
@@ -40,7 +40,7 @@ const RemotosEdit = () => {
     };
 
     try {
-      await axios.put(`https://54.208.187.128/remotos/${id}`, actualizadoDato);
+      await axios.put(`https://ravendev.jeotech.x10.mx/remotos/${id}`, actualizadoDato);
       setMensaje("Dato remoto actualizado correctamente.");
       setTimeout(() => {
         history.push("/remotos"); // Redirigir a la lista de remotos después de actualizar

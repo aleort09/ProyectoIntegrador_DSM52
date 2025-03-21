@@ -23,7 +23,7 @@ const RegisterForm = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        axios.post("https://54.208.187.128/users/registro", formData)
+        axios.post("https://ravendev.jeotech.x10.mx/users/registro", formData)
             .then(response => {
                 Swal.fire("Éxito", "Registro exitoso", "success");
                 localStorage.setItem("userId", response.data.userId);

@@ -30,7 +30,7 @@ const PaquetesList = ({ packageDetections, onPackageDetectionDeleted, userRole }
             cancelButtonText: "Cancelar",
         }).then((result) => {
             if (result.isConfirmed) {
-                Axios.delete(`https://54.208.187.128/detecciones/delete/${id}`)
+                Axios.delete(`https://ravendev.jeotech.x10.mx/detecciones/delete/${id}`)
                     .then(() => {
                         onPackageDetectionDeleted();
                         Swal.fire("¡Eliminado!", "El paquete ha sido eliminado.", "success");

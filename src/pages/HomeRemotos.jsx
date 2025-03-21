@@ -21,7 +21,7 @@ const HomeRemotos = () => {
 
     // Cambiar la URL para que apunte a datos remotos
     const fetchRemoteData = () => {
-        axios.get("https://54.208.187.128/remotos", { params: filters })
+        axios.get("https://ravendev.jeotech.x10.mx/remotos", { params: filters })
             .then(response => setRemoteData(response.data))
             .catch(error => console.error(error));
     };
@@ -50,7 +50,7 @@ const HomeRemotos = () => {
             console.log("Datos del Excel:", jsonData);
 
             // Asegurarse de que el endpoint para importar datos remotos esté correcto
-            axios.post("https://54.208.187.128/importar/datos_remotos", jsonData)
+            axios.post("https://ravendev.jeotech.x10.mx/importar/datos_remotos", jsonData)
                 .then(response => {
                     alert(response.data.message);
                     fetchRemoteData();

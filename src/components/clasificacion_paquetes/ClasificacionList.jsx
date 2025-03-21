@@ -16,7 +16,7 @@ const ClasificacionList = () => {
 
     const fetchClasificaciones = async () => {
         try {
-            const response = await axios.get("https://54.208.187.128/clasificaciones", {
+            const response = await axios.get("https://ravendev.jeotech.x10.mx/clasificaciones", {
                 params: {
                     etiqueta_color: filtroColor,
                     accion: filtroAccion,
@@ -32,7 +32,7 @@ const ClasificacionList = () => {
         if (!window.confirm("¿Estás seguro de eliminar esta clasificación?")) return;
 
         try {
-            await axios.delete(`https://54.208.187.128/clasificaciones/delete/${id}`);
+            await axios.delete(`https://ravendev.jeotech.x10.mx/clasificaciones/delete/${id}`);
             setClasificaciones(clasificaciones.filter((c) => c.ID_Clasificacion !== id));
             setMensaje("Clasificación eliminada correctamente.");
         } catch (err) {

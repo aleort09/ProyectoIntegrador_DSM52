@@ -21,7 +21,7 @@ const HomeClasificacion = () => {
 
     
     const fetchPackageClassifications = () => {
-        axios.get("https://54.208.187.128/clasificaciones", { params: filters })
+        axios.get("https://ravendev.jeotech.x10.mx/clasificaciones", { params: filters })
             .then(response => setPackageClassifications(response.data))
             .catch(error => console.error(error));
     };
@@ -50,7 +50,7 @@ const HomeClasificacion = () => {
             console.log("Datos del Excel:", jsonData);
 
             
-            axios.post("https://54.208.187.128/importar/clasificacion_paquetes", jsonData)
+            axios.post("https://ravendev.jeotech.x10.mx/importar/clasificacion_paquetes", jsonData)
                 .then(response => {
                     alert(response.data.message);
                     fetchPackageClassifications();

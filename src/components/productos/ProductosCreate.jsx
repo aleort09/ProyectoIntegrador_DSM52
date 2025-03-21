@@ -28,7 +28,7 @@ const ProductosCreate = ({ onProductoAdded = () => { } }) => {
         }
 
         axios
-            .post("https://54.208.187.128/productos/create", producto)
+            .post("https://ravendev.jeotech.x10.mx/productos/create", producto)
             .then(() => {
                 Swal.fire({
                     title: "¡Éxito!",

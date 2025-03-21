@@ -19,7 +19,7 @@ const ClasificacionEdit = () => {
         const fetchData = async () => {
             try {
                 const response = await axios.get(
-                    `https://54.208.187.128/clasificaciones/${classification_id}`
+                    `https://ravendev.jeotech.x10.mx/clasificaciones/${classification_id}`
                 );
                 setFormData(response.data);
             } catch (err) {
@@ -40,7 +40,7 @@ const ClasificacionEdit = () => {
 
         try {
             await axios.put(
-                `https://54.208.187.128/clasificaciones/edit/${classification_id}`,
+                `https://ravendev.jeotech.x10.mx/clasificaciones/edit/${classification_id}`,
                 formData
             );
             setMessage("Clasificación actualizada con éxito.");

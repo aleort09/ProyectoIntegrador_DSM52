@@ -24,7 +24,7 @@ const PaquetesCreate = ({ onSave }) => {
         setIsLoading(true);
         setError("");
 
-        Axios.post("https://54.208.187.128/detecciones/create", formData)
+        Axios.post("https://ravendev.jeotech.x10.mx/detecciones/create", formData)
             .then((response) => {
                 if (response.status === 201) {
                     onSave();

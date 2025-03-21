@@ -45,7 +45,7 @@ const ChangePassword = () => {
         }
 
         try {
-            const response = await axios.get(`https://54.208.187.128/users/existe/${correo}`);
+            const response = await axios.get(`https://ravendev.jeotech.x10.mx/users/existe/${correo}`);
             if (response.data.status === "success") {
                 setCorreoValido(true);
                 Swal.fire("Validado", "Correo válido. Ingresa tu nueva contraseña.", "success");
@@ -65,7 +65,7 @@ const ChangePassword = () => {
         if (bloqueado) return;
 
         try {
-            const response = await axios.post("https://54.208.187.128/users/cambiar_password", {
+            const response = await axios.post("https://ravendev.jeotech.x10.mx/users/cambiar_password", {
                 correo,
                 password
             });
