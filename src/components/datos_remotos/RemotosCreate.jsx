@@ -1,89 +1,145 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
+import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
+import Menu from "../Menu";
 
-const RemotosCreate = () => {
-  const [idDeteccion, setIdDeteccion] = useState("");
-  const [idClasificacion, setIdClasificacion] = useState("");
-  const [estadoConexion, setEstadoConexion] = useState("Exitoso");
-  const [mensaje, setMensaje] = useState("");
-  const [error, setError] = useState("");
+const RemotosCreate = ({ onRemotoAdded = () => {} }) => {
+    const navigate = useNavigate();
+    const [remoto, setRemoto] = useState({
+        ID_Deteccion: "",
+        ID_Clasificacion: "",
+        Estado_Conexion: "Exitoso"
+    });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const nuevoDato = {
-      ID_Deteccion: idDeteccion,
-      ID_Clasificacion: idClasificacion,
-      Estado_Conexion: estadoConexion,
+    const handleChange = (e) => {
+        setRemoto({ ...remoto, [e.target.name]: e.target.value });
     };
 
-    try {
-      const response = await axios.post("https://ravendev.jeotech.x10.mx/remotos/create", nuevoDato);
-      setMensaje("Dato remoto creado correctamente.");
-      setIdDeteccion("");
-      setIdClasificacion("");
-      setEstadoConexion("Exitoso");
-    } catch (err) {
-      setError("Error al crear el dato remoto. Intenta de nuevo.");
-      console.error(err);
-    }
-  };
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        
+        // Validación básica antes de enviar la solicitud
+        if (!remoto.ID_Deteccion || !remoto.ID_Clasificacion) {
+            Swal.fire({
+                title: "Error",
+                text: "Por favor, complete todos los campos requeridos.",
+                icon: "error",
+                confirmButtonText: "Aceptar",
+            });
+            return;
+        }
 
-  return (
-    <div className="max-w-md mx-auto p-6 bg-white shadow-lg rounded-lg">
-      <h2 className="text-xl font-bold mb-4">Crear Nuevo Dato Remoto</h2>
+        // Asegúrate de que los valores sean números donde corresponda
+        const payload = {
+            ID_Deteccion: Number(remoto.ID_Deteccion),
+            ID_Clasificacion: Number(remoto.ID_Clasificacion),
+            Estado_Conexion: remoto.Estado_Conexion
+        };
 
-      {mensaje && <p className="text-green-600">{mensaje}</p>}
-      {error && <p className="text-red-600">{error}</p>}
+        axios.post("https://ravendev.jeotech.x10.mx/remotos/create", payload)
+            .then(() => {
+                Swal.fire({
+                    title: "¡Éxito!",
+                    text: "Dato remoto creado correctamente.",
+                    icon: "success",
+                    confirmButtonText: "Aceptar",
+                });
+                onRemotoAdded();
+                navigate("/remotos");
+                setRemoto({
+                    ID_Deteccion: "",
+                    ID_Clasificacion: "",
+                    Estado_Conexion: "Exitoso"
+                });
+            })
+            .catch((error) => {
+                console.error("Error en la solicitud:", error);
+                let errorMessage = "Error desconocido al registrar el dato remoto.";
+                if (error.response && error.response.data && error.response.data.message) {
+                    errorMessage = error.response.data.message; // Mensaje de error detallado del servidor
+                }
+                Swal.fire({
+                    title: "Error",
+                    text: errorMessage,
+                    icon: "error",
+                    confirmButtonText: "Aceptar",
+                });
+            });
+    };
 
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label htmlFor="idDeteccion" className="block text-sm font-medium text-gray-700">ID Detección</label>
-          <input
-            type="number"
-            id="idDeteccion"
-            value={idDeteccion}
-            onChange={(e) => setIdDeteccion(e.target.value)}
-            required
-            className="w-full p-2 border rounded mt-1"
-          />
-        </div>
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
-        <div className="mb-4">
-          <label htmlFor="idClasificacion" className="block text-sm font-medium text-gray-700">ID Clasificación</label>
-          <input
-            type="number"
-            id="idClasificacion"
-            value={idClasificacion}
-            onChange={(e) => setIdClasificacion(e.target.value)}
-            required
-            className="w-full p-2 border rounded mt-1"
-          />
-        </div>
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
 
-        <div className="mb-4">
-          <label htmlFor="estadoConexion" className="block text-sm font-medium text-gray-700">Estado de Conexión</label>
-          <select
-            id="estadoConexion"
-            value={estadoConexion}
-            onChange={(e) => setEstadoConexion(e.target.value)}
-            className="w-full p-2 border rounded mt-1"
-          >
-            <option value="Exitoso">Exitoso</option>
-            <option value="Fallido">Fallido</option>
-          </select>
-        </div>
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
-        <div className="flex justify-center mb-4">
-          <button
-            type="submit"
-            className="bg-blue-600 text-white p-2 rounded"
-          >
-            Crear Dato Remoto
-          </button>
-        </div>
-      </form>
-    </div>
-  );
+    const containerStyle = {
+        marginLeft: isMobile ? "0" : "205px",
+        marginTop: isMobile ? "30px" : "0",
+        padding: "5px",
+        transition: "all 0.3s ease"
+    };
+
+    return (
+        <>
+            <Menu />
+            <div className="container mt-2" style={containerStyle}>
+                <div className="row justify-content-center">
+                    <div className="col-md-8 col-lg-6">
+                        <h2 className="text-center mb-4">Crear Dato Remoto</h2>
+                        <button onClick={() => navigate(-1)} className="btn btn-secondary mb-3">
+                            <i className="bi bi-arrow-left me-2"></i>Regresar
+                        </button>
+                        <form onSubmit={handleSubmit} className="card p-4 shadow">
+                            <div className="row">
+                                <div className="mb-3 col-md-6">
+                                    <label className="form-label">ID Detección</label>
+                                    <input 
+                                        type="number" 
+                                        name="ID_Deteccion" 
+                                        value={remoto.ID_Deteccion} 
+                                        onChange={handleChange} 
+                                        className="form-control" 
+                                        required 
+                                    />
+                                </div>
+                                <div className="mb-3 col-md-6">
+                                    <label className="form-label">ID Clasificación</label>
+                                    <input 
+                                        type="number" 
+                                        name="ID_Clasificacion" 
+                                        value={remoto.ID_Clasificacion} 
+                                        onChange={handleChange} 
+                                        className="form-control" 
+                                        required 
+                                    />
+                                </div>
+                                <div className="mb-3 col-md-12">
+                                    <label className="form-label">Estado de Conexión</label>
+                                    <select 
+                                        name="Estado_Conexion" 
+                                        value={remoto.Estado_Conexion} 
+                                        onChange={handleChange} 
+                                        className="form-control"
+                                    >
+                                        <option value="Exitoso">Exitoso</option>
+                                        <option value="Fallido">Fallido</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit" className="btn btn-primary mt-3">Agregar Dato Remoto</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </>
+    );
 };
 
 export default RemotosCreate;

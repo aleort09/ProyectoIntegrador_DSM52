@@ -1,10 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import ClasificacionList from "../components/clasificacion_paquetes/ClasificacionList";
-import ClasificacionCreate from "../components/clasificacion_paquetes/ClasificacionCreate";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import * as XLSX from "xlsx";
 import Menu from "../components/Menu";
+import { FaPlus } from "react-icons/fa";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import Swal from "sweetalert2";
 
 const HomeClasificacion = () => {
     const navigate = useNavigate();
@@ -12,26 +15,25 @@ const HomeClasificacion = () => {
     const [filters, setFilters] = useState({
         etiquetaColor: "",
         accion: "",
-        idProducto: "",
     });
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         fetchPackageClassifications();
     }, [filters]);
 
-    
     const fetchPackageClassifications = () => {
-        axios.get("https://ravendev.jeotech.x10.mx/clasificaciones", { params: filters })
-            .then(response => setPackageClassifications(response.data))
-            .catch(error => console.error(error));
-    };
-
-    const handleAdded = () => {
-        fetchPackageClassifications();
-    };
-
-    const handleDeleted = () => {
-        fetchPackageClassifications();
+        setLoading(true);
+        axios
+            .get("https://ravendev.jeotech.x10.mx/clasificaciones", { params: filters })
+            .then((response) => {
+                setPackageClassifications(response.data);
+                setLoading(false);
+            })
+            .catch((error) => {
+                console.error(error);
+                setLoading(false);
+            });
     };
 
     const handleFileUpload = (event) => {
@@ -47,103 +49,149 @@ const HomeClasificacion = () => {
             const sheet = workbook.Sheets[sheetName];
             const jsonData = XLSX.utils.sheet_to_json(sheet);
 
-            console.log("Datos del Excel:", jsonData);
-
-            
-            axios.post("https://ravendev.jeotech.x10.mx/importar/clasificacion_paquetes", jsonData)
-                .then(response => {
-                    alert(response.data.message);
+            axios
+                .post("https://ravendev.jeotech.x10.mx/importar/clasificacion_paquetes", jsonData)
+                .then((response) => {
+                    Swal.fire({
+                        title: "¡Éxito!",
+                        text: response.data.message,
+                        icon: "success",
+                        confirmButtonText: "Aceptar",
+                    });
                     fetchPackageClassifications();
                 })
-                .catch(error => console.error("Error al importar datos de clasificación:", error));
+                .catch((error) => {
+                    console.error("Error al importar clasificaciones:", error);
+                    Swal.fire({
+                        title: "Error",
+                        text: "Hubo un problema al importar las clasificaciones.",
+                        icon: "error",
+                        confirmButtonText: "Aceptar",
+                    });
+                });
         };
     };
 
     const exportToExcel = () => {
         const worksheet = XLSX.utils.json_to_sheet(packageClassifications);
         const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Clasificación de Paquetes");
-        XLSX.writeFile(workbook, "clasificacion_paquetes.xlsx");
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Clasificaciones");
+        XLSX.writeFile(workbook, "clasificaciones.xlsx");
+    };
+
+    const exportToPDF = () => {
+        const doc = new jsPDF();
+        doc.text("Lista de Clasificaciones", 10, 10);
+        autoTable(doc, {
+            head: [["ID", "ID_Producto", "Color de etiqueta", "Acción", "Fecha de Registro"]],
+            body: packageClassifications.map((pkg) => [
+                pkg.ID_Clasificacion,
+                pkg.ID_Producto,
+                pkg.Etiqueta_Color,
+                pkg.Accion,
+                new Date(pkg.Fecha_Hora).toLocaleDateString(),
+            ]),
+        });
+        doc.save("clasificaciones.pdf");
     };
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
-        setFilters(prevFilters => ({
+        setFilters((prevFilters) => ({
             ...prevFilters,
-            [name]: value
+            [name]: value,
         }));
+    };
+
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
+    const containerStyle = {
+        marginLeft: isMobile ? "0" : "200px",
+        marginTop: isMobile ? "30px" : "0",
+        padding: "5px",
+        transition: "all 0.3s ease",
     };
 
     return (
         <>
             <Menu />
-            <div className="p-4" style={{ marginLeft: "250px" }}>
-                <div className="mb-4">
-                    <ClasificacionCreate onPackageClassificationAdded={handleAdded} />
-                </div>
-                <div className="mb-3">
-                    <input
-                        type="file"
-                        accept=".xlsx, .xls"
-                        onChange={handleFileUpload}
-                        className="form-control mb-2"
-                    />
-                    <button
-                        onClick={exportToExcel}
-                        className="btn btn-success w-100 mb-3"
-                    >
-                        Exportar a Excel
-                    </button>
-                </div>
-                <div className="row mb-4">
-                    <div className="col-md-4 mb-3">
-                        <label className="form-label">Filtrar por Etiqueta de Color</label>
+            <div className="main-content" style={containerStyle}>
+                <div className="p-4">
+                    <h2 className="text-center">Gestión de Clasificaciones</h2>
+                    <div className="mb-3">
+                        <label className="form-label">Importar clasificaciones desde Excel</label>
                         <input
-                            type="text"
-                            name="etiquetaColor"
-                            value={filters.etiquetaColor}
-                            onChange={handleFilterChange}
-                            className="form-control"
-                            placeholder="Ingrese etiqueta de color"
+                            type="file"
+                            accept=".xlsx, .xls"
+                            onChange={handleFileUpload}
+                            className="form-control mb-2"
                         />
+                        <div className="d-flex gap-2">
+                            <button onClick={exportToExcel} className="btn btn-success flex-grow-1">
+                                Exportar a Excel
+                            </button>
+                            <button onClick={exportToPDF} className="btn btn-danger flex-grow-1">
+                                Exportar a PDF
+                            </button>
+                        </div>
                     </div>
-                    <div className="col-md-4 mb-3">
-                        <label className="form-label">Filtrar por Acción</label>
-                        <select
-                            name="accion"
-                            value={filters.accion}
-                            onChange={handleFilterChange}
-                            className="form-select"
-                        >
-                            <option value="">Todas</option>
-                            <option value="Clasificar">Clasificar</option>
-                            <option value="Rechazar">Rechazar</option>
-                        </select>
+                    <div className="row mb-4">
+                        <div className="col-md-4 mb-3">
+                            <label className="form-label">Filtrar por Color:</label>
+                            <select
+                                name="etiquetaColor"
+                                value={filters.etiquetaColor}
+                                onChange={handleFilterChange}
+                                className="form-select"
+                            >
+                                <option value="">Todos los colores</option>
+                                <option value="Rojo">Rojo</option>
+                                <option value="Verde">Verde</option>
+                            </select>
+                        </div>
+                        <div className="col-md-4 mb-3">
+                            <label className="form-label">Filtrar por Acción:</label>
+                            <select
+                                name="accion"
+                                value={filters.accion}
+                                onChange={handleFilterChange}
+                                className="form-select"
+                            >
+                                <option value="">Todas las acciones</option>
+                                <option value="Izquierda">Izquierda</option>
+                                <option value="Derecha">Derecha</option>
+                            </select>
+                        </div>
                     </div>
-                    <div className="col-md-4 mb-3">
-                        <label className="form-label">Filtrar por Producto</label>
-                        <input
-                            type="number"
-                            name="idProducto"
-                            value={filters.idProducto}
-                            onChange={handleFilterChange}
-                            className="form-control"
-                            placeholder="Ingrese ID de Producto"
-                        />
-                    </div>
-                </div>
-                <div>
                     <div className="card-body">
-                        {packageClassifications.length === 0 ? (
+                        <div className="mb-4">
+                            <button onClick={() => navigate("/clasificacion_paquetes/create")} className="btn btn-primary">
+                                <FaPlus /> Crear Clasificación
+                            </button>
+                        </div>
+                        {loading ? (
+                            <div className="text-center">Cargando...</div>
+                        ) : packageClassifications.length === 0 ? (
                             <div className="alert alert-warning text-center">
-                                No hay datos que coincidan con la búsqueda.
+                                No hay clasificaciones disponibles.
                             </div>
                         ) : (
-                            <ClasificacionList
-                                packageClassifications={packageClassifications}
-                                setPackageClassifications={setPackageClassifications}
-                                onPackageClassificationDeleted={handleDeleted}
-                            />
+                            <div style={{ overflowX: "auto" }}>
+                                <ClasificacionList
+                                    packageClassifications={packageClassifications}
+                                    setPackageClassifications={setPackageClassifications}
+                                    onPackageClassificationDeleted={fetchPackageClassifications}
+                                />
+                            </div>
                         )}
                     </div>
                 </div>

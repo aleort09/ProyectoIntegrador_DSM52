@@ -1,112 +1,158 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
+import Swal from "sweetalert2";
+import Menu from "../Menu.jsx";
 
 const RemotosEdit = () => {
-  const { id } = useParams(); // Obtener el ID del dato a editar desde la URL
-  const history = useHistory();
+    const { id } = useParams();
+    const navigate = useNavigate();
 
-  const [idDeteccion, setIdDeteccion] = useState("");
-  const [idClasificacion, setIdClasificacion] = useState("");
-  const [estadoConexion, setEstadoConexion] = useState("Exitoso");
-  const [mensaje, setMensaje] = useState("");
-  const [error, setError] = useState("");
+    const [remoto, setRemoto] = useState({
+        Nombre: "",
+        IP: "",
+        Ubicacion: "",
+        Estado: "Activo",
+    });
 
-  // Obtener los datos existentes cuando el componente se monta
-  useEffect(() => {
-    const fetchDato = async () => {
-      try {
-        const response = await axios.get(`https://ravendev.jeotech.x10.mx/remotos/${id}`);
-        const dato = response.data;
-        setIdDeteccion(dato.ID_Deteccion);
-        setIdClasificacion(dato.ID_Clasificacion);
-        setEstadoConexion(dato.Estado_Conexion);
-      } catch (err) {
-        console.error("Error al obtener los datos", err);
-        setError("Error al obtener los datos. Intenta de nuevo.");
-      }
+    // Obtener los datos del remoto al cargar el componente
+    useEffect(() => {
+        axios.get(`https://ravendev.jeotech.x10.mx/remotos/${id}`)
+            .then(response => setRemoto(response.data))
+            .catch(error => console.error(error));
+    }, [id]);
+
+    // Manejar cambios en los campos del formulario
+    const handleChange = (e) => {
+        setRemoto({ ...remoto, [e.target.name]: e.target.value });
     };
 
-    fetchDato();
-  }, [id]);
+    // Manejar el envío del formulario
+    const handleSubmit = (e) => {
+        e.preventDefault();
 
-  // Manejar el envío del formulario para actualizar el dato
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const actualizadoDato = {
-      ID_Deteccion: idDeteccion,
-      ID_Clasificacion: idClasificacion,
-      Estado_Conexion: estadoConexion,
+        Swal.fire({
+            title: "¿Estás seguro?",
+            text: "¿Deseas actualizar la información del remoto?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Sí, actualizar",
+            cancelButtonText: "Cancelar",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                axios.put(`https://ravendev.jeotech.x10.mx/remotos/edit/${id}`, remoto)
+                    .then(() => {
+                        Swal.fire({
+                            title: "¡Actualizado!",
+                            text: "El remoto ha sido actualizado correctamente.",
+                            icon: "success",
+                            confirmButtonText: "Aceptar",
+                        }).then(() => {
+                            navigate("/remotos"); // Redirigir a la lista de remotos
+                        });
+                    })
+                    .catch((error) => {
+                        console.error(error);
+                        Swal.fire({
+                            title: "Error",
+                            text: "No se pudo actualizar el remoto. Inténtelo de nuevo más tarde.",
+                            icon: "error",
+                            confirmButtonText: "Aceptar",
+                        });
+                    });
+            }
+        });
     };
 
-    try {
-      await axios.put(`https://ravendev.jeotech.x10.mx/remotos/${id}`, actualizadoDato);
-      setMensaje("Dato remoto actualizado correctamente.");
-      setTimeout(() => {
-        history.push("/remotos"); // Redirigir a la lista de remotos después de actualizar
-      }, 2000);
-    } catch (err) {
-      setError("Error al actualizar el dato remoto. Intenta de nuevo.");
-      console.error(err);
-    }
-  };
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
-  return (
-    <div className="max-w-md mx-auto p-6 bg-white shadow-lg rounded-lg">
-      <h2 className="text-xl font-bold mb-4">Editar Dato Remoto</h2>
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
 
-      {mensaje && <p className="text-green-600">{mensaje}</p>}
-      {error && <p className="text-red-600">{error}</p>}
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label htmlFor="idDeteccion" className="block text-sm font-medium text-gray-700">ID Detección</label>
-          <input
-            type="number"
-            id="idDeteccion"
-            value={idDeteccion}
-            onChange={(e) => setIdDeteccion(e.target.value)}
-            required
-            className="w-full p-2 border rounded mt-1"
-          />
-        </div>
+    const containerStyle = {
+        marginLeft: isMobile ? "0" : "205px",
+        marginTop: isMobile ? "30px" : "0",
+        padding: "5px",
+        transition: "all 0.3s ease"
+    };
 
-        <div className="mb-4">
-          <label htmlFor="idClasificacion" className="block text-sm font-medium text-gray-700">ID Clasificación</label>
-          <input
-            type="number"
-            id="idClasificacion"
-            value={idClasificacion}
-            onChange={(e) => setIdClasificacion(e.target.value)}
-            required
-            className="w-full p-2 border rounded mt-1"
-          />
-        </div>
+    return (
+        <>
+            <Menu />
+            <div className="container mt-5" style={containerStyle}>
+                <div className="row justify-content-center">
+                    <div className="col-md-10 col-lg-8">
+                        <h2 className="text-center mb-4">Editar Remoto</h2>
+                        <button onClick={() => navigate(-1)} className="btn btn-secondary mb-3">
+                            <i className="bi bi-arrow-left me-2"></i>Regresar
+                        </button>
+                        <form onSubmit={handleSubmit} className="card p-4 shadow">
+                            <div className="row">
+                                <div className="col-md-6 mb-3">
+                                    <label className="form-label">Nombre</label>
+                                    <input
+                                        type="text"
+                                        name="Nombre"
+                                        value={remoto.Nombre}
+                                        onChange={handleChange}
+                                        className="form-control"
+                                        required
+                                    />
+                                </div>
+                                <div className="col-md-6 mb-3">
+                                    <label className="form-label">IP</label>
+                                    <input
+                                        type="text"
+                                        name="IP"
+                                        value={remoto.IP}
+                                        onChange={handleChange}
+                                        className="form-control"
+                                        required
+                                    />
+                                </div>
+                                <div className="col-md-6 mb-3">
+                                    <label className="form-label">Ubicación</label>
+                                    <input
+                                        type="text"
+                                        name="Ubicacion"
+                                        value={remoto.Ubicacion}
+                                        onChange={handleChange}
+                                        className="form-control"
+                                        required
+                                    />
+                                </div>
+                                <div className="col-md-6 mb-3">
+                                    <label className="form-label">Estado</label>
+                                    <select
+                                        name="Estado"
+                                        value={remoto.Estado}
+                                        onChange={handleChange}
+                                        className="form-select"
+                                        required
+                                    >
+                                        <option value="Activo">Activo</option>
+                                        <option value="Inactivo">Inactivo</option>
+                                    </select>
+                                </div>
+                            </div>
 
-        <div className="mb-4">
-          <label htmlFor="estadoConexion" className="block text-sm font-medium text-gray-700">Estado de Conexión</label>
-          <select
-            id="estadoConexion"
-            value={estadoConexion}
-            onChange={(e) => setEstadoConexion(e.target.value)}
-            className="w-full p-2 border rounded mt-1"
-          >
-            <option value="Exitoso">Exitoso</option>
-            <option value="Fallido">Fallido</option>
-          </select>
-        </div>
-
-        <div className="flex justify-center mb-4">
-          <button
-            type="submit"
-            className="bg-blue-600 text-white p-2 rounded"
-          >
-            Actualizar Dato Remoto
-          </button>
-        </div>
-      </form>
-    </div>
-  );
+                            <button type="submit" className="btn btn-primary mt-3">
+                                Actualizar Remoto
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </>
+    );
 };
 
 export default RemotosEdit;

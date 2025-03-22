@@ -1,144 +1,164 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import axios from "axios";
-import * as XLSX from "xlsx";
-import { Link } from "react-router-dom"; // Para el botón de editar
+import { Link } from "react-router-dom";
+import Swal from "sweetalert2";
+import { FaEdit, FaTrash } from "react-icons/fa";
+import Menu from "../Menu";
 import ClasificacionChart from "../charts/ClasificacionChart";
 
-const ClasificacionList = () => {
-    const [clasificaciones, setClasificaciones] = useState([]);
-    const [filtroColor, setFiltroColor] = useState("");
-    const [filtroAccion, setFiltroAccion] = useState("");
-    const [mensaje, setMensaje] = useState("");
+const ClasificacionList = ({ packageClassifications, setPackageClassifications, onPackageClassificationDeleted }) => {
+    const userRole = localStorage.getItem("rol");
+    const [currentPage, setCurrentPage] = useState(1); // Estado para la página actual
+    const [error, setError] = useState(null); // Estado para manejar errores
+    const [loading, setLoading] = useState(false); // Estado para manejar la carga
+    const itemsPerPage = 10; // Número de clasificaciones por página
 
-    useEffect(() => {
-        fetchClasificaciones();
-    }, [filtroColor, filtroAccion]);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentPkg = packageClassifications.slice(startIndex, endIndex); // Clasificaciones de la página actual
 
-    const fetchClasificaciones = async () => {
-        try {
-            const response = await axios.get("https://ravendev.jeotech.x10.mx/clasificaciones", {
-                params: {
-                    etiqueta_color: filtroColor,
-                    accion: filtroAccion,
-                },
-            });
-            setClasificaciones(response.data);
-        } catch (err) {
-            console.error("Error al obtener clasificaciones", err);
-        }
+    // Función para cambiar de página
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm("¿Estás seguro de eliminar esta clasificación?")) return;
-
-        try {
-            await axios.delete(`https://ravendev.jeotech.x10.mx/clasificaciones/delete/${id}`);
-            setClasificaciones(clasificaciones.filter((c) => c.ID_Clasificacion !== id));
-            setMensaje("Clasificación eliminada correctamente.");
-        } catch (err) {
-            console.error("Error al eliminar clasificación", err);
-        }
+    const handleDelete = (id) => {
+        Swal.fire({
+            title: "¿Estás seguro?",
+            text: "¡No podrás revertir esto!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Sí, eliminar",
+            cancelButtonText: "Cancelar",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                setLoading(true);
+                axios
+                    .delete(`https://ravendev.jeotech.x10.mx/clasificaciones/delete/${id}`)
+                    .then(() => {
+                        setError(null); // Limpiar el error si la solicitud es exitosa
+                        onPackageClassificationDeleted(); // Llamar a la función de actualización
+                        Swal.fire({
+                            title: "¡Eliminado!",
+                            text: "La clasificación ha sido eliminada.",
+                            icon: "success",
+                            confirmButtonText: "Aceptar",
+                        });
+                        setLoading(false);
+                    })
+                    .catch((error) => {
+                        console.error(error);
+                        setError("No se pudo eliminar la clasificación. Inténtelo de nuevo más tarde.");
+                        setLoading(false);
+                    });
+            }
+        });
     };
 
-    const exportToExcel = () => {
-        const ws = XLSX.utils.json_to_sheet(clasificaciones);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Clasificaciones");
-        XLSX.writeFile(wb, "clasificaciones.xlsx");
-    };
+    const totalPages = Math.ceil(packageClassifications.length / itemsPerPage);
 
     return (
-        <div className="container mt-5">
-            <h2 className="text-center mb-4">Lista de Clasificaciones de Paquetes</h2>
-
-            {mensaje && <div className="alert alert-success">{mensaje}</div>}
-
-            {/* Filtros */}
-            <div className="row mb-4">
-                <div className="col-md-4 mb-3">
-                    <label className="form-label">Filtrar por Color:</label>
-                    <select
-                        value={filtroColor}
-                        onChange={(e) => setFiltroColor(e.target.value)}
-                        className="form-select"
-                    >
-                        <option value="">Todos los colores</option>
-                        <option value="Rojo">Rojo</option>
-                        <option value="Verde">Verde</option>
-                    </select>
-                </div>
-                <div className="col-md-4 mb-3">
-                    <label className="form-label">Filtrar por Acción:</label>
-                    <select
-                        value={filtroAccion}
-                        onChange={(e) => setFiltroAccion(e.target.value)}
-                        className="form-select"
-                    >
-                        <option value="">Todas las acciones</option>
-                        <option value="Izquierda">Izquierda</option>
-                        <option value="Derecha">Derecha</option>
-                    </select>
-                </div>
-                <div className="col-md-4 mb-3 d-flex align-items-end">
-                    <button onClick={exportToExcel} className="btn btn-success w-100">
-                        Exportar a Excel
-                    </button>
-                </div>
-            </div>
-
-            {/* Tabla */}
-            <table className="table table-striped table-hover">
-                <thead className="table-dark">
-                    <tr>
-                        <th>ID</th>
-                        <th>ID Producto</th>
-                        <th>Etiqueta Color</th>
-                        <th>Acción</th>
-                        <th>Fecha</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {clasificaciones.length > 0 ? (
-                        clasificaciones.map((clasificacion) => (
-                            <tr key={clasificacion.ID_Clasificacion}>
-                                <td>{clasificacion.ID_Clasificacion}</td>
-                                <td>{clasificacion.ID_Producto}</td>
-                                <td>{clasificacion.Etiqueta_Color}</td>
-                                <td>{clasificacion.Accion}</td>
-                                <td>{new Date(clasificacion.Fecha_Hora).toLocaleString()}</td>
-                                <td>
-                                    <Link
-                                        to={`/clasificaciones/edit/${clasificacion.ID_Clasificacion}`}
-                                        className="btn btn-primary btn-sm me-2"
-                                    >
-                                        Editar
-                                    </Link>
-                                    <button
-                                        onClick={() => handleDelete(clasificacion.ID_Clasificacion)}
-                                        className="btn btn-danger btn-sm"
-                                    >
-                                        Eliminar
-                                    </button>
+        <>
+            <Menu />
+            <div className="container mt-5">
+                {error && (
+                    <div className="alert alert-danger" role="alert">
+                        {error}
+                    </div>
+                )}
+                {loading && <div className="text-center">Cargando...</div>}
+                <table className="table table-striped table-hover">
+                    <thead className="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>ID Producto</th>
+                            <th>Etiqueta Color</th>
+                            <th>Acción</th>
+                            <th>Fecha</th>
+                            {userRole !== "Empleado" && <th>Acciones</th>}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {currentPkg.length > 0 ? (
+                            currentPkg.map((clasificacion) => (
+                                <tr key={clasificacion.ID_Clasificacion}>
+                                    <td>{clasificacion.ID_Clasificacion}</td>
+                                    <td>{clasificacion.ID_Producto}</td>
+                                    <td>{clasificacion.Etiqueta_Color}</td>
+                                    <td>{clasificacion.Accion}</td>
+                                    <td>{new Date(clasificacion.Fecha_Hora).toLocaleString()}</td>
+                                    {userRole !== "Empleado" && (
+                                        <td>
+                                            <Link
+                                                to={`/clasificacion_paquetes/edit/${clasificacion.ID_Clasificacion}`}
+                                                className="btn btn-primary btn-sm me-2"
+                                            >
+                                                <FaEdit className="icon-edit" />
+                                            </Link>
+                                            <button
+                                                onClick={() => handleDelete(clasificacion.ID_Clasificacion)}
+                                                className="btn btn-danger btn-sm"
+                                            >
+                                                <FaTrash className="icon-delete" />
+                                            </button>
+                                        </td>
+                                    )}
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="6" className="text-center">
+                                    No hay clasificaciones registradas.
                                 </td>
                             </tr>
-                        ))
-                    ) : (
-                        <tr>
-                            <td colSpan="6" className="text-center">
-                                No hay clasificaciones registradas.
-                            </td>
-                        </tr>
-                    )}
-                </tbody>
-            </table>
-
-            {/* Gráfica */}
-            <div className="mt-5">
-                <h4 className="text-center mb-4">Gráfica de Clasificaciones</h4>
-                <ClasificacionChart clasificaciones={clasificaciones} />
+                        )}
+                    </tbody>
+                </table>
+                {totalPages > 1 && (
+                    <div className="d-flex justify-content-center mt-4">
+                        <nav>
+                            <ul className="pagination">
+                                <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+                                    <button
+                                        className="page-link"
+                                        onClick={() => handlePageChange(currentPage - 1)}
+                                        disabled={currentPage === 1}
+                                    >
+                                        Anterior
+                                    </button>
+                                </li>
+                                {Array.from({ length: totalPages }, (_, i) => (
+                                    <li key={i + 1} className={`page-item ${currentPage === i + 1 ? "active" : ""}`}>
+                                        <button
+                                            className="page-link"
+                                            onClick={() => handlePageChange(i + 1)}
+                                        >
+                                            {i + 1}
+                                        </button>
+                                    </li>
+                                ))}
+                                <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
+                                    <button
+                                        className="page-link"
+                                        onClick={() => handlePageChange(currentPage + 1)}
+                                        disabled={currentPage === totalPages}
+                                    >
+                                        Siguiente
+                                    </button>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                )}
+                {/* Gráfica de clasificaciones */}
+                <div className="mt-5">
+                    <h4 className="text-center mb-4">Gráfica de Clasificaciones</h4>
+                    <ClasificacionChart clasificaciones={packageClassifications} />
+                </div>
             </div>
-        </div>
+        </>
     );
 };
 
