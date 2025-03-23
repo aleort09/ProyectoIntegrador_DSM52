@@ -30,33 +30,34 @@ const Dashboard = () => {
             title: "Detección de Paquetes",
             link: "/deteccion_paquetes",
             image: "/dis.png",
-            bg: "bg-primary text-white"
+            overlayColor: "rgba(0, 123, 255, 0.5)" // Azul
         },
         {
             title: "Clasificación de Paquetes",
             link: "/clasificacion_paquetes",
             image: "/eventos.jpg",
-            bg: "bg-success text-white"
+            overlayColor: "rgba(40, 167, 69, 0.5)" // Verde
         },
         {
             title: "Datos Remotos",
             link: "/remotos",
             image: "/lecturas.jpg",
-            bg: "bg-danger text-white"
+            overlayColor: "rgba(220, 53, 69, 0.5)" // Rojo
         },
         {
             title: "Productos",
             link: "/productos",
             image: "/paquetes.webp",
-            bg: "bg-warning text-dark"
+            overlayColor: "rgba(255, 193, 7, 0.5)" // Amarillo
         },
         {
             title: "Usuarios",
             link: "/usuarios",
             image: "/users.jpg",
-            bg: "bg-info text-white"
+            overlayColor: "rgba(23, 162, 184, 0.5)" // Cian
         }
     ];
+
 
     const responsive = {
         superLargeDesktop: {
@@ -77,38 +78,79 @@ const Dashboard = () => {
         }
     };
 
-    return (
-        <div className="container mt-5 text-center">
-            <h1 className="mb-4 display-5 fw-bold">Bienvenido, {user.Nombre} {user.Apellido}</h1>
-            <p className="text-muted mb-4">Selecciona una opción para continuar</p>
+    const arrowButtonStyle = {
+        position: "absolute",
+        top: "50%",
+        transform: "translateY(-50%)",
+        zIndex: 10,
+        backgroundColor: "rgba(0, 0, 0, 0.4)",
+        border: "none",
+        color: "white",
+        fontSize: "2rem",
+        padding: "0.5rem 1rem",
+        cursor: "pointer",
+        borderRadius: "50%"
+    };
 
-            <Carousel
-                responsive={responsive}
-                autoPlay={true}
-                autoPlaySpeed={3000}
-                infinite={true}
-                showDots={true}
-                arrows={true}
-                containerClass="carousel-container"
-                itemClass="px-3"
-            >
-                {cards.map((card, index) => (
-                    <Link to={card.link} key={index} className="text-decoration-none">
-                        <div className="card shadow-lg h-100 hover-scale" style={{ borderRadius: "15px", overflow: "hidden" }}>
-                            <img 
-                                src={card.image} 
-                                alt={card.title} 
-                                className="card-img-top"
-                                style={{ height: "170px", objectFit: "cover" }}
-                            />
-                            <div className={`card-body ${card.bg}`}>
-                                <h5 className="card-title">{card.title}</h5>
-                            </div>
+    const CustomLeftArrow = ({ onClick }) => (
+        <button onClick={onClick} style={{ ...arrowButtonStyle, left: "20px" }}>
+            ‹
+        </button>
+    );
+
+    const CustomRightArrow = ({ onClick }) => (
+        <button onClick={onClick} style={{ ...arrowButtonStyle, right: "20px" }}>
+            ›
+        </button>
+    );
+
+
+    return (
+        <Carousel
+            responsive={{
+                all: {
+                    breakpoint: { max: 4000, min: 0 },
+                    items: 1
+                }
+            }}
+            autoPlay={true}
+            autoPlaySpeed={5000}
+            infinite={true}
+            showDots={true}
+            arrows={true}
+            customLeftArrow={<CustomLeftArrow />}
+            customRightArrow={<CustomRightArrow />}
+            containerClass="carousel-container"
+            itemClass="carousel-item-fullscreen"
+        >
+            {cards.map((card, index) => (
+                <Link to={card.link} key={index} className="text-decoration-none">
+                    <div className="position-relative" style={{ width: "100vw", height: "100vh" }}>
+                        <img
+                            src={card.image}
+                            alt={card.title}
+                            style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover"
+                            }}
+                        />
+                        <div
+                            className="position-absolute top-50 start-50 translate-middle p-4 rounded shadow-lg"
+                            style={{
+                                backgroundColor: card.overlayColor,
+                                minWidth: "300px",
+                                maxWidth: "90%",
+                                textAlign: "center"
+                            }}
+                        >
+                            <h1 className="text-white fw-bold">{card.title}</h1>
                         </div>
-                    </Link>
-                ))}
-            </Carousel>
-        </div>
+                    </div>
+                </Link>
+            ))}
+        </Carousel>
+
     );
 };
 

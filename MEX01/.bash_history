@@ -108,3 +108,12 @@ git push origin AppsMoviles
 git add .
 git commit -m "Cambios en diseño"
 git push origin AppsMoviles
+git add .
+git commit -m "Cambios en diseño del login"
+git push origin AppsMoviles
+git add .
+git commit -m "URL actualizada"
+git push origin AppsMoviles
+git add .
+git commit -m "Cambios importantes en componentes para mejor interfaz"
+git push origin AppsMoviles

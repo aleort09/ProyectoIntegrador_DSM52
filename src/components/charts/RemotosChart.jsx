@@ -57,7 +57,6 @@ const RemotosChart = () => {
     plugins: {
       title: {
         display: true,
-        text: "Gráfico de Estado de Conexión",
       },
       legend: {
         position: "top",
@@ -71,7 +70,7 @@ const RemotosChart = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 bg-white shadow-lg rounded-lg">
+    <div className="max-w-6xl mx-auto p-6">
       <h2 className="text-xl font-bold mb-4">Gráfico de Estado de Conexión</h2>
       <div className="h-[400px]">
         <Bar data={data} options={options} />

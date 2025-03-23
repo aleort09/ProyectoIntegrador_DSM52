@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { FaEdit, FaTrash } from "react-icons/fa";
-import ProductosChart from "../charts/ProductosChart";
 import Menu from "../Menu";
 
 const ProductosList = ({ productos, setProductos, onProductoDeleted }) => {
@@ -141,7 +140,6 @@ const ProductosList = ({ productos, setProductos, onProductoDeleted }) => {
                         </nav>
                     </div>
                 )}
-                <ProductosChart productos={productos} />
             </div>
         </>
     );

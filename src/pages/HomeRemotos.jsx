@@ -8,14 +8,13 @@ import { FaPlus } from "react-icons/fa";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import Swal from "sweetalert2";
+import RemotosChart from "../components/charts/RemotosChart";
 
 const HomeRemotos = () => {
     const navigate = useNavigate();
     const [remoteData, setRemoteData] = useState([]);
     const [filters, setFilters] = useState({
-        estadoConexion: "",
-        idDeteccion: "",
-        idClasificacion: "",
+        estado_conexion: "",
     });
 
     useEffect(() => {
@@ -104,7 +103,7 @@ const HomeRemotos = () => {
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
     }, []);
-    
+
     const containerStyle = {
         marginLeft: isMobile ? "0" : "200px",
         marginTop: isMobile ? "30px" : "0",
@@ -138,36 +137,15 @@ const HomeRemotos = () => {
                     <div className="row mb-4">
                         <div className="col-md-4">
                             <select
-                                name="estadoConexion"
-                                value={filters.estadoConexion}
+                                name="estado_conexion"
+                                value={filters.estado_conexion}
                                 onChange={handleFilterChange}
                                 className="form-select"
                             >
-                                <option value="">Filtrar por Estado de Conexión</option>
-                                <option value="Conectado">Conectado</option>
-                                <option value="Desconectado">Desconectado</option>
-                                <option value="Error">Error</option>
+                                <option value="">Todos</option>
+                                <option value="Exitoso">Exitoso</option>
+                                <option value="Fallido">Fallido</option>
                             </select>
-                        </div>
-                        <div className="col-md-4">
-                            <input
-                                type="number"
-                                name="idDeteccion"
-                                value={filters.idDeteccion}
-                                onChange={handleFilterChange}
-                                className="form-control"
-                                placeholder="Filtrar por ID de Detección"
-                            />
-                        </div>
-                        <div className="col-md-4">
-                            <input
-                                type="number"
-                                name="idClasificacion"
-                                value={filters.idClasificacion}
-                                onChange={handleFilterChange}
-                                className="form-control"
-                                placeholder="Filtrar por ID de Clasificación"
-                            />
                         </div>
                     </div>
                     <div className="card-body">
@@ -189,6 +167,9 @@ const HomeRemotos = () => {
                                 />
                             </div>
                         )}
+                        <div>
+                            <RemotosChart />
+                        </div>
                     </div>
                 </div>
             </div>

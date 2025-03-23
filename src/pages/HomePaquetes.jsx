@@ -156,13 +156,15 @@ const HomePaquetes = () => {
     // Memoizar el JSX de la tabla para evitar renderizados innecesarios
     const memoizedTable = useMemo(() => {
         return (
-            <PaquetesList
+            <div  style={{ overflowX: "auto" }}>
+                <PaquetesList
                 key={currentPage} // Usar la página actual como clave
                 packageDetections={packageDetections}
                 onPackageDetectionDeleted={handleDeleted}
                 currentPage={currentPage}
                 onPageChange={setCurrentPage}
             />
+            </div>
         );
     }, [packageDetections, currentPage]);
 
@@ -232,8 +234,8 @@ const HomePaquetes = () => {
                         ) : (
                             memoizedTable
                         )}
-                    </div>
-                    <div className="mb-4">
+                    </div> 
+                    <div style={{ overflowX: "auto" }}>
                         <h4>Gráfica de Distancias</h4>
                         <PaquetesChart paquetes={packageDetections} />
                     </div>

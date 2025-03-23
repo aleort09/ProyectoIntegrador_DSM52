@@ -13,6 +13,32 @@ const ClasificacionEdit = () => {
         Accion: "Izquierda",
     });
 
+    const [productos, setProductos] = useState([]); // Estado para almacenar los productos
+    const [loading, setLoading] = useState(true); // Estado para manejar la carga
+
+    // Obtener los productos desde la API
+    useEffect(() => {
+        const fetchProductos = async () => {
+            try {
+                const response = await axios.get("https://ravendev.jeotech.x10.mx/productos");
+                setProductos(response.data); // Almacenar los productos en el estado
+                setLoading(false); // Indicar que la carga ha terminado
+            } catch (error) {
+                console.error("Error al obtener los productos:", error);
+                Swal.fire({
+                    title: "Error",
+                    text: "No se pudieron cargar los productos.",
+                    icon: "error",
+                    confirmButtonText: "Aceptar",
+                });
+                setLoading(false); // Indicar que la carga ha terminado (incluso si hay un error)
+            }
+        };
+
+        fetchProductos();
+    }, []);
+
+    // Obtener la clasificación actual
     useEffect(() => {
         axios
             .get(`https://ravendev.jeotech.x10.mx/clasificaciones/${id}`)
@@ -71,11 +97,12 @@ const ClasificacionEdit = () => {
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
     }, []);
+
     const containerStyle = {
         marginLeft: isMobile ? "0" : "205px",
         marginTop: isMobile ? "30px" : "0",
         padding: "5px",
-        transition: "all 0.3s ease"
+        transition: "all 0.3s ease",
     };
 
     return (
@@ -90,15 +117,29 @@ const ClasificacionEdit = () => {
                         </button>
                         <form onSubmit={handleSubmit} className="card p-4 shadow">
                             <div className="mb-3">
-                                <label className="form-label">ID Producto</label>
-                                <input
-                                    type="number"
-                                    name="ID_Producto"
-                                    value={clasificacion.ID_Producto}
-                                    onChange={handleChange}
-                                    className="form-control"
-                                    required
-                                />
+                                <label className="form-label">Producto</label>
+                                {loading ? (
+                                    <div className="text-center">
+                                        <div className="spinner-border text-primary" role="status">
+                                            <span className="visually-hidden">Cargando...</span>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <select
+                                        name="ID_Producto"
+                                        value={clasificacion.ID_Producto}
+                                        onChange={handleChange}
+                                        className="form-select"
+                                        required
+                                    >
+                                        <option value="">Selecciona un producto</option>
+                                        {productos.map((producto) => (
+                                            <option key={producto.ID_Producto} value={producto.ID_Producto}>
+                                                {producto.Nombre}
+                                            </option>
+                                        ))}
+                                    </select>
+                                )}
                             </div>
                             <div className="mb-3">
                                 <label className="form-label">Etiqueta de Color</label>
@@ -124,7 +165,7 @@ const ClasificacionEdit = () => {
                                     <option value="Derecha">Derecha</option>
                                 </select>
                             </div>
-                            <button type="submit" className="btn btn-primary">
+                            <button type="submit" className="btn btn-primary w-100">
                                 Actualizar Clasificación
                             </button>
                         </form>

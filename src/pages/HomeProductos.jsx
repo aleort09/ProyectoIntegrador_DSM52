@@ -8,6 +8,7 @@ import { FaPlus } from "react-icons/fa";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import Swal from "sweetalert2";
+import ProductosChart from "../components/charts/ProductosChart"
 
 const HomeProductos = () => {
     const navigate = useNavigate();
@@ -167,12 +168,17 @@ const HomeProductos = () => {
                                     No hay productos disponibles.
                                 </div>
                             ) : (
-                                <ProductosList
-                                    productos={productos}
-                                    setProductos={setProductos}
-                                    onProductoDeleted={fetchProductos}
-                                />
+                                <div style={{ overflowX: "auto" }}>
+                                    <ProductosList
+                                        productos={productos}
+                                        setProductos={setProductos}
+                                        onProductoDeleted={fetchProductos}
+                                    />
+                                </div>
                             )}
+                            <div>
+                                <ProductosChart productos={productos} />
+                            </div>
                         </div>
                     </div>
                 </div>

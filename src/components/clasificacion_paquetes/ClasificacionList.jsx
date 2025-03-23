@@ -1,17 +1,43 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import Menu from "../Menu";
-import ClasificacionChart from "../charts/ClasificacionChart";
 
 const ClasificacionList = ({ packageClassifications, setPackageClassifications, onPackageClassificationDeleted }) => {
     const userRole = localStorage.getItem("rol");
     const [currentPage, setCurrentPage] = useState(1); // Estado para la página actual
     const [error, setError] = useState(null); // Estado para manejar errores
     const [loading, setLoading] = useState(false); // Estado para manejar la carga
+    const [productos, setProductos] = useState([]); // Estado para almacenar los productos
     const itemsPerPage = 10; // Número de clasificaciones por página
+
+    // Obtener los productos desde la API
+    useEffect(() => {
+        const fetchProductos = async () => {
+            try {
+                const response = await axios.get("https://ravendev.jeotech.x10.mx/productos");
+                setProductos(response.data); // Almacenar los productos en el estado
+            } catch (error) {
+                console.error("Error al obtener los productos:", error);
+                Swal.fire({
+                    title: "Error",
+                    text: "No se pudieron cargar los productos.",
+                    icon: "error",
+                    confirmButtonText: "Aceptar",
+                });
+            }
+        };
+
+        fetchProductos();
+    }, []);
+
+    // Función para obtener el nombre del producto por su ID
+    const getNombreProducto = (idProducto) => {
+        const producto = productos.find((p) => p.ID_Producto === idProducto);
+        return producto ? producto.Nombre : "Desconocido";
+    };
 
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
@@ -73,7 +99,7 @@ const ClasificacionList = ({ packageClassifications, setPackageClassifications, 
                     <thead className="table-dark">
                         <tr>
                             <th>ID</th>
-                            <th>ID Producto</th>
+                            <th>Producto</th> {/* Cambiado de "ID Producto" a "Producto" */}
                             <th>Etiqueta Color</th>
                             <th>Acción</th>
                             <th>Fecha</th>
@@ -85,7 +111,7 @@ const ClasificacionList = ({ packageClassifications, setPackageClassifications, 
                             currentPkg.map((clasificacion) => (
                                 <tr key={clasificacion.ID_Clasificacion}>
                                     <td>{clasificacion.ID_Clasificacion}</td>
-                                    <td>{clasificacion.ID_Producto}</td>
+                                    <td>{getNombreProducto(clasificacion.ID_Producto)}</td> {/* Mostrar el nombre del producto */}
                                     <td>{clasificacion.Etiqueta_Color}</td>
                                     <td>{clasificacion.Accion}</td>
                                     <td>{new Date(clasificacion.Fecha_Hora).toLocaleString()}</td>
@@ -152,11 +178,6 @@ const ClasificacionList = ({ packageClassifications, setPackageClassifications, 
                         </nav>
                     </div>
                 )}
-                {/* Gráfica de clasificaciones */}
-                <div className="mt-5">
-                    <h4 className="text-center mb-4">Gráfica de Clasificaciones</h4>
-                    <ClasificacionChart clasificaciones={packageClassifications} />
-                </div>
             </div>
         </>
     );

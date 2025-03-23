@@ -9,20 +9,50 @@ const RemotosEdit = () => {
     const navigate = useNavigate();
 
     const [remoto, setRemoto] = useState({
-        Nombre: "",
-        IP: "",
-        Ubicacion: "",
-        Estado: "Activo",
+        ID_Deteccion: "",
+        ID_Clasificacion: "",
+        Estado_Conexion: "Exitoso",
     });
 
-    // Obtener los datos del remoto al cargar el componente
+    const [detecciones, setDetecciones] = useState([]); // Estado para almacenar las detecciones
+    const [clasificaciones, setClasificaciones] = useState([]); // Estado para almacenar las clasificaciones
+    const [loading, setLoading] = useState(true); // Estado para manejar la carga
+
+    // Obtener las detecciones y clasificaciones desde la API
     useEffect(() => {
-        axios.get(`https://ravendev.jeotech.x10.mx/remotos/${id}`)
-            .then(response => setRemoto(response.data))
-            .catch(error => console.error(error));
+        const fetchData = async () => {
+            try {
+                const [deteccionesResponse, clasificacionesResponse] = await Promise.all([
+                    axios.get("https://ravendev.jeotech.x10.mx/detecciones"),
+                    axios.get("https://ravendev.jeotech.x10.mx/clasificaciones"),
+                ]);
+
+                setDetecciones(deteccionesResponse.data); // Almacenar las detecciones
+                setClasificaciones(clasificacionesResponse.data); // Almacenar las clasificaciones
+                setLoading(false); // Indicar que la carga ha terminado
+            } catch (error) {
+                console.error("Error al obtener los datos:", error);
+                Swal.fire({
+                    title: "Error",
+                    text: "No se pudieron cargar las detecciones o clasificaciones.",
+                    icon: "error",
+                    confirmButtonText: "Aceptar",
+                });
+                setLoading(false); // Indicar que la carga ha terminado (incluso si hay un error)
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    // Obtener el remoto actual
+    useEffect(() => {
+        axios
+            .get(`https://ravendev.jeotech.x10.mx/remotos/${id}`)
+            .then((response) => setRemoto(response.data))
+            .catch((error) => console.error(error));
     }, [id]);
 
-    // Manejar cambios en los campos del formulario
     const handleChange = (e) => {
         setRemoto({ ...remoto, [e.target.name]: e.target.value });
     };
@@ -42,7 +72,8 @@ const RemotosEdit = () => {
             cancelButtonText: "Cancelar",
         }).then((result) => {
             if (result.isConfirmed) {
-                axios.put(`https://ravendev.jeotech.x10.mx/remotos/edit/${id}`, remoto)
+                axios
+                    .put(`https://ravendev.jeotech.x10.mx/remotos/edit/${id}`, remoto)
                     .then(() => {
                         Swal.fire({
                             title: "¡Actualizado!",
@@ -81,7 +112,7 @@ const RemotosEdit = () => {
         marginLeft: isMobile ? "0" : "205px",
         marginTop: isMobile ? "30px" : "0",
         padding: "5px",
-        transition: "all 0.3s ease"
+        transition: "all 0.3s ease",
     };
 
     return (
@@ -96,54 +127,69 @@ const RemotosEdit = () => {
                         </button>
                         <form onSubmit={handleSubmit} className="card p-4 shadow">
                             <div className="row">
-                                <div className="col-md-6 mb-3">
-                                    <label className="form-label">Nombre</label>
-                                    <input
-                                        type="text"
-                                        name="Nombre"
-                                        value={remoto.Nombre}
-                                        onChange={handleChange}
-                                        className="form-control"
-                                        required
-                                    />
+                                <div className="mb-3 col-md-6">
+                                    <label className="form-label">Detección</label>
+                                    {loading ? (
+                                        <div className="text-center">
+                                            <div className="spinner-border text-primary" role="status">
+                                                <span className="visually-hidden">Cargando...</span>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <select
+                                            name="ID_Deteccion"
+                                            value={remoto.ID_Deteccion}
+                                            onChange={handleChange}
+                                            className="form-control"
+                                            required
+                                        >
+                                            <option value="">Seleccione una detección</option>
+                                            {detecciones.map((deteccion) => (
+                                                <option key={deteccion.ID_Deteccion} value={deteccion.ID_Deteccion}>
+                                                    {deteccion.Nombre} (ID: {deteccion.ID_Deteccion})
+                                                </option>
+                                            ))}
+                                        </select>
+                                    )}
                                 </div>
-                                <div className="col-md-6 mb-3">
-                                    <label className="form-label">IP</label>
-                                    <input
-                                        type="text"
-                                        name="IP"
-                                        value={remoto.IP}
-                                        onChange={handleChange}
-                                        className="form-control"
-                                        required
-                                    />
+                                <div className="mb-3 col-md-6">
+                                    <label className="form-label">Clasificación</label>
+                                    {loading ? (
+                                        <div className="text-center">
+                                            <div className="spinner-border text-primary" role="status">
+                                                <span className="visually-hidden">Cargando...</span>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <select
+                                            name="ID_Clasificacion"
+                                            value={remoto.ID_Clasificacion}
+                                            onChange={handleChange}
+                                            className="form-control"
+                                            required
+                                        >
+                                            <option value="">Seleccione una clasificación</option>
+                                            {clasificaciones.map((clasificacion) => (
+                                                <option key={clasificacion.ID_Clasificacion} value={clasificacion.ID_Clasificacion}>
+                                                    {clasificacion.Nombre} (ID: {clasificacion.ID_Clasificacion})
+                                                </option>
+                                            ))}
+                                        </select>
+                                    )}
                                 </div>
-                                <div className="col-md-6 mb-3">
-                                    <label className="form-label">Ubicación</label>
-                                    <input
-                                        type="text"
-                                        name="Ubicacion"
-                                        value={remoto.Ubicacion}
-                                        onChange={handleChange}
-                                        className="form-control"
-                                        required
-                                    />
-                                </div>
-                                <div className="col-md-6 mb-3">
-                                    <label className="form-label">Estado</label>
+                                <div className="mb-3 col-md-12">
+                                    <label className="form-label">Estado de Conexión</label>
                                     <select
-                                        name="Estado"
-                                        value={remoto.Estado}
+                                        name="Estado_Conexion"
+                                        value={remoto.Estado_Conexion}
                                         onChange={handleChange}
-                                        className="form-select"
-                                        required
+                                        className="form-control"
                                     >
-                                        <option value="Activo">Activo</option>
-                                        <option value="Inactivo">Inactivo</option>
+                                        <option value="Exitoso">Exitoso</option>
+                                        <option value="Fallido">Fallido</option>
                                     </select>
                                 </div>
                             </div>
-
                             <button type="submit" className="btn btn-primary mt-3">
                                 Actualizar Remoto
                             </button>

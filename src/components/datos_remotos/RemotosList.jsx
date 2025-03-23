@@ -5,19 +5,15 @@ import Swal from "sweetalert2";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import Menu from "../Menu";
 
-const RemotosList = ({ remotos, setRemotos, onRemotoDeleted }) => {
+const RemotosList = ({ remoteData, setRemotos, onRemotoDeleted }) => {
     const userRole = localStorage.getItem("rol");
     const [currentPage, setCurrentPage] = useState(1);
     const [error, setError] = useState(null);
     const itemsPerPage = 10;
 
-    // Verificar que remotos sea un array
-    const safeRemotos = Array.isArray(remotos) ? remotos : [];
-
-    // Calcular el índice de inicio y fin para los remotos de la página actual
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    const currentRemotos = safeRemotos.slice(startIndex, endIndex); // Remotos de la página actual
+    const currentRemotos = remoteData.slice(startIndex, endIndex); // Remotos de la página actual
 
     // Función para cambiar de página
     const handlePageChange = (page) => {
@@ -58,7 +54,7 @@ const RemotosList = ({ remotos, setRemotos, onRemotoDeleted }) => {
     };
 
     // Calcular el número total de páginas
-    const totalPages = Math.ceil(safeRemotos.length / itemsPerPage);
+    const totalPages = Math.ceil(remoteData.length / itemsPerPage);
 
     return (
         <>

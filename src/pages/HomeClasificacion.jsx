@@ -8,12 +8,13 @@ import { FaPlus } from "react-icons/fa";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import Swal from "sweetalert2";
+import ClasificacionChart from "../components/charts/ClasificacionChart";
 
 const HomeClasificacion = () => {
     const navigate = useNavigate();
     const [packageClassifications, setPackageClassifications] = useState([]);
     const [filters, setFilters] = useState({
-        etiquetaColor: "",
+        etiqueta_color: "",
         accion: "",
     });
     const [loading, setLoading] = useState(false);
@@ -148,8 +149,8 @@ const HomeClasificacion = () => {
                         <div className="col-md-4 mb-3">
                             <label className="form-label">Filtrar por Color:</label>
                             <select
-                                name="etiquetaColor"
-                                value={filters.etiquetaColor}
+                                name="etiqueta_color"
+                                value={filters.etiqueta_color}
                                 onChange={handleFilterChange}
                                 className="form-select"
                             >
@@ -193,6 +194,9 @@ const HomeClasificacion = () => {
                                 />
                             </div>
                         )}
+                        <div className="mt-5" style={{ overflowX: "auto" }}>
+                            <ClasificacionChart clasificaciones={packageClassifications} />
+                        </div>
                     </div>
                 </div>
             </div>
