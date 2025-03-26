@@ -169,14 +169,13 @@ const HomePaquetes = () => {
             <Menu />
             <div className="p-4" style={containerStyle}>
                 <h2 className="text-center">Gestión de Detección de Paquetes</h2>
+                <button onClick={() => navigate("/paquetes/create")} className="btn btn-primary mb-3">
+                    <FaPlus /> Crear Paquete
+                </button>
+
                 <div className="mb-3">
                     <label className="form-label">Importar detecciones desde Excel</label>
-                    <input
-                        type="file"
-                        accept=".xlsx, .xls"
-                        onChange={handleFileUpload}
-                        className="form-control mb-2"
-                    />
+                    <input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} className="form-control mb-2" />
                     <div className="d-flex gap-2">
                         <button onClick={exportToExcel} className="btn btn-success flex-grow-1">
                             Exportar a Excel
@@ -186,6 +185,22 @@ const HomePaquetes = () => {
                         </button>
                     </div>
                 </div>
+
+                <div className="mb-3">
+                    <label className="form-label">Filtrar por estado:</label>
+                    <select name="estado" value={filters.estado} onChange={handleFilterChange} className="form-select">
+                        <option value="">Todos</option>
+                        <option value="Detectado">Detectado</option>
+                        <option value="No Detectado">No Detectado</option>
+                    </select>
+                </div>
+
+                <div className="mb-3">
+                    <label className="form-label">Filtrar por fecha:</label>
+                    <input type="date" name="fecha" value={filters.fecha} onChange={handleFilterChange} className="form-control" />
+                </div>
+
+
                 <div>
                     {loading ? (
                         <div className="text-center">Cargando...</div>
@@ -197,6 +212,7 @@ const HomePaquetes = () => {
                         memoizedTable
                     )}
                 </div>
+
                 <div style={{ overflowX: "auto" }}>
                     <h4>Gráfica de Distancias</h4>
                     <PaquetesChart paquetes={packageDetections} />
