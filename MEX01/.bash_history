@@ -117,3 +117,6 @@ git push origin AppsMoviles
 git add .
 git commit -m "Cambios importantes en componentes para mejor interfaz"
 git push origin AppsMoviles
+git add .
+git commit -m "Cambios en disñeo y componentes"
+git push origin AppsMoviles

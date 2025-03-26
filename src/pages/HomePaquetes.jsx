@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import PaquetesList from "../components/deteccion_paquetes/PaquetesList";
-import { useEffect, useState, useRef, useMemo } from "react";
+import { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import axios from "axios";
 import * as XLSX from "xlsx";
 import Menu from "../components/Menu";
@@ -14,24 +14,20 @@ import isEqual from "lodash/isEqual";
 const HomePaquetes = () => {
     const navigate = useNavigate();
     const [packageDetections, setPackageDetections] = useState([]);
-    const [filters, setFilters] = useState({
-        estado: "",
-        fecha: "",
-    });
+    const [filters, setFilters] = useState({ estado: "", fecha: "" });
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const prevPackageDetections = useRef([]);
+    const pollingRef = useRef(null);
 
-    // Función para obtener las detecciones de paquetes
-    const fetchPackageDetections = async () => {
-        setLoading(true);
+    // Función optimizada para obtener las detecciones de paquetes
+    const fetchPackageDetections = useCallback(async () => {
         try {
             const response = await axios.get("https://ravendev.jeotech.x10.mx/detecciones", {
                 params: filters,
             });
             const newData = response.data || [];
 
-            // Comparar datos antiguos y nuevos para evitar actualizaciones innecesarias
             if (!isEqual(newData, prevPackageDetections.current)) {
                 setPackageDetections(newData);
                 prevPackageDetections.current = newData;
@@ -44,29 +40,31 @@ const HomePaquetes = () => {
                 icon: "error",
                 confirmButtonText: "Aceptar",
             });
-        } finally {
-            setLoading(false);
         }
-    };
-
-    // Polling condicional: Verificar si hay nuevos datos cada 5 segundos
-    useEffect(() => {
-        fetchPackageDetections(); // Llamada inicial para cargar los datos
-
-        const pollingInterval = setInterval(() => {
-            fetchPackageDetections(); // Verificar si hay nuevos datos
-        }, 5000); // Intervalo de 5 segundos
-
-        return () => clearInterval(pollingInterval); // Limpiar el intervalo al desmontar el componente
     }, [filters]);
 
-    const handleAdded = () => {
-        fetchPackageDetections();
-    };
+    // Efecto para manejar el polling de actualización
+    useEffect(() => {
+        fetchPackageDetections(); // Carga inicial
 
-    const handleDeleted = () => {
+        if (pollingRef.current) {
+            clearInterval(pollingRef.current);
+        }
+
+        pollingRef.current = setInterval(() => {
+            fetchPackageDetections();
+        }, 5000);
+
+        return () => clearInterval(pollingRef.current);
+    }, [fetchPackageDetections]);
+
+    const handleAdded = useCallback(() => {
         fetchPackageDetections();
-    };
+    }, [fetchPackageDetections]);
+
+    const handleDeleted = useCallback(() => {
+        fetchPackageDetections();
+    }, [fetchPackageDetections]);
 
     const handleFileUpload = (event) => {
         const file = event.target.files[0];
@@ -132,7 +130,7 @@ const HomePaquetes = () => {
             ...prevFilters,
             [name]: value,
         }));
-        setCurrentPage(1); // Reiniciar la paginación al cambiar los filtros
+        setCurrentPage(1);
     };
 
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -153,20 +151,18 @@ const HomePaquetes = () => {
         transition: "all 0.3s ease",
     };
 
-    // Memoizar el JSX de la tabla para evitar renderizados innecesarios
-    const memoizedTable = useMemo(() => {
-        return (
-            <div  style={{ overflowX: "auto" }}>
-                <PaquetesList
-                key={currentPage} // Usar la página actual como clave
+    // Memoizar la tabla para evitar renderizados innecesarios
+    const memoizedTable = useMemo(() => (
+        <div style={{ overflowX: "auto" }}>
+            <PaquetesList
+                key={currentPage}
                 packageDetections={packageDetections}
                 onPackageDetectionDeleted={handleDeleted}
                 currentPage={currentPage}
                 onPageChange={setCurrentPage}
             />
-            </div>
-        );
-    }, [packageDetections, currentPage]);
+        </div>
+    ), [packageDetections, currentPage, handleDeleted]);
 
     return (
         <>
@@ -190,55 +186,20 @@ const HomePaquetes = () => {
                         </button>
                     </div>
                 </div>
-                <div className="row mb-4">
-                    <div className="col-md-6 mb-3">
-                        <label className="form-label">Filtrar por Estado</label>
-                        <select
-                            name="estado"
-                            value={filters.estado}
-                            onChange={handleFilterChange}
-                            className="form-select"
-                        >
-                            <option value="">Todos</option>
-                            <option value="Detectado">Detectado</option>
-                            <option value="No detectado">No detectado</option>
-                        </select>
-                    </div>
-                    <div className="col-md-6 mb-3">
-                        <label className="form-label">Filtrar por Fecha</label>
-                        <input
-                            type="date"
-                            name="fecha"
-                            value={filters.fecha}
-                            onChange={handleFilterChange}
-                            className="form-control"
-                        />
-                    </div>
-                </div>
-                <div className="mb-4">
-                    <button
-                        onClick={() => navigate("/paquetes/create")}
-                        className="btn btn-primary"
-                    >
-                        <FaPlus /> Crear Detección de Paquete
-                    </button>
-                </div>
                 <div>
-                    <div className="card-body">
-                        {loading ? (
-                            <div className="text-center">Cargando...</div>
-                        ) : packageDetections.length === 0 ? (
-                            <div className="alert alert-warning text-center">
-                                No hay datos que coincidan con la búsqueda.
-                            </div>
-                        ) : (
-                            memoizedTable
-                        )}
-                    </div> 
-                    <div style={{ overflowX: "auto" }}>
-                        <h4>Gráfica de Distancias</h4>
-                        <PaquetesChart paquetes={packageDetections} />
-                    </div>
+                    {loading ? (
+                        <div className="text-center">Cargando...</div>
+                    ) : packageDetections.length === 0 ? (
+                        <div className="alert alert-warning text-center">
+                            No hay datos que coincidan con la búsqueda.
+                        </div>
+                    ) : (
+                        memoizedTable
+                    )}
+                </div>
+                <div style={{ overflowX: "auto" }}>
+                    <h4>Gráfica de Distancias</h4>
+                    <PaquetesChart paquetes={packageDetections} />
                 </div>
             </div>
         </>
