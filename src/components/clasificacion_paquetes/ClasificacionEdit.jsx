@@ -161,8 +161,8 @@ const ClasificacionEdit = () => {
                                     onChange={handleChange}
                                     className="form-select"
                                 >
-                                    <option value="Izquierda">Izquierda</option>
-                                    <option value="Derecha">Derecha</option>
+                                    <option value="Cajon 1">Cajon 1</option>
+                                    <option value="Cajon 2">Cajon 2</option>
                                 </select>
                             </div>
                             <button type="submit" className="btn btn-primary w-100">
