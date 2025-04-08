@@ -149,8 +149,8 @@ const ClasificacionCreate = ({ onClasificacionAdded = () => {} }) => {
                                     onChange={handleChange}
                                     className="form-select"
                                 >
-                                    <option value="Cajon 1">Cajon 1</option>
-                                    <option value="Cajon 2">Cajon 2</option>
+                                    <option value="Cajón 1">Cajón 1</option>
+                                    <option value="Cajón 2">Cajón 2</option>
                                 </select>
                             </div>
                             <button type="submit" className="btn btn-primary w-100">

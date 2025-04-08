@@ -64,7 +64,7 @@ const Menu = () => {
                     .menu-button {
                         font-family: 'Rubik Moonrocks', cursive;
                         letter-spacing: 1px;
-                        background-color: #254064;
+                        background-color:#254064;
                         border: none;
                         border-radius: 0;
                         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
@@ -73,7 +73,8 @@ const Menu = () => {
                     }
 
                     .menu-button:hover {
-                        background-color: #1b2f4b;
+                        background-color: #254064;
+                        color: white;
                     }
 
                     .sidebar-logo img {
@@ -130,7 +131,7 @@ const Menu = () => {
                 </div>
 
                 {/* Items del menú */}
-                <ul className="nav nav-pills flex-column mb-4">
+                <ul className="nav nav-pills flex-column mb-2">
                     {menuItems.map((item, index) => (
                         <li key={index} className="nav-item mb-2">
                             <Link
@@ -147,7 +148,7 @@ const Menu = () => {
                 <hr className="text-white opacity-50" />
 
                 {/* Perfil */}
-                <div className="dropdown mt-auto">
+                <div className="dropdown">
                     <Link
                         to="#"
                         className="d-flex align-items-center text-white text-decoration-none dropdown-toggle custom-font"
