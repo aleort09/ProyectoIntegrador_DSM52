@@ -35,7 +35,7 @@ const Perfil = () => {
     const containerStyle = {
         marginLeft: isMobile ? "0" : "205px",
         marginTop: isMobile ? "30px" : "0",
-        padding: "5px",
+        padding: "15px",
         transition: "all 0.3s ease",
         animation: "fadeIn 1s ease"
     };

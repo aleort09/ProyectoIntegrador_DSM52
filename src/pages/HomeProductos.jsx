@@ -18,8 +18,33 @@ const HomeProductos = () => {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
     useEffect(() => {
-        fetchProductos();
+        let isMounted = true;
+
+        const fetchData = async () => {
+            try {
+                const { data } = await axios.get("https://ravendev.jeotech.x10.mx/productos", { params: filters });
+
+                // Solo actualiza si los datos cambiaron (shallow comparison por ID)
+                if (isMounted && JSON.stringify(data) !== JSON.stringify(productos)) {
+                    setProductos(data);
+                }
+            } catch (error) {
+                console.error("Error al obtener productos:", error);
+            } finally {
+                if (isMounted) setLoading(false);
+            }
+        };
+
+        setLoading(true);
+        fetchData(); // Primera llamada
+        const intervalId = setInterval(fetchData, 1000);
+
+        return () => {
+            isMounted = false;
+            clearInterval(intervalId);
+        };
     }, [filters]);
+
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -83,10 +108,17 @@ const HomeProductos = () => {
         setFilters({ ...filters, [e.target.name]: e.target.value });
     };
 
+    const containerStyle = {
+        marginLeft: isMobile ? "0" : "200px",
+        marginTop: isMobile ? "40px" : "0",
+        padding: "5px",
+        transition: "all 0.3s ease"
+    };
+
     return (
         <>
             <Menu />
-            <div className="main-content" style={{ marginLeft: isMobile ? "0" : "200px", marginTop: isMobile ? "30px" : "0", padding: "5px", transition: "all 0.3s ease" }}>
+            <div className="main-content" style={containerStyle}>
                 <div className="p-4">
                     <h2 className="text-center">Gestión de Productos</h2>
                     <div className="mb-3">
@@ -113,7 +145,13 @@ const HomeProductos = () => {
                             <div className="alert alert-warning text-center">No hay productos disponibles.</div>
                         ) : (
                             <div style={{ overflowX: "auto" }}>
-                                <ProductosList productos={productos} setProductos={setProductos} onProductoDeleted={fetchProductos} />
+                                <ProductosList
+                                    productos={productos}
+                                    setProductos={setProductos}
+                                    onProductoDeleted={fetchProductos}
+                                    onProductoUpdated={fetchProductos}
+                                />
+
                             </div>
                         )}
                         <ProductosChart productos={productos} />

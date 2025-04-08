@@ -37,13 +37,18 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     ></script>
     <BrowserRouter>
       <Routes>
+        {/* Rutas públicas */}
         <Route path="/login" element={<LoginForm />} />
         <Route path="/registrar" element={<RegisterForm />} />
         <Route path="/recuperar" element={<ChangePassword />} />
+
+        {/* Rutas para usuarios normales (no admin/empleado) */}
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<Home />} />
           <Route path="/informacion" element={<Informacion />} />
         </Route>
+
+        {/* Rutas para administradores y empleados */}
         <Route element={<ProtectedRoute role={["Administrador", "Empleado"]} />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/productos" element={<HomeProductos />} />
@@ -63,7 +68,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/remotos/edit/:id" element={<RemotosEdit />} />
           <Route path="/remotos/create" element={<RemotosCreate />} />
         </Route>
-
       </Routes>
     </BrowserRouter>
   </>

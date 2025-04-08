@@ -32,6 +32,21 @@ const HomeRemotos = () => {
             .catch(error => console.error(error));
     };
 
+    useEffect(() => {
+        const fetchData = () => {
+            axios
+                .get("https://ravendev.jeotech.x10.mx/remotos", { params: filters })
+                .then(response => setRemoteData(response.data))
+                .catch(error => console.error("Error al obtener datos remotos:", error));
+        };
+    
+        fetchData(); // Llamada inicial
+    
+        const intervalId = setInterval(fetchData, 1000); // 10 segundos
+    
+        return () => clearInterval(intervalId); // Limpieza
+    }, [filters]);
+
     const handleFileUpload = (event) => {
         const file = event.target.files[0];
         if (!file) return;
@@ -82,10 +97,17 @@ const HomeRemotos = () => {
         setFilters({ ...filters, [e.target.name]: e.target.value });
     };
 
+    const containerStyle = {
+        marginLeft: isMobile ? "0" : "200px",
+        marginTop: isMobile ? "40px" : "0",
+        padding: "5px",
+        transition: "all 0.3s ease"
+    };
+
     return (
         <>
             <Menu />
-            <div className="main-content" style={{ marginLeft: isMobile ? "0" : "200px", padding: "5px", transition: "all 0.3s ease" }}>
+            <div className="main-content" style={containerStyle}>
                 <div className="p-4">
                     <h2 className="text-center">Gestión de Datos Remotos</h2>
                     <div className="mb-3">

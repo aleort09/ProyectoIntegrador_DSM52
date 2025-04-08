@@ -61,6 +61,7 @@ const UsuariosCreate = ({ onUsuarioAdded = () => { } }) => {
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
     }, []);
+
     const containerStyle = {
         marginLeft: isMobile ? "0" : "205px",
         marginTop: isMobile ? "30px" : "0",

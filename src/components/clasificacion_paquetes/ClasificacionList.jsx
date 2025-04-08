@@ -98,11 +98,7 @@ const ClasificacionList = ({ packageClassifications, setPackageClassifications, 
                 <table className="table table-striped table-hover">
                     <thead className="table-dark">
                         <tr>
-                            <th>ID</th>
-                            <th>Producto</th> {/* Cambiado de "ID Producto" a "Producto" */}
-                            <th>Etiqueta Color</th>
-                            <th>Acción</th>
-                            <th>Fecha</th>
+                            <th>ID</th><th>Producto</th><th>Etiqueta Color</th><th>Acción</th><th>Fecha</th>
                             {userRole !== "Empleado" && <th>Acciones</th>}
                         </tr>
                     </thead>
@@ -111,7 +107,7 @@ const ClasificacionList = ({ packageClassifications, setPackageClassifications, 
                             currentPkg.map((clasificacion) => (
                                 <tr key={clasificacion.ID_Clasificacion}>
                                     <td>{clasificacion.ID_Clasificacion}</td>
-                                    <td>{getNombreProducto(clasificacion.ID_Producto)}</td> {/* Mostrar el nombre del producto */}
+                                    <td>{getNombreProducto(clasificacion.ID_Producto)}</td>
                                     <td>{clasificacion.Etiqueta_Color}</td>
                                     <td>{clasificacion.Accion}</td>
                                     <td>{new Date(clasificacion.Fecha_Hora).toLocaleString()}</td>
@@ -135,55 +131,53 @@ const ClasificacionList = ({ packageClassifications, setPackageClassifications, 
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="6" className="text-center">
-                                    No hay clasificaciones registradas.
-                                </td>
+                                <td colSpan="6" className="text-center">No hay clasificaciones registradas.</td>
                             </tr>
                         )}
                     </tbody>
                 </table>
                 {totalPages > 1 && (
                     <div className="d-flex justify-content-center mt-4">
-                    <nav>
-                        <ul className="pagination">
-                            <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
-                                <button className="page-link" onClick={() => onPageChange(currentPage - 1)}>
-                                    Anterior
-                                </button>
-                            </li>
+                        <nav>
+                            <ul className="pagination">
+                                <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+                                    <button className="page-link" onClick={() => handlePageChange(currentPage - 1)}>
+                                        Anterior
+                                    </button>
+                                </li>
 
-                            {Array.from({ length: totalPages }, (_, i) => i + 1)
-                                .filter(page => {
-                                    if (totalPages <= 7) return true; // mostrar todas si son pocas
-                                    if (page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1) return true;
-                                    if (page === currentPage - 1 || page === currentPage + 1) return true;
-                                    return false;
-                                })
-                                .map((page, index, array) => {
-                                    const prevPage = array[index - 1];
-                                    const isGap = prevPage && page - prevPage > 1;
+                                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                                    .filter(page => {
+                                        if (totalPages <= 7) return true; // mostrar todas si son pocas
+                                        if (page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1) return true;
+                                        if (page === currentPage - 1 || page === currentPage + 1) return true;
+                                        return false;
+                                    })
+                                    .map((page, index, array) => {
+                                        const prevPage = array[index - 1];
+                                        const isGap = prevPage && page - prevPage > 1;
 
-                                    return isGap ? (
-                                        <li key={`gap-${index}`} className="page-item disabled">
-                                            <span className="page-link">...</span>
-                                        </li>
-                                    ) : (
-                                        <li key={page} className={`page-item ${currentPage === page ? "active" : ""}`}>
-                                            <button className="page-link" onClick={() => onPageChange(page)}>
-                                                {page}
-                                            </button>
-                                        </li>
-                                    );
-                                })}
+                                        return isGap ? (
+                                            <li key={`gap-${index}`} className="page-item disabled">
+                                                <span className="page-link">...</span>
+                                            </li>
+                                        ) : (
+                                            <li key={page} className={`page-item ${currentPage === page ? "active" : ""}`}>
+                                                <button className="page-link" onClick={() => handlePageChange(page)}>
+                                                    {page}
+                                                </button>
+                                            </li>
+                                        );
+                                    })}
 
-                            <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
-                                <button className="page-link" onClick={() => onPageChange(currentPage + 1)}>
-                                    Siguiente
-                                </button>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
+                                <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
+                                    <button className="page-link" onClick={() => handlePageChange(currentPage + 1)}>
+                                        Siguiente
+                                    </button>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
                 )}
             </div>
         </>

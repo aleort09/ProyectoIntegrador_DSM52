@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import ClasificacionList from "../components/clasificacion_paquetes/ClasificacionList";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import axios from "axios";
 import * as XLSX from "xlsx";
 import Menu from "../components/Menu";
@@ -9,27 +9,41 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import Swal from "sweetalert2";
 import ClasificacionChart from "../components/charts/ClasificacionChart";
+import isEqual from "lodash/isEqual";
+
 
 const HomeClasificacion = () => {
     const navigate = useNavigate();
     const [packageClassifications, setPackageClassifications] = useState([]);
+    const lastDataRef = useRef([]);
     const [filters, setFilters] = useState({ etiqueta_color: "", accion: "" });
     const [loading, setLoading] = useState(false);
 
     const fetchPackageClassifications = useCallback(async () => {
-        setLoading(true);
         try {
             const response = await axios.get("https://ravendev.jeotech.x10.mx/clasificaciones", { params: filters });
-            setPackageClassifications(response.data);
+            const newData = response.data;
+    
+            // Solo actualizar si los datos realmente cambiaron
+            if (!isEqual(newData, lastDataRef.current)) {
+                setPackageClassifications(newData);
+                lastDataRef.current = newData;
+            }
         } catch (error) {
             console.error("Error fetching classifications:", error);
-        } finally {
-            setLoading(false);
         }
-    }, [filters]);
+    }, [filters]);  
 
     useEffect(() => {
         fetchPackageClassifications();
+    }, [fetchPackageClassifications]);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            fetchPackageClassifications();
+        }, 1000);
+    
+        return () => clearInterval(interval); // limpiar cuando el componente se desmonta
     }, [fetchPackageClassifications]);
 
     const handleFileUpload = async (event) => {
@@ -87,10 +101,17 @@ const HomeClasificacion = () => {
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
+    const containerStyle = {
+        marginLeft: isMobile ? "0" : "200px",
+        marginTop: isMobile ? "50px" : "0",
+        padding: "5px",
+        transition: "all 0.3s ease"
+    };
+
     return (
         <>
             <Menu />
-            <div className="main-content" style={{ marginLeft: isMobile ? "0" : "200px", marginTop: isMobile ? "30px" : "0", padding: "5px" }}>
+            <div className="main-content" style={containerStyle}>
                 <div className="p-4">
                     <h2 className="text-center">Gestión de Clasificaciones</h2>
                     <div className="mb-3">

@@ -24,6 +24,21 @@ const HomeUsuarios = () => {
             .catch(error => console.error(error));
     };
 
+    useEffect(() => {
+        const fetchUsuarios = () => {
+            axios
+                .get("https://ravendev.jeotech.x10.mx/users", { params: filters })
+                .then(response => setUsuarios(response.data))
+                .catch(error => console.error("Error al obtener usuarios:", error));
+        };
+    
+        fetchUsuarios();
+    
+        const intervalId = setInterval(fetchUsuarios, 1000);
+    
+        return () => clearInterval(intervalId);
+    }, [filters]);
+
     const handleAdded = () => fetchUsuarios();
     const handleDeleted = () => fetchUsuarios();
 
@@ -105,11 +120,10 @@ const HomeUsuarios = () => {
     }, []);
     const containerStyle = {
         marginLeft: isMobile ? "0" : "200px",
-        marginTop: isMobile ? "30px" : "0",
+        marginTop: isMobile ? "40px" : "0",
         padding: "5px",
         transition: "all 0.3s ease"
     };
-
 
     return (
         <>
@@ -135,17 +149,19 @@ const HomeUsuarios = () => {
                         </div>
                     </div>
                     <div className="row mb-4">
-                        <div className="col-md-6">
+                        <div className="col-md-4 mb-3">
+                        <label className="form-label">Filtrar por Nombre</label>
                             <input
                                 type="text"
                                 name="nombre"
-                                placeholder="Filtrar por nombre"
+                                placeholder="Ingresa el nombre"
                                 value={filters.nombre}
                                 onChange={handleFilterChange}
                                 className="form-control"
                             />
                         </div>
-                        <div className="col-md-6">
+                        <div className="col-md-4 mb-3">
+                        <label className="form-label">Filtrar por Apellido</label>
                             <input
                                 type="text"
                                 name="apellido"

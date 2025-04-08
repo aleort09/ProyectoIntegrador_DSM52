@@ -31,6 +31,26 @@ const LoginForm = () => {
         }
     }, []);
 
+    useEffect(() => {
+        const logoutTimer = setTimeout(() => {
+            sessionStorage.clear();
+            Swal.fire("Sesión cerrada", "Tu sesión ha expirado por inactividad.", "info");
+            navigate("/login");
+        }, 30 * 60 * 1000); // 30 minutos
+    
+        return () => clearTimeout(logoutTimer); // Limpia el timeout si el componente se desmonta
+    }, []);
+
+    useEffect(() => {
+        const handleUnload = () => {
+            sessionStorage.clear(); // limpia datos al cerrar
+        };
+    
+        window.addEventListener("beforeunload", handleUnload);
+        return () => window.removeEventListener("beforeunload", handleUnload);
+    }, []);
+        
+
     const handleLogin = async (e) => {
         e.preventDefault();
 

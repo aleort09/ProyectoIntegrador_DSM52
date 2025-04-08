@@ -101,7 +101,7 @@ const RemotosList = ({ remoteData, setRemotos, onRemotoDeleted }) => {
                 <nav>
                     <ul className="pagination">
                         <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
-                            <button className="page-link" onClick={() => onPageChange(currentPage - 1)}>
+                            <button className="page-link" onClick={() => handlePageChange (currentPage - 1)}>
                                 Anterior
                             </button>
                         </li>
@@ -123,7 +123,7 @@ const RemotosList = ({ remoteData, setRemotos, onRemotoDeleted }) => {
                                     </li>
                                 ) : (
                                     <li key={page} className={`page-item ${currentPage === page ? "active" : ""}`}>
-                                        <button className="page-link" onClick={() => onPageChange(page)}>
+                                        <button className="page-link" onClick={() => handlePageChange(page)}>
                                             {page}
                                         </button>
                                     </li>
@@ -131,7 +131,7 @@ const RemotosList = ({ remoteData, setRemotos, onRemotoDeleted }) => {
                             })}
 
                         <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
-                            <button className="page-link" onClick={() => onPageChange(currentPage + 1)}>
+                            <button className="page-link" onClick={() => handlePageChange(currentPage + 1)}>
                                 Siguiente
                             </button>
                         </li>

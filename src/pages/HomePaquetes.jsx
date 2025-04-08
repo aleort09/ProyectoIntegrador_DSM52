@@ -53,7 +53,7 @@ const HomePaquetes = () => {
 
         pollingRef.current = setInterval(() => {
             fetchPackageDetections();
-        }, 5000);
+        }, 1000);
 
         return () => clearInterval(pollingRef.current);
     }, [fetchPackageDetections]);
@@ -146,7 +146,7 @@ const HomePaquetes = () => {
 
     const containerStyle = {
         marginLeft: isMobile ? "0" : "200px",
-        marginTop: isMobile ? "30px" : "0",
+        marginTop: isMobile ? "40px" : "0",
         padding: "5px",
         transition: "all 0.3s ease",
     };

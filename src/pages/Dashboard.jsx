@@ -3,18 +3,26 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
+import { useNavigate } from "react-router-dom";
+
 
 const Dashboard = () => {
     const [user, setUser] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
-        const userId = localStorage.getItem("userId");
-        if (userId) {
+        const userId =localStorage.getItem("userId");
+        if (!userId) {
+            navigate("/login");
+        } else {
             axios.get(`https://ravendev.jeotech.x10.mx/users/${userId}`)
                 .then(response => setUser(response.data))
-                .catch(error => console.error("Error al obtener usuario:", error));
+                .catch(error => {
+                    console.error("Error al obtener usuario:", error);
+                    navigate("/login");
+                });
         }
-    }, []);
+    }, []);    
 
     if (!user) {
         return (
