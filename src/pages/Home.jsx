@@ -9,11 +9,14 @@ import { Chart, registerables } from "chart.js";
 
 Chart.register(...registerables);
 
+const diasSemana = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+
 const Home = () => {
     const [user, setUser] = useState(null);
     const [systemStatus, setSystemStatus] = useState("Cargando...");
     const [stock, setStock] = useState({});
     const [recentActivity, setRecentActivity] = useState([]);
+    const [trendData, setTrendData] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -28,17 +31,34 @@ const Home = () => {
     useEffect(() => {
         const fetchSystemData = async () => {
             try {
-                const statusResponse = await axios.get("https://ravendev.jeotech.x10.mx/detecciones");
-                const latestDetection = statusResponse.data[0];
+                const detections = await axios.get("https://ravendev.jeotech.x10.mx/detecciones");
+                const latestDetection = detections.data[0];
                 setSystemStatus(latestDetection?.Estado || "Desconocido");
 
-                const classificationResponse = await axios.get("https://ravendev.jeotech.x10.mx/clasificaciones");
-                const stockData = classificationResponse.data.reduce((acc, item) => {
+                const classifications = await axios.get("https://ravendev.jeotech.x10.mx/clasificaciones");
+                const classificationData = classifications.data;
+
+                // Stock por color
+                const stockData = classificationData.reduce((acc, item) => {
                     acc[item.Etiqueta_Color] = (acc[item.Etiqueta_Color] || 0) + 1;
                     return acc;
                 }, {});
                 setStock(stockData);
-                setRecentActivity(classificationResponse.data.slice(0, 5));
+
+                // Agrupar por día para tendencia
+                const tendenciaPorDia = new Array(7).fill(0); // [Dom, Lun, Mar, Mié, Jue, Vie, Sáb]
+                classificationData.forEach(item => {
+                    const dia = new Date(item.Fecha_Hora).getDay(); // 0 = domingo
+                    tendenciaPorDia[dia]++;
+                });
+                setTrendData(tendenciaPorDia);
+
+                // Actividad reciente (últimos 5)
+                const recientes = classificationData
+                    .sort((a, b) => new Date(b.Fecha_Hora) - new Date(a.Fecha_Hora))
+                    .slice(0, 5);
+                setRecentActivity(recientes);
+
                 setLoading(false);
             } catch (error) {
                 console.error("Error al obtener datos del sistema:", error);
@@ -61,11 +81,11 @@ const Home = () => {
     };
 
     const trendChartData = {
-        labels: ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"],
+        labels: diasSemana,
         datasets: [
             {
                 label: "Productos Clasificados",
-                data: [65, 59, 80, 81, 56, 55, 40],
+                data: trendData,
                 borderColor: "#36a2eb",
                 fill: false,
             },
@@ -95,32 +115,6 @@ const Home = () => {
                 <h1 className="welcome-title">Bienvenido, {user.Nombre} {user.Apellido}</h1>
                 <p className="welcome-subtitle">Estado del sistema y resumen de stock:</p>
                 <div className="dashboard-cards">
-                    <motion.div 
-                        whileHover={{ scale: 1.05 }}
-                        className="dashboard-card"
-                    >
-                        <FontAwesomeIcon icon={faTachometerAlt} className="card-icon" />
-                        <h3>Estado del Sistema</h3>
-                        <p>{systemStatus}</p>
-                        <motion.button 
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            className="card-button"
-                            onClick={async () => {
-                                try {
-                                    const newStatus = systemStatus === "Activo" ? "Inactivo" : "Activo";
-                                    await axios.post("https://ravendev.jeotech.x10.mx/detecciones/create", { Estado: newStatus });
-                                    setSystemStatus(newStatus);
-                                } catch (error) {
-                                    console.error("Error al cambiar el estado:", error);
-                                }
-                            }}
-                        >
-                            {systemStatus === "Activo" ? <FontAwesomeIcon icon={faStopCircle} /> : <FontAwesomeIcon icon={faPlayCircle} />}
-                            {systemStatus === "Activo" ? "Detener" : "Iniciar"}
-                        </motion.button>
-                    </motion.div>
-
                     <motion.div 
                         whileHover={{ scale: 1.05 }}
                         className="dashboard-card"
@@ -155,7 +149,7 @@ const Home = () => {
                         {recentActivity.map(activity => (
                             <li key={activity.ID_Clasificacion}>
                                 <FontAwesomeIcon icon={faHistory} />
-                                <span>Producto {activity.Etiqueta_Color} clasificado el {new Date().toLocaleString()}</span>
+                                <span>Producto <strong>{activity.Etiqueta_Color}</strong> clasificado el <strong>{new Date(activity.Fecha_Hora).toLocaleString()}</strong></span>
                             </li>
                         ))}
                     </ul>
